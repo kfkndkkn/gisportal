@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGIS Ketenaganukliran & Kesiapsiagaan Nuklir Nasional</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            dark: '#0f172a'
+                        },
+                        nuclear: {
+                            yellow: '#f59e0b',
+                            red: '#ef4444',
+                            green: '#10b981',
+                            cyan: '#06b6d4'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts & Leaflet CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Leaflet custom map containers */
+        #map-container {
+            height: calc(100vh - 70px);
+            width: 100%;
+        }
+
+        .map-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .map-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
+        }
+
+        .gradient-overlay {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.85) 85%);
+        }
+
+        /* Radar pulses animation */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 0.4; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .pulse-animation {
+            animation: pulse-ring 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased bg-slate-50 min-h-screen flex flex-col">
+
+    <!-- HEADER NAVIGATION (GISTARU Style Modernized) -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                
+                <!-- Logo & Brand Kantor -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="backToDashboard()">
+                    <!-- Masukkan gambar logo kantor lo di tag img di bawah ini -->
+                    <img src="assets/BAPETEN.png" alt="BAPETEN" class="h-16 w-auto object-contain">
+    
+                    <div>
+                        <!-- Ganti NAMA KANTOR LO di bawah ini -->
+                        <h1 class="font-bold text-slate-900 text-lg leading-tight tracking-tight">
+                            Badan Pengawas Tenaga Nuklir
+                        </h1>
+                        <!-- Ganti subtitle/deskripsi instansi lo di sini -->
+                        <p class="text-[11px] text-slate-500 font-medium">Direktorat Keteknikan dan Kesiapsiagaan Nuklir</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="hidden md:flex items-center space-x-1 lg:space-x-2 font-medium text-sm">
+                    <button onclick="showDashboard()" id="nav-beranda" class="px-4 py-2 rounded-full text-brand-900 bg-amber-400 font-semibold shadow-sm transition">
+                        Beranda
+                    </button>
+                    
+                    <div class="relative group">
+                        <button class="px-3 py-2 rounded-lg text-slate-700 hover:text-brand-800 hover:bg-slate-100 flex items-center space-x-1 transition">
+                            <span>Profil</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-hover:rotate-180 transition-transform"></i>
+                        </button>
+                        <div class="absolute left-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-slate-100 py-2 hidden group-hover:block z-50">
+                            <a href="#" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50">Visi & Misi</a>
+                            <a href="#" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50">Struktur Organisasi</a>
+                            <a href="#" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50">Tugas & Fungsi DKKN</a>
+                        </div>
+                    </div>
+
+                    <div class="relative group">
+                        <button class="px-3 py-2 rounded-lg text-slate-700 hover:text-brand-800 hover:bg-slate-100 flex items-center space-x-1 transition">
+                            <span>Informasi & Layanan</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-hover:rotate-180 transition-transform"></i>
+                        </button>
+                        <div class="absolute left-0 mt-1 w-56 bg-white rounded-xl shadow-lg border border-slate-100 py-2 hidden group-hover:block z-50">
+                            <a href="#" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50"><i class="fa-solid fa-radiation mr-2 text-amber-500"></i>Monitoring Radiasi I-RDMS</a>
+                            <a href="#" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50"><i class="fa-solid fa-phone-volume mr-2 text-red-500"></i>Hotline Kedaruratan Nuklir</a>
+                            <a href="#" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50"><i class="fa-solid fa-file-pdf mr-2 text-blue-500"></i>Laporan Tahunan Safety</a>
+                        </div>
+                    </div>
+
+                    <a href="#" class="px-3 py-2 rounded-lg text-slate-700 hover:text-brand-800 hover:bg-slate-100 transition">Panduan</a>
+                    
+                    <button onclick="openMapRoom('bimtek')" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs flex items-center space-x-2 shadow-md transition ml-2">
+                        <i class="fa-solid fa-map-location-dot text-amber-400"></i>
+                        <span>Peta Interaktif</span>
+                    </button>
+                </nav>
+
+                <!-- Mobile Menu Button -->
+                <div class="flex items-center md:hidden">
+                    <button onclick="toggleMobileMenu()" class="p-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-200 bg-white px-4 pt-2 pb-4 space-y-1">
+            <button onclick="showDashboard(); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md font-semibold bg-amber-400 text-slate-900">Beranda</button>
+            <a href="#" class="block px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-slate-100">Profil</a>
+            <a href="#" class="block px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-slate-100">Informasi & Layanan</a>
+            <a href="#" class="block px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-slate-100">Panduan</a>
+            <button onclick="openMapRoom('bimtek'); toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-md font-semibold bg-brand-900 text-white flex items-center space-x-2">
+                <i class="fa-solid fa-map-location-dot text-amber-400"></i>
+                <span>Buka Peta Interaktif</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT (KAMAR PETA GRID) -->
+    <main id="dashboard-view" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-all duration-300">
+        
+        <!-- Welcome Hero Banner -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-brand-900 to-slate-900 text-white p-8 md:p-10 mb-8 shadow-xl">
+            <div class="absolute -right-10 -bottom-10 w-80 h-80 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute right-1/3 -top-10 w-60 h-60 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <div class="relative z-10 max-w-3xl">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-400/20 text-amber-300 border border-amber-400/30 mb-4 backdrop-blur-sm">
+                    <i class="fa-solid fa-shield-halved mr-1.5"></i> Portal Resmi Badan Pengawas Tenaga Nuklir
+                </span>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3 leading-tight">
+                    Geoportal Kesiapsiagaan & Tanggap Darurat Nuklir
+                </h2>
+                <p class="text-slate-300 text-sm sm:text-base mb-6 leading-relaxed">
+                    Pilih peta tematik di bawah ini untuk membuka peta interaktif pelaksanaan bimbingan teknis, latihan uji coba, persebaran sensor monitoring I-RDMS, laporan kedaruratan, hingga pengawasan sumber terbungkus well logging.
+                </p>
+
+                <!-- Quick Stats row -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-700/60">
+                    <div>
+                        <p class="text-xs text-slate-400">Stasiun I-RDMS Active</p>
+                        <p class="text-xl font-bold text-emerald-400">42 Titik</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">Kegiatan Bimtek</p>
+                        <p class="text-xl font-bold text-amber-400">18 Provinsi</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">Gelombang Uji Coba</p>
+                        <p class="text-xl font-bold text-cyan-400">12 Sektor</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">Status Response</p>
+                        <p class="text-xl font-bold text-emerald-400">24/7 SIAP</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter & Search Controls Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div>
+                <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-cubes text-brand-600"></i>
+                    <span>Direktori Peta Tematik</span>
+                </h3>
+                <p class="text-xs text-slate-500">Klik peta-peta dibawah ini untuk membuka peta interaktif spasial</p>
+            </div>
+
+            <!-- Search Input & Filter Tabs -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" onkeyup="filterMapCards()" placeholder="Cari peta interaktif..." 
+                           class="w-full sm:w-64 pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm">
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Filter Tabs -->
+        <div class="flex items-center space-x-2 overflow-x-auto pb-3 mb-6 text-xs no-scrollbar">
+            <button onclick="setCategoryFilter('all')" class="cat-btn active px-4 py-2 rounded-xl font-medium bg-slate-900 text-white shadow-sm border border-slate-900">
+                Semua Peta (5)
+            </button>
+            <button onclick="setCategoryFilter('kesiapsiagaan')" class="cat-btn px-4 py-2 rounded-xl font-medium bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                Kesiapsiagaan & Pelatihan
+            </button>
+            <button onclick="setCategoryFilter('monitoring')" class="cat-btn px-4 py-2 rounded-xl font-medium bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                Monitoring Radiasi
+            </button>
+            <button onclick="setCategoryFilter('kedaruratan')" class="cat-btn px-4 py-2 rounded-xl font-medium bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                Kedaruratan & Incident
+            </button>
+            <button onclick="setCategoryFilter('sumber')" class="cat-btn px-4 py-2 rounded-xl font-medium bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                Sumber Terbungkus
+            </button>
+        </div>
+
+        <!-- KAMAR PETA GRID (Matching exact 5 items requested) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="map-cards-container">
+            
+            <!-- KAMAR 1: Bimtek Tanggap Darurat Nuklir -->
+            <div class="map-card group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl cursor-pointer relative flex flex-col"
+                 data-category="kesiapsiagaan"
+                 data-title="peta pelaksanaan bimbingan teknis nasional tanggap darurat nuklir"
+                 onclick="openMapRoom('bimtek')">
+                <div class="relative h-56 w-full overflow-hidden bg-slate-900">
+                    <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&w=800&q=80" 
+                         alt="Bimtek Preview" 
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
+                         onerror="this.src='https://placehold.co/800x500/0f172a/ffffff?text=Map+Preview+Bimtek'">
+                    <div class="absolute inset-0 gradient-overlay"></div>
+                    <div class="absolute top-3 left-3 flex gap-2">
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-blue-600 text-white shadow-sm">
+                            Kesiapsiagaan
+                        </span>
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/90 text-white backdrop-blur-sm">
+                            18 Lokasi
+                        </span>
+                    </div>
+                    <div class="absolute bottom-3 left-4 right-4">
+                        <h4 class="text-white font-bold text-lg leading-tight drop-shadow-md group-hover:text-amber-300 transition-colors">
+                            Peta Pelaksanaan Bimbingan Teknis Nasional Tanggap Darurat Nuklir
+                        </h4>
+                    </div>
+                </div>
+                <div class="p-4 flex-1 flex flex-col justify-between bg-white">
+                    <p class="text-xs text-slate-500 line-clamp-2 mb-4">
+                        Pemetaan sebaran pelaksanaan bimbingan teknis peningkatan kapasitas SDM tanggap darurat nuklir tingkat nasional dan daerah.
+                    </p>
+                    <div class="flex items-center justify-between text-xs border-t border-slate-100 pt-3">
+                        <span class="text-slate-500 font-medium"><i class="fa-regular fa-calendar mr-1"></i> Update: Sep 2026</span>
+                        <span class="text-brand-600 font-bold flex items-center group-hover:translate-x-1 transition-transform">
+                            Buka Kamar Peta <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KAMAR 2: Pelatihan & Uji Coba Kesiapsiagaan Nuklir -->
+            <div class="map-card group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl cursor-pointer relative flex flex-col"
+                 data-category="kesiapsiagaan"
+                 data-title="peta pelaksanaan pelatihan uji coba penanggulangan kesiapsiagaan nuklir nasional"
+                 onclick="openMapRoom('pelatihan')">
+                <div class="relative h-56 w-full overflow-hidden bg-slate-900">
+                    <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80" 
+                         alt="Pelatihan Preview" 
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
+                         onerror="this.src='https://placehold.co/800x500/0f172a/ffffff?text=Map+Preview+Uji+Coba'">
+                    <div class="absolute inset-0 gradient-overlay"></div>
+                    <div class="absolute top-3 left-3 flex gap-2">
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-purple-600 text-white shadow-sm">
+                            Drill Simulation
+                        </span>
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500/90 text-white backdrop-blur-sm">
+                            12 Sektor
+                        </span>
+                    </div>
+                    <div class="absolute bottom-3 left-4 right-4">
+                        <h4 class="text-white font-bold text-lg leading-tight drop-shadow-md group-hover:text-amber-300 transition-colors">
+                            Peta Pelaksanaan Pelatihan Uji Coba Penanggulangan Kesiapsiagaan Nuklir Nasional
+                        </h4>
+                    </div>
+                </div>
+                <div class="p-4 flex-1 flex flex-col justify-between bg-white">
+                    <p class="text-xs text-slate-500 line-clamp-2 mb-4">
+                        Visualisasi sebaran latihan simulasi kedaruratan, uji coba sistem sirene, dan gelombang penanggulangan bencana nuklir nasional.
+                    </p>
+                    <div class="flex items-center justify-between text-xs border-t border-slate-100 pt-3">
+                        <span class="text-slate-500 font-medium"><i class="fa-regular fa-calendar mr-1"></i> Update: Ags 2026</span>
+                        <span class="text-brand-600 font-bold flex items-center group-hover:translate-x-1 transition-transform">
+                            Buka Kamar Peta <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KAMAR 3: Potensi Lokasi Pemasangan I-RDMS -->
+            <div class="map-card group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl cursor-pointer relative flex flex-col"
+                 data-category="monitoring"
+                 data-title="peta potensi lokasi pemasangan i-rdms integrated radiation monitoring system"
+                 onclick="openMapRoom('irdms')">
+                <div class="relative h-56 w-full overflow-hidden bg-slate-900">
+                    <img src="https://images.unsplash.com/photo-1507668077129-56e32842fceb?auto=format&fit=crop&w=800&q=80" 
+                         alt="IRDMS Preview" 
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
+                         onerror="this.src='https://placehold.co/800x500/0f172a/ffffff?text=Map+Preview+IRDMS'">
+                    <div class="absolute inset-0 gradient-overlay"></div>
+                    <div class="absolute top-3 left-3 flex gap-2">
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-cyan-600 text-white shadow-sm">
+                            Radiation Network
+                        </span>
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-blue-500/90 text-white backdrop-blur-sm">
+                            42 Titik Sensor
+                        </span>
+                    </div>
+                    <div class="absolute bottom-3 left-4 right-4">
+                        <h4 class="text-white font-bold text-lg leading-tight drop-shadow-md group-hover:text-amber-300 transition-colors">
+                            Peta Potensi Lokasi Pemasangan I-RDMS
+                        </h4>
+                    </div>
+                </div>
+                <div class="p-4 flex-1 flex flex-col justify-between bg-white">
+                    <p class="text-xs text-slate-500 line-clamp-2 mb-4">
+                        Peta analisis potensi dan persebaran lokasi pemasangan Integrated Radiation Monitoring System (I-RDMS) secara real-time.
+                    </p>
+                    <div class="flex items-center justify-between text-xs border-t border-slate-100 pt-3">
+                        <span class="text-slate-500 font-medium"><i class="fa-regular fa-calendar mr-1"></i> Update: Kontinu</span>
+                        <span class="text-brand-600 font-bold flex items-center group-hover:translate-x-1 transition-transform">
+                            Buka Kamar Peta <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KAMAR 4: Laporan Kecelakaan / Kedaruratan Nuklir -->
+            <div class="map-card group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl cursor-pointer relative flex flex-col"
+                 data-category="kedaruratan"
+                 data-title="peta laporan kecelakaan kedaruratan nuklir incident report"
+                 onclick="openMapRoom('laporan')">
+                <div class="relative h-56 w-full overflow-hidden bg-slate-900">
+                    <img src="https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=800&q=80" 
+                         alt="Laporan Preview" 
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
+                         onerror="this.src='https://placehold.co/800x500/0f172a/ffffff?text=Map+Preview+Emergency'">
+                    <div class="absolute inset-0 gradient-overlay"></div>
+                    <div class="absolute top-3 left-3 flex gap-2">
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-red-600 text-white shadow-sm">
+                            Emergency Response
+                        </span>
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500/90 text-white backdrop-blur-sm">
+                            System Ready
+                        </span>
+                    </div>
+                    <div class="absolute bottom-3 left-4 right-4">
+                        <h4 class="text-white font-bold text-lg leading-tight drop-shadow-md group-hover:text-amber-300 transition-colors">
+                            Peta Laporan Kecelakaan/Kedaruratan Nuklir
+                        </h4>
+                    </div>
+                </div>
+                <div class="p-4 flex-1 flex flex-col justify-between bg-white">
+                    <p class="text-xs text-slate-500 line-clamp-2 mb-4">
+                        Sistem laporan geospasial insiden kedaruratan, anomali paparan radiasi, serta respons penanganan cepat di lapangan.
+                    </p>
+                    <div class="flex items-center justify-between text-xs border-t border-slate-100 pt-3">
+                        <span class="text-slate-500 font-medium"><i class="fa-regular fa-calendar mr-1"></i> Real-time Hotline</span>
+                        <span class="text-brand-600 font-bold flex items-center group-hover:translate-x-1 transition-transform">
+                            Buka Kamar Peta <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KAMAR 5: Abandoned Well Logging -->
+            <div class="map-card group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl cursor-pointer relative flex flex-col"
+                 data-category="sumber"
+                 data-title="peta abandoned well logging sumber radioaktif terbungkus"
+                 onclick="openMapRoom('well')">
+                <div class="relative h-56 w-full overflow-hidden bg-slate-900">
+                    <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80" 
+                         alt="Well Logging Preview" 
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
+                         onerror="this.src='https://placehold.co/800x500/0f172a/ffffff?text=Map+Preview+Well+Logging'">
+                    <div class="absolute inset-0 gradient-overlay"></div>
+                    <div class="absolute top-3 left-3 flex gap-2">
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-600 text-white shadow-sm">
+                            Pengawasan Sumber
+                        </span>
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-700/90 text-white backdrop-blur-sm">
+                            Tersebar
+                        </span>
+                    </div>
+                    <div class="absolute bottom-3 left-4 right-4">
+                        <h4 class="text-white font-bold text-lg leading-tight drop-shadow-md group-hover:text-amber-300 transition-colors">
+                            Peta Abandoned Well Logging
+                        </h4>
+                    </div>
+                </div>
+                <div class="p-4 flex-1 flex flex-col justify-between bg-white">
+                    <p class="text-xs text-slate-500 line-clamp-2 mb-4">
+                        Monitoring geospasial lokasi sumur minyak/gas dengan sumber radioaktif terbungkus yang ter-abandoned / ditinggalkan secara terawasi.
+                    </p>
+                    <div class="flex items-center justify-between text-xs border-t border-slate-100 pt-3">
+                        <span class="text-slate-500 font-medium"><i class="fa-regular fa-calendar mr-1"></i> Update: Jul 2026</span>
+                        <span class="text-brand-600 font-bold flex items-center group-hover:translate-x-1 transition-transform">
+                            Buka Kamar Peta <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- MAP ROOM INTERACTIVE VIEW (Hidden by default, toggled via JS) -->
+    <div id="map-room-view" class="hidden flex-1 flex flex-col h-[calc(100vh-80px)] bg-slate-100">
+        
+        <!-- Map Room Bar (Header Top Bar for Current Map Room) -->
+        <div class="bg-slate-900 text-white px-4 py-3 flex flex-wrap items-center justify-between border-b border-slate-800 shadow-md gap-2">
+            <div class="flex items-center space-x-3">
+                <button onclick="showDashboard()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold flex items-center space-x-1.5 transition">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Kembali ke Kamar Peta</span>
+                </button>
+                <div class="h-4 w-px bg-slate-700 hidden sm:block"></div>
+                <div>
+                    <h2 id="active-room-title" class="font-bold text-sm sm:text-base text-white leading-none">
+                        Peta Pelaksanaan Bimbingan Teknis
+                    </h2>
+                    <p id="active-room-subtitle" class="text-[11px] text-slate-400 mt-0.5">
+                        Sistem Informasi Geospasial Ketenaganukliran
+                    </p>
+                </div>
+            </div>
+
+            <!-- Map Tools Bar -->
+            <div class="flex items-center space-x-2">
+                <div class="relative">
+                    <input type="text" id="map-search-location" placeholder="Cari lokasi/kota..." 
+                           class="bg-slate-800 text-xs text-slate-200 placeholder-slate-400 px-3 py-1.5 rounded-lg border border-slate-700 focus:outline-none focus:border-amber-400 w-36 sm:w-48">
+                    <button onclick="searchLocationOnMap()" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+                <button onclick="toggleSidebar()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-2.5 flex items-center gap-1">
+                    <i class="fa-solid fa-layer-group text-amber-400"></i>
+                    <span class="hidden sm:inline">Panel Kontrol</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Map Container & Sidebar Layout -->
+        <div class="flex-1 flex relative overflow-hidden">
+            
+            <!-- Map Canvas -->
+            <div id="map" class="w-full h-full z-10"></div>
+
+            <!-- Floating Map Legend Box -->
+            <div class="absolute bottom-6 left-6 z-20 bg-white/95 backdrop-blur-md p-3.5 rounded-2xl shadow-xl border border-slate-200 text-xs w-64 hidden sm:block">
+                <div class="flex justify-between items-center mb-2 pb-1.5 border-b border-slate-100">
+                    <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                        <i class="fa-solid fa-list-ul text-brand-600"></i> Legenda Peta
+                    </span>
+                    <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 font-mono" id="legend-type-badge">TEMATIK</span>
+                </div>
+                <div id="map-legend-content" class="space-y-1.5 text-slate-600 text-[11px]">
+                    <!-- Dynamic legend items inserted by JS -->
+                </div>
+            </div>
+
+            <!-- Dynamic Control Sidebar (Layers, Filters, Details) -->
+            <div id="map-sidebar" class="absolute top-0 right-0 h-full w-80 bg-white shadow-2xl border-l border-slate-200 z-20 transform translate-x-0 transition-transform duration-300 flex flex-col">
+                <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+                    <h3 class="font-bold text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-amber-400"></i> Control & Filter Layer
+                    </h3>
+                    <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-xmark text-base"></i>
+                    </button>
+                </div>
+
+                <div class="p-4 flex-1 overflow-y-auto space-y-6">
+                    <!-- Base Map Selection -->
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">Base Map (Peta Dasar)</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="switchBaseMap('osm')" id="btn-osm" class="p-2 border-2 border-brand-500 rounded-xl text-[10px] font-bold text-center bg-slate-50">
+                                OpenStreetMap
+                            </button>
+                            <button onclick="switchBaseMap('satellite')" id="btn-satellite" class="p-2 border border-slate-200 rounded-xl text-[10px] font-bold text-center hover:bg-slate-50">
+                                Satelit ESRI
+                            </button>
+                            <button onclick="switchBaseMap('topo')" id="btn-topo" class="p-2 border border-slate-200 rounded-xl text-[10px] font-bold text-center hover:bg-slate-50">
+                                Topografi
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Room Specific Filter Controls -->
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">Filter Data Spasial</label>
+                        <div id="sidebar-filters-container" class="space-y-2">
+                            <!-- Dynamic Checkboxes injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Statistics Summary Card for Current Map -->
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        <h4 class="font-bold text-xs text-slate-800 mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-chart-pie text-brand-600"></i> Rangkuman Data
+                        </h4>
+                        <div id="sidebar-stats-content" class="space-y-2 text-xs">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Info -->
+                <div class="p-3 bg-slate-50 border-t border-slate-200 text-center text-[10px] text-slate-500">
+                    Koordinat Pusat: Lat -2.5489, Long 118.0149 (WGS84)
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer id="main-footer" class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div>
+                    <div class="flex items-center space-x-2 text-white font-bold mb-2">
+                        <i class="fa-solid fa-atom text-amber-400 text-lg"></i>
+                        <span>WEBGIS KETENAGANUKLIRAN</span>
+                    </div>
+                    <p class="text-slate-400 text-[11px] leading-relaxed">
+                        Portal Layanan Informasi Geospasial Tematik Tanggap Darurat Nuklir dan Kesiapsiagaan Radiasi Nasional Republik Indonesia.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-2">Link Cepat</h4>
+                    <ul class="space-y-1 text-[11px]">
+                        <li><a href="#" class="hover:text-amber-400">Direktori Kamar Peta</a></li>
+                        <li><a href="#" class="hover:text-amber-400">Monitoring I-RDMS Real-time</a></li>
+                        <li><a href="#" class="hover:text-amber-400">Standard Operasional Prosedur (SOP)</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-2">Kontak Kedaruratan</h4>
+                    <p class="text-[11px] text-amber-300 font-mono mb-1"><i class="fa-solid fa-phone mr-1"></i> Hotline: 0800-1-NUKLIR (24 Jam)</p>
+                    <p class="text-[11px]"><i class="fa-solid fa-envelope mr-1"></i> emergency@bapeten.go.id / info@webgis.go.id</p>
+                </div>
+            </div>
+            <div class="pt-4 border-t border-slate-800 text-center text-slate-500 text-[10px]">
+                &copy; 2026 WebGIS Ketenaganukliran Indonesia. Hak Cipta Dilindungi Undang-Undang.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        /* -------------------------------------------------------------
+           MOCK DATA FOR ALL 5 MAP ROOMS
+        ------------------------------------------------------------- */
+        const mapDataRooms = {
+            bimtek: {
+                title: "Peta Pelaksanaan Bimbingan Teknis Nasional Tanggap Darurat Nuklir",
+                subtitle: "Sebaran Kegiatan Bimtek Peningkatan Kapasitas SDM Kesiapsiagaan Nuklir",
+                category: "Kesiapsiagaan",
+                legendType: "BIMTEK LOKASI",
+                legend: [
+                    { label: "Selesai dilaksanakan", color: "#10b981" },
+                    { label: "Sedang Berjalan", color: "#f59e0b" },
+                    { label: "Rencana Agenda", color: "#3b82f6" }
+                ],
+                filters: ["Selesai", "Berjalan", "Rencana"],
+                stats: `
+                    <div class="flex justify-between"><span>Total Peserta:</span> <strong class="text-slate-800">1,240 Personel</strong></div>
+                    <div class="flex justify-between"><span>Cakupan Provinsi:</span> <strong class="text-slate-800">18 Daerah</strong></div>
+                    <div class="flex justify-between"><span>Instansi Terlibat:</span> <strong class="text-slate-800">BPBD, TNI, POLRI, DINKES</strong></div>
+                `,
+                markers: [
+                    { lat: -6.2088, lng: 106.8456, title: "Bimtek DKI Jakarta", status: "Selesai", date: "12-14 Mei 2026", peserta: 150 },
+                    { lat: -6.9175, lng: 107.6191, title: "Bimtek Jawa Barat (Bandung)", status: "Selesai", date: "20-22 Juni 2026", peserta: 120 },
+                    { lat: -7.2575, lng: 112.7521, title: "Bimtek Jawa Timur (Surabaya)", status: "Berjalan", date: "28-30 Sep 2026", peserta: 180 },
+                    { lat: -0.9492, lng: 100.3543, title: "Bimtek Sumatera Barat (Padang)", status: "Rencana", date: "15 Okt 2026", peserta: 90 },
+                    { lat: -5.1477, lng: 119.4327, title: "Bimtek Sulawesi Selatan (Makassar)", status: "Selesai", date: "10-12 Juli 2026", peserta: 110 },
+                    { lat: -1.2654, lng: 116.8312, title: "Bimtek Kalimantan Timur (Balikpapan)", status: "Berjalan", date: "25-27 Sep 2026", peserta: 130 }
+                ]
+            },
+            pelatihan: {
+                title: "Peta Pelaksanaan Pelatihan Uji Coba Penanggulangan Kesiapsiagaan Nuklir Nasional",
+                subtitle: "Latihan Simulasi Field Drill & Reaksi Cepat Bencana Radiologi",
+                category: "Simulasi Drill",
+                legendType: "LEVEL SIMULASI",
+                legend: [
+                    { label: "Skala Nasional (Level 3)", color: "#ef4444" },
+                    { label: "Skala Regional (Level 2)", color: "#f59e0b" },
+                    { label: "Skala Lokal (Level 1)", color: "#3b82f6" }
+                ],
+                filters: ["Level 3", "Level 2", "Level 1"],
+                stats: `
+                    <div class="flex justify-between"><span>Simulasi Tahun Ini:</span> <strong class="text-slate-800">8 Gelombang</strong></div>
+                    <div class="flex justify-between"><span>Skenario:</span> <strong class="text-slate-800">Transportasi & Industri</strong></div>
+                    <div class="flex justify-between"><span>Evaluasi Average:</span> <strong class="text-emerald-600 font-bold">92% Ready</strong></div>
+                `,
+                markers: [
+                    { lat: -6.0024, lng: 106.0123, title: "Uji Coba Kesiapsiagaan Cilegon - Banten", status: "Level 3", date: "10 Ags 2026", scenario: "Kebocoran Reaktor Riset / Industri" },
+                    { lat: 1.1301, lng: 104.0529, title: "Drill Simulasi Batam (Kawasan Industri)", status: "Level 2", date: "02 Jun 2026", scenario: "Kegagalan Kesiapsiagaan Sumber Terbungkus" },
+                    { lat: -7.7956, lng: 110.3695, title: "Simulasi Tanggap Darurat Yogyakarta", status: "Level 1", date: "18 Mei 2026", scenario: "Evakuasi Medis Terkontaminasi" },
+                    { lat: -1.6101, lng: 103.6131, title: "Pelatihan Penanggulangan Jambi", status: "Level 2", date: "14 Jul 2026", scenario: "Insiden Transportasi Radioaktif" }
+                ]
+            },
+            irdms: {
+                title: "Peta Potensi Lokasi Pemasangan I-RDMS",
+                subtitle: "Integrated Radiation Monitoring System Real-time Dose Rate Sensors",
+                category: "Monitoring Radiasi",
+                legendType: "STATUS SENSOR",
+                legend: [
+                    { label: "Sensor Aktif (Normal <100 nSv/h)", color: "#10b981" },
+                    { label: "Potensi Pemasangan Baru", color: "#06b6d4" },
+                    { label: "Perlu Maintenance", color: "#f59e0b" }
+                ],
+                filters: ["Aktif", "Potensi", "Maintenance"],
+                stats: `
+                    <div class="flex justify-between"><span>Total Sensor Aktif:</span> <strong class="text-slate-800">34 Stasiun</strong></div>
+                    <div class="flex justify-between"><span>Rencana Usulan Pemasangan:</span> <strong class="text-cyan-600 font-bold">12 Titik Baru</strong></div>
+                    <div class="flex justify-between"><span>Mean Gamma Background:</span> <strong class="text-slate-800">45.2 nSv/h</strong></div>
+                `,
+                markers: [
+                    { lat: -6.1754, lng: 106.8272, title: "Stasiun I-RDMS Jakarta Pusat", status: "Aktif", doseRate: "38 nSv/h", type: "Fix Station" },
+                    { lat: -6.3639, lng: 106.8247, title: "Stasiun I-RDMS Depok (Puspiptek Zone)", status: "Aktif", doseRate: "42 nSv/h", type: "Fix Station" },
+                    { lat: -6.0152, lng: 106.0500, title: "Potensi Pemasangan I-RDMS Pelabuhan Merak", status: "Potensi", doseRate: "N/A (Usulan 2027)", type: "Usulan Priority 1" },
+                    { lat: 1.1500, lng: 104.0000, title: "Stasiun I-RDMS Pelabuhan Batam Center", status: "Aktif", doseRate: "51 nSv/h", type: "Fix Station" },
+                    { lat: -8.6705, lng: 115.2126, title: "Potensi Pemasangan I-RDMS Bandara Ngurah Rai Bali", status: "Potensi", doseRate: "N/A (Usulan 2027)", type: "Usulan Priority 1" },
+                    { lat: 3.5952, lng: 98.6722, title: "Stasiun I-RDMS Medan", status: "Maintenance", doseRate: "Calibration", type: "Fix Station" }
+                ]
+            },
+            laporan: {
+                title: "Peta Laporan Kecelakaan/Kedaruratan Nuklir",
+                subtitle: "Sistem Tanggap Cepat Laporan Kejadian & Insiden Radiologi",
+                category: "Kedaruratan",
+                legendType: "STATUS LAPORAN",
+                legend: [
+                    { label: "Telah Ditangani & Aman", color: "#10b981" },
+                    { label: "Dalam Penanganan Team (Active)", color: "#ef4444" },
+                    { label: "Terverifikasi Nihil / False Alarm", color: "#64748b" }
+                ],
+                filters: ["Penanganan", "Aman", "False Alarm"],
+                stats: `
+                    <div class="flex justify-between"><span>Status Laporan Aktif:</span> <strong class="text-emerald-600">0 Incident Active</strong></div>
+                    <div class="flex justify-between"><span>Laporan Terverifikasi 2026:</span> <strong class="text-slate-800">3 Laporan (Clear)</strong></div>
+                    <div class="flex justify-between"><span>Response Time Target:</span> <strong class="text-slate-800">< 15 Menit</strong></div>
+                `,
+                markers: [
+                    { lat: -6.2200, lng: 106.8100, title: "Laporan Anomali Scrap Logam Port", status: "Aman", date: "12 Ags 2026", action: "Sumber telah diamankan oleh tim BAPETEN/BATAN" },
+                    { lat: -7.0051, lng: 110.4381, title: "Verifikasi Alarm Radiasi Bandara Semarang", status: "False Alarm", date: "04 Jul 2026", action: "Pasien pasca-terapi kedokteran nuklir" },
+                    { lat: -2.9761, lng: 104.7754, title: "Laporan Pemindahan Alat Gauging Palembang", status: "Aman", date: "20 Mei 2026", action: "Pemeriksaan proteksi radiasi selesai" }
+                ]
+            },
+            well: {
+                title: "Peta Monitoring Abandoned Well Logging",
+                subtitle: "Pengawasan Geospasial Sumber Radioaktif Terbungkus Ter-abandoned pada Sumur Migas",
+                category: "Sumber Terbungkus",
+                legendType: "KATEGORI SUMUR",
+                legend: [
+                    { label: "Sumur Abandoned Tersegel (Safe)", color: "#10b981" },
+                    { label: "Sumur Monitoring Rutin", color: "#f59e0b" },
+                    { label: "Dalam Evaluasi Teknis", color: "#8b5cf6" }
+                ],
+                filters: ["Tersegel", "Rutin", "Evaluasi"],
+                stats: `
+                    <div class="flex justify-between"><span>Total Sumur Abandoned:</span> <strong class="text-slate-800">14 Sumur</strong></div>
+                    <div class="flex justify-between"><span>Isotop Dominan:</span> <strong class="text-slate-800">Cs-137, Am-241/Be</strong></div>
+                    <div class="flex justify-between"><span>Integritas Plug:</span> <strong class="text-emerald-600 font-bold">100% Verified</strong></div>
+                `,
+                markers: [
+                    { lat: -1.2500, lng: 116.9000, title: "Sumur Offshore Mahakam Field #04", status: "Tersegel", source: "Cs-137 (1.5 Ci)", depth: "2,400 meter" },
+                    { lat: -6.1200, lng: 107.1500, title: "Sumur onshore Tambun #12", status: "Tersegel", source: "Am-241/Be (3 Ci)", depth: "1,850 meter" },
+                    { lat: 1.4800, lng: 101.4300, title: "Sumur Duri Field Block C-09", status: "Rutin", source: "Cs-137 (2 Ci)", depth: "1,200 meter" },
+                    { lat: -4.0000, lng: 105.0000, title: "Sumur Sumatera Selatan Block #02", status: "Evaluasi", source: "Am-241/Be", depth: "2,100 meter" }
+                ]
+            }
+        };
+
+        /* -------------------------------------------------------------
+           GLOBAL LEAFLET MAP STATE & INITIALIZATION
+        ------------------------------------------------------------- */
+        let map = null;
+        let markerGroup = null;
+        let currentRoomKey = 'bimtek';
+        let activeBaseMapLayer = null;
+
+        // Base Map Tile Layers
+        const tileLayers = {
+            osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }),
+            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 18,
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS'
+            }),
+            topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                maxZoom: 17,
+                attribution: 'Map data: &copy; OpenStreetMap, SRTM | Map style: &copy; OpenTopoMap'
+            })
+        };
+
+        window.onload = function() {
+            // Initial view state is Dashboard
+        };
+
+        /* -------------------------------------------------------------
+           ROOM NAVIGATION LOGIC
+        ------------------------------------------------------------- */
+        function showDashboard() {
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            document.getElementById('map-room-view').classList.add('hidden');
+            document.getElementById('main-footer').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openMapRoom(roomKey) {
+            currentRoomKey = roomKey;
+            const roomData = mapDataRooms[roomKey];
+
+            if (!roomData) return;
+
+            // Update UI Header in Map Room View
+            document.getElementById('active-room-title').innerText = roomData.title;
+            document.getElementById('active-room-subtitle').innerText = roomData.subtitle;
+
+            // Switch Visibility
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('main-footer').classList.add('hidden');
+            document.getElementById('map-room-view').classList.remove('hidden');
+
+            // Render Dynamic Sidebar Controls & Legend
+            renderSidebarControls(roomData);
+            renderMapLegend(roomData);
+
+            // Initialize or Refresh Leaflet Map
+            setTimeout(() => {
+                initOrUpdateMap(roomData);
+            }, 100);
+        }
+
+        /* -------------------------------------------------------------
+           LEAFLET MAP CONTROLLER
+        ------------------------------------------------------------- */
+        function initOrUpdateMap(roomData) {
+            if (!map) {
+                // Centered on Indonesia
+                map = L.map('map', {
+                    center: [-2.5489, 118.0149],
+                    zoom: 5,
+                    zoomControl: false
+                });
+
+                // Add zoom control to top-left
+                L.control.zoom({ position: 'topleft' }).addTo(map);
+
+                // Default tile layer
+                activeBaseMapLayer = tileLayers.osm;
+                activeBaseMapLayer.addTo(map);
+
+                markerGroup = L.layerGroup().addTo(map);
+            } else {
+                map.invalidateSize();
+                markerGroup.clearLayers();
+            }
+
+            // Populate Map Markers for Current Room Data
+            populateMarkers(roomData.markers);
+        }
+
+        function populateMarkers(markersData) {
+            markerGroup.clearLayers();
+            const bounds = [];
+
+            markersData.forEach(item => {
+                let markerColor = '#0284c7';
+                
+                // Color coding based on status
+                if (item.status === 'Selesai' || item.status === 'Aktif' || item.status === 'Aman' || item.status === 'Tersegel') {
+                    markerColor = '#10b981'; // Green
+                } else if (item.status === 'Berjalan' || item.status === 'Level 2' || item.status === 'Rutin' || item.status === 'Potensi') {
+                    markerColor = '#f59e0b'; // Amber
+                } else if (item.status === 'Level 3' || item.status === 'Penanganan') {
+                    markerColor = '#ef4444'; // Red
+                }
+
+                // Custom SVG Marker Icon
+                const customIcon = L.divIcon({
+                    className: 'custom-map-pin',
+                    html: `
+                        <div class="relative flex items-center justify-center">
+                            <div class="w-6 h-6 rounded-full bg-white shadow-lg flex items-center justify-center border-2" style="border-color: ${markerColor}">
+                                <div class="w-3 h-3 rounded-full" style="background-color: ${markerColor}"></div>
+                            </div>
+                        </div>
+                    `,
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+
+                const marker = L.marker([item.lat, item.lng], { icon: customIcon });
+
+                // Popup Template
+                let popupHtml = `
+                    <div class="p-1 max-w-xs font-sans">
+                        <div class="flex items-center justify-between gap-2 mb-2 pb-1 border-b border-slate-100">
+                            <span class="font-bold text-xs text-slate-800">${item.title}</span>
+                            <span class="px-1.5 py-0.5 text-[9px] font-bold rounded text-white" style="background-color: ${markerColor}">${item.status}</span>
+                        </div>
+                        <div class="text-[11px] space-y-1 text-slate-600">
+                `;
+
+                if (item.date) popupHtml += `<div><strong>Tanggal:</strong> ${item.date}</div>`;
+                if (item.peserta) popupHtml += `<div><strong>Jumlah Peserta:</strong> ${item.peserta} Orang</div>`;
+                if (item.scenario) popupHtml += `<div><strong>Skenario:</strong> ${item.scenario}</div>`;
+                if (item.doseRate) popupHtml += `<div><strong>Dose Rate:</strong> ${item.doseRate}</div>`;
+                if (item.type) popupHtml += `<div><strong>Tipe Stasiun:</strong> ${item.type}</div>`;
+                if (item.action) popupHtml += `<div><strong>Tindakan:</strong> ${item.action}</div>`;
+                if (item.source) popupHtml += `<div><strong>Isotop Sumber:</strong> ${item.source}</div>`;
+                if (item.depth) popupHtml += `<div><strong>Kedalaman Sumur:</strong> ${item.depth}</div>`;
+
+                popupHtml += `
+                        </div>
+                    </div>
+                `;
+
+                marker.bindPopup(popupHtml);
+                markerGroup.addLayer(marker);
+                bounds.push([item.lat, item.lng]);
+            });
+
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [50, 50], maxZoom: 8 });
+            }
+        }
+
+        /* -------------------------------------------------------------
+           DYNAMIC SIDEBAR & LEGEND CONTROLLER
+        ------------------------------------------------------------- */
+        function renderSidebarControls(roomData) {
+            const filterContainer = document.getElementById('sidebar-filters-container');
+            const statsContainer = document.getElementById('sidebar-stats-content');
+
+            // Render Filter Checkboxes
+            let filterHtml = '';
+            roomData.filters.forEach((filterName, index) => {
+                filterHtml += `
+                    <label class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 cursor-pointer hover:bg-slate-100">
+                        <span class="flex items-center space-x-2">
+                            <input type="checkbox" checked class="rounded text-brand-600 focus:ring-brand-500" onchange="filterMapMarkers()">
+                            <span class="font-medium">${filterName}</span>
+                        </span>
+                        <span class="w-2 h-2 rounded-full" style="background-color: ${roomData.legend[index] ? roomData.legend[index].color : '#0284c7'}"></span>
+                    </label>
+                `;
+            });
+            filterContainer.innerHTML = filterHtml;
+
+            // Render Stats
+            statsContainer.innerHTML = roomData.stats;
+        }
+
+        function renderMapLegend(roomData) {
+            document.getElementById('legend-type-badge').innerText = roomData.legendType;
+            const legendContainer = document.getElementById('map-legend-content');
+
+            let legendHtml = '';
+            roomData.legend.forEach(item => {
+                legendHtml += `
+                    <div class="flex items-center justify-between">
+                        <span class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full" style="background-color: ${item.color}"></span>
+                            <span>${item.label}</span>
+                        </span>
+                    </div>
+                `;
+            });
+            legendContainer.innerHTML = legendHtml;
+        }
+
+        function switchBaseMap(type) {
+            ['osm', 'satellite', 'topo'].forEach(t => {
+                const btn = document.getElementById(`btn-${t}`);
+                if (t === type) {
+                    btn.classList.add('border-brand-500', 'bg-slate-50');
+                    btn.classList.remove('border-slate-200');
+                } else {
+                    btn.classList.remove('border-brand-500', 'bg-slate-50');
+                    btn.classList.add('border-slate-200');
+                }
+            });
+
+            if (map && activeBaseMapLayer) {
+                map.removeLayer(activeBaseMapLayer);
+                activeBaseMapLayer = tileLayers[type];
+                activeBaseMapLayer.addTo(map);
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('map-sidebar');
+            sidebar.classList.toggle('translate-x-full');
+        }
+
+        function searchLocationOnMap() {
+            const query = document.getElementById('map-search-location').value.toLowerCase();
+            if (!query) return;
+
+            const roomData = mapDataRooms[currentRoomKey];
+            const found = roomData.markers.find(m => m.title.toLowerCase().includes(query));
+
+            if (found && map) {
+                map.setView([found.lat, found.lng], 9);
+            } else {
+                alert('Lokasi tidak ditemukan dalam data kamar peta ini.');
+            }
+        }
+
+        function filterMapMarkers() {
+            // Simplified marker refresh toggle animation
+            const roomData = mapDataRooms[currentRoomKey];
+            populateMarkers(roomData.markers);
+        }
+
+        /* -------------------------------------------------------------
+           DASHBOARD SEARCH & CATEGORY FILTERS
+        ------------------------------------------------------------- */
+        function setCategoryFilter(cat) {
+            // Button Styles Toggle
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-900', 'text-white', 'border-slate-900');
+                btn.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+            });
+            event.target.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
+            event.target.classList.add('bg-slate-900', 'text-white', 'border-slate-900');
+
+            // Card Filter
+            const cards = document.querySelectorAll('.map-card');
+            cards.forEach(card => {
+                if (cat === 'all' || card.dataset.category === cat) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function filterMapCards() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const cards = document.querySelectorAll('.map-card');
+
+            cards.forEach(card => {
+                const title = card.dataset.title.toLowerCase();
+                if (title.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
