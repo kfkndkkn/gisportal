@@ -240,7 +240,7 @@
         }
 
         function fetchDataFromDatabase() {
-            fetch('./data_bimtek.xml')
+            fetch('./dummy_data_bimtek_ewf.xml')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error("Gagal mengambil file XML, status: " + response.status);
