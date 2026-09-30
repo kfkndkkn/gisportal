@@ -675,31 +675,33 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function openMapRoom(roomKey) {
+function openMapRoom(roomKey) {
             currentRoomKey = roomKey;
             const roomData = mapDataRooms[roomKey];
+            const iframe = document.getElementById('map-iframe');
 
             if (!roomData) return;
 
-            // Update UI Header in Map Room View
-            document.getElementById('active-room-title').innerText = roomData.title;
-            document.getElementById('active-room-subtitle').innerText = roomData.subtitle;
+            // Update UI Header di Kamar Peta
+            const titleEl = document.getElementById('active-room-title');
+            const subtitleEl = document.getElementById('active-room-subtitle');
+            
+            if (titleEl) titleEl.innerText = roomData.title;
+            if (subtitleEl) subtitleEl.innerText = roomData.subtitle;
 
-            // Switch Visibility
+            // Switch Tampilan (Sembunyikan Beranda, Tampilkan Kamar Peta)
             document.getElementById('dashboard-view').classList.add('hidden');
             document.getElementById('main-footer').classList.add('hidden');
             document.getElementById('map-room-view').classList.remove('hidden');
 
-            // Render Dynamic Sidebar Controls & Legend
-            renderSidebarControls(roomData);
-            renderMapLegend(roomData);
-
-            // Initialize or Refresh Leaflet Map
-            setTimeout(() => {
-                initOrUpdateMap(roomData);
-            }, 100);
+            // Load file peta ke dalam iframe
+            if (roomKey === 'bimtek') {
+                iframe.src = "dummy_bimtek_index.html"; 
+            } else {
+                iframe.src = "about:blank";
+                alert("Peta " + roomData.title + " sedang dalam tahap integrasi data.");
+            }
         }
-
         /* -------------------------------------------------------------
            LEAFLET MAP CONTROLLER
         ------------------------------------------------------------- */
