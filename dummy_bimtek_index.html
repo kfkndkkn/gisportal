@@ -190,10 +190,10 @@
         };
 
         function initMap() {
-            // Options Basemap Google Satelit & Google Hybrid
-            const googleSatellite = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-                maxZoom: 20,
-                attribution: '&copy; Google Maps'
+            // Options Basemap ESRI, Google Hybrid, Google Satellite, OpenStreetMap
+            const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19,
+                attribution: '&copy; Esri'
             });
 
             const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
@@ -201,11 +201,11 @@
                 attribution: '&copy; Google Maps'
             });
 
-            const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                maxZoom: 19,
-                attribution: '&copy; Esri'
+            const googleSatellite = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                attribution: '&copy; Google Maps'
             });
-
+            
             const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; OpenStreetMap'
@@ -219,9 +219,9 @@
             L.control.zoom({ position: 'topright' }).addTo(map);
 
             const baseMaps = {
-                "Google Satelit": googleSatellite,
-                "Google Hybrid": googleHybrid,
                 "ESRI Satelit": esriSatellite,
+                "Google Hybrid": googleHybrid,
+                "Google Satelit": googleSatellite,
                 "OpenStreetMap": openStreetMap,
             };
 
