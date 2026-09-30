@@ -20,8 +20,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        #map { height: 100%; width: 100%; z-index: 1; }
+        /* TAMBAHAN WAJIB: Agar HTML & Body di dalam iframe mengambil full tinggi layar tanpa scrollbar ganda */
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* UBAH DI SINI: height diubah dari 100% menjadi 100vh agar mengisi 100% tinggi viewport iframe */
+        #map { 
+            height: 100vh; 
+            width: 100%; 
+            z-index: 1; 
+        }
         
         .custom-div-icon { background: none; border: none; }
         .marker-pin {
@@ -267,7 +281,7 @@
         }
 
         function fetchDataFromDatabase() {
-            fetch('./data_bimtek.xml')
+            fetch('./dummy_data_bimtek.xml')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error("Gagal mengambil file XML, status: " + response.status);
