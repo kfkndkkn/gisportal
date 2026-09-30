@@ -479,9 +479,9 @@
         </div>
     </footer>
 
-    <!-- JAVASCRIPT LOGIC (CLEAN & SINGLE DECLARATION) -->
+<!-- JAVASCRIPT LOGIC (CLEAN & ANTI-DUPLICATE) -->
     <script>
-        // MOCK DATA METADATA KAMAR PETA
+        // METADATA KAMAR PETA
         const mapDataRooms = {
             bimtek: {
                 title: "Peta Pelaksanaan Bimbingan Teknis Nasional Tanggap Darurat Nuklir",
@@ -505,7 +505,7 @@
             }
         };
 
-        // VARIABEL GLOBAL DISEBUT HANYA 1 KALI DENGAN VAR
+        // VARIABEL UTAMA (DIDEKLARASIKAN SEKALI)
         var currentRoomKey = 'bimtek';
 
         function showDashboard() {
@@ -566,7 +566,6 @@
             }
         }
 
-        // FILTER SEARCH & TABS IN DASHBOARD
         function setCategoryFilter(cat) {
             document.querySelectorAll('.cat-btn').forEach(btn => {
                 btn.classList.remove('bg-slate-900', 'text-white', 'border-slate-900');
@@ -604,7 +603,6 @@
             menu.classList.toggle('hidden');
         }
 
-        // PENGECEKAN AUTOMATIS URL HASH SAAT REFRESH
         window.addEventListener('DOMContentLoaded', () => {
             const hash = window.location.hash.replace('#', '');
             if (hash && mapDataRooms[hash]) {
