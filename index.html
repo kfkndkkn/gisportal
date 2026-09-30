@@ -450,10 +450,10 @@
         </div>
     </main>
 
-    <!-- MAP ROOM INTERACTIVE VIEW (Hidden by default, toggled via JS) -->
+    <!-- MAP ROOM INTERACTIVE VIEW (Menggunakan iframe untuk memuat file HTML kamar peta) -->
     <div id="map-room-view" class="hidden flex-1 flex flex-col h-[calc(100vh-80px)] bg-slate-100">
         
-        <!-- Map Room Bar (Header Top Bar for Current Map Room) -->
+        <!-- Map Room Bar (Header Top Bar) -->
         <div class="bg-slate-900 text-white px-4 py-3 flex flex-wrap items-center justify-between border-b border-slate-800 shadow-md gap-2">
             <div class="flex items-center space-x-3">
                 <button onclick="showDashboard()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold flex items-center space-x-1.5 transition">
@@ -463,106 +463,20 @@
                 <div class="h-4 w-px bg-slate-700 hidden sm:block"></div>
                 <div>
                     <h2 id="active-room-title" class="font-bold text-sm sm:text-base text-white leading-none">
-                        Peta Pelaksanaan Bimbingan Teknis
+                        Peta Interaktif
                     </h2>
                     <p id="active-room-subtitle" class="text-[11px] text-slate-400 mt-0.5">
-                        Sistem Informasi Geospasial Ketenaganukliran
+                        Badan Pengawas Tenaga Nuklir
                     </p>
                 </div>
             </div>
-
-            <!-- Map Tools Bar -->
-            <div class="flex items-center space-x-2">
-                <div class="relative">
-                    <input type="text" id="map-search-location" placeholder="Cari lokasi/kota..." 
-                           class="bg-slate-800 text-xs text-slate-200 placeholder-slate-400 px-3 py-1.5 rounded-lg border border-slate-700 focus:outline-none focus:border-amber-400 w-36 sm:w-48">
-                    <button onclick="searchLocationOnMap()" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                </div>
-                <button onclick="toggleSidebar()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-2.5 flex items-center gap-1">
-                    <i class="fa-solid fa-layer-group text-amber-400"></i>
-                    <span class="hidden sm:inline">Panel Kontrol</span>
-                </button>
-            </div>
         </div>
 
-        <!-- Main Map Container & Sidebar Layout -->
-        <div class="flex-1 flex relative overflow-hidden">
-            
-            <!-- Map Canvas -->
-            <div id="map" class="w-full h-full z-10"></div>
-
-            <!-- Floating Map Legend Box -->
-            <div class="absolute bottom-6 left-6 z-20 bg-white/95 backdrop-blur-md p-3.5 rounded-2xl shadow-xl border border-slate-200 text-xs w-64 hidden sm:block">
-                <div class="flex justify-between items-center mb-2 pb-1.5 border-b border-slate-100">
-                    <span class="font-bold text-slate-800 flex items-center gap-1.5">
-                        <i class="fa-solid fa-list-ul text-brand-600"></i> Legenda Peta
-                    </span>
-                    <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 font-mono" id="legend-type-badge">TEMATIK</span>
-                </div>
-                <div id="map-legend-content" class="space-y-1.5 text-slate-600 text-[11px]">
-                    <!-- Dynamic legend items inserted by JS -->
-                </div>
-            </div>
-
-            <!-- Dynamic Control Sidebar (Layers, Filters, Details) -->
-            <div id="map-sidebar" class="absolute top-0 right-0 h-full w-80 bg-white shadow-2xl border-l border-slate-200 z-20 transform translate-x-0 transition-transform duration-300 flex flex-col">
-                <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
-                    <h3 class="font-bold text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-sliders text-amber-400"></i> Control & Filter Layer
-                    </h3>
-                    <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white">
-                        <i class="fa-solid fa-xmark text-base"></i>
-                    </button>
-                </div>
-
-                <div class="p-4 flex-1 overflow-y-auto space-y-6">
-                    <!-- Base Map Selection -->
-                    <div>
-                        <label class="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">Base Map (Peta Dasar)</label>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button onclick="switchBaseMap('osm')" id="btn-osm" class="p-2 border-2 border-brand-500 rounded-xl text-[10px] font-bold text-center bg-slate-50">
-                                OpenStreetMap
-                            </button>
-                            <button onclick="switchBaseMap('satellite')" id="btn-satellite" class="p-2 border border-slate-200 rounded-xl text-[10px] font-bold text-center hover:bg-slate-50">
-                                Satelit ESRI
-                            </button>
-                            <button onclick="switchBaseMap('topo')" id="btn-topo" class="p-2 border border-slate-200 rounded-xl text-[10px] font-bold text-center hover:bg-slate-50">
-                                Topografi
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Room Specific Filter Controls -->
-                    <div>
-                        <label class="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">Filter Data Spasial</label>
-                        <div id="sidebar-filters-container" class="space-y-2">
-                            <!-- Dynamic Checkboxes injected by JS -->
-                        </div>
-                    </div>
-
-                    <!-- Statistics Summary Card for Current Map -->
-                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                        <h4 class="font-bold text-xs text-slate-800 mb-2 flex items-center gap-1.5">
-                            <i class="fa-solid fa-chart-pie text-brand-600"></i> Rangkuman Data
-                        </h4>
-                        <div id="sidebar-stats-content" class="space-y-2 text-xs">
-                            <!-- Injected by JS -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Footer Info -->
-                <div class="p-3 bg-slate-50 border-t border-slate-200 text-center text-[10px] text-slate-500">
-                    Koordinat Pusat: Lat -2.5489, Long 118.0149 (WGS84)
-                </div>
-            </div>
-
+        <!-- Container iFrame untuk "ngejait" HTML Peta Interaktif -->
+        <div class="flex-1 w-full h-full relative">
+            <iframe id="map-iframe" src="" class="w-full h-full border-0" title="WebGIS Interactive Map"></iframe>
         </div>
-    </div>
-
-    <!-- FOOTER -->
+    </div>    <!-- FOOTER -->
     <footer id="main-footer" class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
