@@ -450,11 +450,11 @@
         </div>
     </main>
 
-    <!-- MAP ROOM INTERACTIVE VIEW (Layar Penuh / Full Height Frame) -->
-    <div id="map-room-view" class="hidden fixed inset-0 z-50 bg-slate-900 flex flex-col h-screen w-screen overflow-hidden">
+<!-- MAP ROOM INTERACTIVE VIEW -->
+    <div id="map-room-view" class="hidden flex-col h-screen w-screen overflow-hidden bg-slate-900">
         
-        <!-- Map Room Bar (Header Top Bar) -->
-        <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between border-b border-slate-800 shadow-md shrink-0 h-16">
+        <!-- Header BAPETEN Tetap Muncul di Atas Kamar Peta (Tinggi = 4rem / 64px) -->
+        <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between border-b border-slate-800 shadow-md shrink-0 h-16 z-50">
             <div class="flex items-center space-x-3">
                 <button onclick="showDashboard()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold flex items-center space-x-1.5 transition">
                     <i class="fa-solid fa-arrow-left"></i>
@@ -472,9 +472,9 @@
             </div>
         </div>
 
-        <!-- Frame Peta Interaktif (Mengisi seluruh sisa ruang layar) -->
-        <div class="flex-1 w-full relative bg-slate-900 overflow-hidden">
-            <iframe id="map-iframe" src="" class="absolute inset-0 w-full h-full border-0" title="WebGIS Interactive Map"></iframe>
+        <!-- Frame Peta mengisi pas sisa ruang di bawah header (100vh minus 4rem) -->
+        <div class="w-full h-[calc(100vh-4rem)] relative bg-slate-900 overflow-hidden">
+            <iframe id="map-iframe" src="" class="w-full h-full border-0" title="WebGIS Interactive Map"></iframe>
         </div>
     </div>
     
