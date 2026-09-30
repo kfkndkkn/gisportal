@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebGIS Kesiapsiagaan & Tanggap Darurat Nuklir - BAPETEN</title>
     
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -30,7 +30,7 @@
         }
     </script>
 
-    <!-- Google Fonts & FontAwesome Icons -->
+    <!-- Google Fonts & FontAwesome -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
@@ -40,21 +40,9 @@
             background-color: #f8fafc;
         }
 
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
         .map-card {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -147,7 +135,7 @@
         </div>
     </header>
 
-    <!-- MAIN DASHBOARD CONTENT (DIREKTORI KAMAR PETA) -->
+    <!-- MAIN DASHBOARD CONTENT -->
     <main id="dashboard-view" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-all duration-300">
         
         <!-- Welcome Hero Banner -->
@@ -188,7 +176,7 @@
             </div>
         </div>
 
-        <!-- Controls Header -->
+        <!-- Filter & Search Controls Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
                 <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
@@ -198,7 +186,6 @@
                 <p class="text-xs text-slate-500">Klik peta-peta dibawah ini untuk membuka peta interaktif spasial</p>
             </div>
 
-            <!-- Search Bar -->
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
@@ -208,7 +195,7 @@
             </div>
         </div>
 
-        <!-- Category Tabs -->
+        <!-- Category Filter Tabs -->
         <div class="flex items-center space-x-2 overflow-x-auto pb-3 mb-6 text-xs no-scrollbar">
             <button onclick="setCategoryFilter('all')" class="cat-btn active px-4 py-2 rounded-xl font-medium bg-slate-900 text-white shadow-sm border border-slate-900">
                 Semua Peta (5)
@@ -227,7 +214,7 @@
             </button>
         </div>
 
-        <!-- KAMAR PETA GRID (5 KAMAR PETA) -->
+        <!-- KAMAR PETA GRID -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="map-cards-container">
             
             <!-- KAMAR 1: Bimtek Tanggap Darurat Nuklir -->
@@ -418,7 +405,7 @@
         </div>
     </main>
 
-    <!-- MAP ROOM INTERACTIVE VIEW (WADAH IFRAME KAMAR PETA) -->
+    <!-- MAP ROOM INTERACTIVE VIEW (IFRAME CONTAINER) -->
     <div id="map-room-view" class="hidden flex-col h-screen w-screen overflow-hidden bg-slate-900 fixed inset-0 z-50">
         
         <!-- Map Room Bar (Header Top Bar Kamar Peta) -->
@@ -440,7 +427,7 @@
             </div>
         </div>
 
-        <!-- Frame tempat dummy_bimtek_index.html dimuat -->
+        <!-- Frame tempat dummy_bimtek_index.html dimuat (Penuh di bawah Topbar) -->
         <div class="w-full h-[calc(100vh-4rem)] relative bg-slate-900 overflow-hidden">
             <iframe id="map-iframe" src="" class="w-full h-full border-0" title="WebGIS Interactive Map"></iframe>
         </div>
@@ -479,9 +466,8 @@
         </div>
     </footer>
 
-<!-- JAVASCRIPT LOGIC (CLEAN & ANTI-DUPLICATE) -->
+    <!-- JAVASCRIPT LOGIC NAVIGASI UTAMA -->
     <script>
-        // METADATA KAMAR PETA
         const mapDataRooms = {
             bimtek: {
                 title: "Peta Pelaksanaan Bimbingan Teknis Nasional Tanggap Darurat Nuklir",
@@ -505,7 +491,6 @@
             }
         };
 
-        // VARIABEL UTAMA (DIDEKLARASIKAN SEKALI)
         var currentRoomKey = 'bimtek';
 
         function showDashboard() {
