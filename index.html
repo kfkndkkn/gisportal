@@ -667,54 +667,70 @@
             // Initial view state is Dashboard
         };
 
-        /* -------------------------------------------------------------
-           ROOM NAVIGATION LOGIC (DENGAN ROUTING URL HASH / REFRESH PROOF)
+/* -------------------------------------------------------------
+           ROOM NAVIGATION LOGIC (SINKRON DENGAN HEADER & REFRESH PROOF)
         ------------------------------------------------------------- */
         let currentRoomKey = 'bimtek';
 
+        // Fungsi kembali ke beranda (Mendukung backToDashboard() & showDashboard())
         function showDashboard() {
             document.getElementById('dashboard-view').classList.remove('hidden');
             document.getElementById('map-room-view').classList.add('hidden');
-            document.getElementById('main-footer').classList.remove('hidden');
+            
+            const footer = document.getElementById('main-footer');
+            if (footer) footer.classList.remove('hidden');
 
             // Kosongkan iframe agar hemat RAM
             const iframe = document.getElementById('map-iframe');
             if (iframe) iframe.src = "";
 
             // Hapus hash di URL tanpa reload halaman
-            history.pushState("", document.title, window.location.pathname + window.location.search);
+            if (window.location.hash) {
+                history.pushState("", document.title, window.location.pathname + window.location.search);
+            }
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // Alias agar tombol onclick="backToDashboard()" di header utama juga berfungsi normal
+        function backToDashboard() {
+            showDashboard();
+        }
+
+        // Fungsi membuka kamar peta
         function openMapRoom(roomKey) {
             currentRoomKey = roomKey;
-            const roomData = mapDataRooms[roomKey];
+            const roomData = mapDataRooms ? mapDataRooms[roomKey] : null;
             const iframe = document.getElementById('map-iframe');
 
-            if (!roomData) return;
-
-            // Update Header Judul Kamar Peta
+            // Set judul kamar peta jika data ada
             const titleEl = document.getElementById('active-room-title');
             const subtitleEl = document.getElementById('active-room-subtitle');
             
-            if (titleEl) titleEl.innerText = roomData.title;
-            if (subtitleEl) subtitleEl.innerText = roomData.subtitle;
+            if (roomData) {
+                if (titleEl) titleEl.innerText = roomData.title;
+                if (subtitleEl) subtitleEl.innerText = roomData.subtitle;
+            }
 
-            // Alihkan Tampilan
+            // Alihkan Tampilan (Sembunyikan Beranda, Tampilkan Kamar Peta)
             document.getElementById('dashboard-view').classList.add('hidden');
-            document.getElementById('main-footer').classList.add('hidden');
+            
+            const footer = document.getElementById('main-footer');
+            if (footer) footer.classList.add('hidden');
+            
             document.getElementById('map-room-view').classList.remove('hidden');
 
             // Ubah Hash di URL browser (misal: #bimtek, #pelatihan)
             window.location.hash = roomKey;
 
             // Set source file iframe
-            if (roomKey === 'bimtek') {
-                iframe.src = "dummy_bimtek_index.html"; 
-            } else {
-                iframe.src = "about:blank";
-                alert("Peta " + roomData.title + " sedang dalam tahap integrasi data.");
+            if (iframe) {
+                if (roomKey === 'bimtek') {
+                    iframe.src = "dummy_bimtek_index.html"; 
+                } else {
+                    iframe.src = "about:blank";
+                    alert("Peta ini sedang dalam tahap integrasi data.");
+                }
             }
         }
 
@@ -723,16 +739,16 @@
         ------------------------------------------------------------- */
         window.addEventListener('DOMContentLoaded', () => {
             const hash = window.location.hash.replace('#', '');
-            if (hash && mapDataRooms[hash]) {
-                // Jika ada hash valid di URL saat refresh, langsung buka kamar petanya
+            if (hash) {
+                // Jika ada hash di URL saat refresh, langsung buka kamar petanya
                 openMapRoom(hash);
             }
         });
 
-        // Tangani navigasi jika user menekan tombol Back / Forward di browser
+        // Tangani tombol Back / Forward di browser
         window.addEventListener('popstate', () => {
             const hash = window.location.hash.replace('#', '');
-            if (hash && mapDataRooms[hash]) {
+            if (hash) {
                 openMapRoom(hash);
             } else {
                 showDashboard();
