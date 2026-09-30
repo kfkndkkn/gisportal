@@ -21,6 +21,9 @@
 
     <style>
         /* TAMBAHAN WAJIB: Agar HTML & Body di dalam iframe mengambil full tinggi layar tanpa scrollbar ganda */
+        * {
+        box-sizing: border-box;
+        }
         html, body {
             height: 100%;
             width: 100%;
@@ -32,6 +35,7 @@
 
         /* UBAH DI SINI: height diubah dari 100% menjadi 100vh agar mengisi 100% tinggi viewport iframe */
         #map { 
+            flex: 1;
             height: 100%; 
             width: 100&; 
             z-index: 1; 
