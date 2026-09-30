@@ -62,21 +62,21 @@
     <!-- HEADER NAVIGATION UTAMA BAPETEN -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20 items-center">
+            <div class="flex justify-between h-20 items-center gap-2">
                 
                 <!-- Logo & Brand Kantor -->
-                <div class="flex items-center gap-3 cursor-pointer" onclick="backToDashboard()">
-                    <img src="logo/logo-bapeten.png" alt="BAPETEN" class="h-14 w-auto object-contain" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Logo_Bapeten.png'">
-                    <div>
-                        <h1 class="font-bold text-slate-900 text-lg leading-tight tracking-tight">
+                <div class="flex items-center gap-3 cursor-pointer min-w-0" onclick="backToDashboard()">
+                    <img src="logo/logo-bapeten.png" alt="BAPETEN" class="h-10 sm:h-14 w-auto object-contain flex-shrink-0" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Logo_Bapeten.png'">
+                    <div class="min-w-0">
+                        <h1 class="font-bold text-slate-900 text-sm sm:text-lg leading-tight tracking-tight truncate">
                             Badan Pengawas Tenaga Nuklir
                         </h1>
-                        <p class="text-[11px] text-slate-500 font-medium">Direktorat Keteknikan dan Kesiapsiagaan Nuklir</p>
+                        <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate">Direktorat Keteknikan dan Kesiapsiagaan Nuklir</p>
                     </div>
                 </div>
 
                 <!-- Navigation Links -->
-                <nav class="hidden md:flex items-center space-x-1 lg:space-x-2 font-medium text-sm">
+                <nav class="hidden md:flex items-center space-x-1 lg:space-x-2 font-medium text-sm flex-shrink-0">
                     <button onclick="showDashboard()" id="nav-beranda" class="px-4 py-2 rounded-full text-brand-900 bg-amber-400 font-semibold shadow-sm transition">
                         Beranda
                     </button>
@@ -114,7 +114,7 @@
                 </nav>
 
                 <!-- Mobile Menu Button -->
-                <div class="flex items-center md:hidden">
+                <div class="flex items-center md:hidden flex-shrink-0">
                     <button onclick="toggleMobileMenu()" class="p-2 rounded-lg text-slate-600 hover:bg-slate-100">
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
@@ -405,13 +405,11 @@
         </div>
     </main>
 
-<!-- MAP ROOM INTERACTIVE VIEW (Header BAPETEN Tetap Nampak di Atas) -->
-    <div id="map-room-view" class="hidden flex-col h-screen w-screen overflow-hidden bg-slate-900 fixed inset-0 z-50">
-        <!-- MAP ROOM INTERACTIVE VIEW (HEADER PROPORSIO NAL & ANTI-OVERLAP) -->
+    <!-- MAP ROOM INTERACTIVE VIEW -->
     <div id="map-room-view" class="hidden flex-col h-screen w-screen overflow-hidden bg-slate-900 fixed inset-0 z-50">
         
-        <!-- 1. HEADER UTAMA BAPETEN -->
-        <header class="bg-white border-b border-slate-200 shrink-0 h-16 sm:h-20 px-4 sm:px-8 flex items-center justify-between z-50 shadow-sm">
+        <!-- Header BAPETEN di atas kamar peta -->
+        <header class="bg-white border-b border-slate-200 shrink-0 h-16 sm:h-20 px-4 sm:px-8 flex items-center justify-between z-50 shadow-sm gap-2">
             <div class="flex items-center gap-3 cursor-pointer min-w-0" onclick="backToDashboard()">
                 <img src="logo/logo-bapeten.png" alt="BAPETEN" class="h-10 sm:h-14 w-auto object-contain flex-shrink-0" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Logo_Bapeten.png'">
                 <div class="min-w-0">
@@ -422,7 +420,6 @@
                 </div>
             </div>
 
-            <!-- Tombol Kembali ke Beranda -->
             <button onclick="showDashboard()" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs flex items-center space-x-2 shadow-md transition flex-shrink-0 ml-2">
                 <i class="fa-solid fa-arrow-left text-amber-400"></i>
                 <span class="hidden sm:inline">Kembali ke Beranda</span>
@@ -430,7 +427,7 @@
             </button>
         </header>
 
-        <!-- 2. SUB-HEADER BAR KAMAR PETA (RESPONSIF SAAT SPLIT SCREEN) -->
+        <!-- Sub-header bar judul kamar peta (responsif antitumpuk) -->
         <div class="bg-slate-900 text-white px-4 sm:px-6 py-2 flex items-center justify-between border-b border-slate-800 shadow-inner shrink-0 min-h-[36px] z-40 gap-4 overflow-hidden">
             <div class="flex items-center space-x-2 min-w-0 flex-1">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
@@ -438,23 +435,17 @@
                     Peta Interaktif
                 </h2>
             </div>
-            <span id="active-room-subtitle" class="text-[10px] text-slate-400 hidden md:block truncate flex-shrink-0 max-w-[40%] text-right">
+            <span id="active-room-subtitle" class="text-[10px] text-slate-400 hidden lg:block truncate flex-shrink-0 max-w-[40%] text-right">
                 Sistem Informasi Geospasial Kesiapsiagaan Nuklir
             </span>
         </div>
 
-        <!-- 3. FRAME PETA -->
+        <!-- Frame tempat dummy_bimtek_index.html dimuat -->
         <div class="w-full h-[calc(100vh-5.5rem)] sm:h-[calc(100vh-7.25rem)] relative bg-slate-900 overflow-hidden">
             <iframe id="map-iframe" src="" class="w-full h-full border-0" title="WebGIS Interactive Map"></iframe>
         </div>
     </div>
 
-        <!-- 3. FRAME PETA (Mengisi Pas Seluruh Sisa Ruang Layar di Bawah Header) -->
-        <div class="w-full h-[calc(100vh-7.5rem)] relative bg-slate-900 overflow-hidden">
-            <iframe id="map-iframe" src="" class="w-full h-full border-0" title="WebGIS Interactive Map"></iframe>
-        </div>
-    </div>
-    
     <!-- FOOTER -->
     <footer id="main-footer" class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -488,7 +479,7 @@
         </div>
     </footer>
 
-    <!-- JAVASCRIPT LOGIC NAVIGASI UTAMA -->
+    <!-- JAVASCRIPT NAVIGASI UTAMA -->
     <script>
         const mapDataRooms = {
             bimtek: {
@@ -564,11 +555,22 @@
             window.location.hash = roomKey;
 
             if (iframe) {
+                let targetSrc = "";
                 if (roomKey === 'bimtek') {
-                    iframe.src = "dummy_bimtek_index.html";
+                    targetSrc = "dummy_bimtek_index.html";
                 } else {
-                    iframe.src = "about:blank";
-                    alert("Peta " + (roomData ? roomData.title : roomKey) + " sedang dalam tahap integrasi data.");
+                    targetSrc = "about:blank";
+                }
+
+                // Cek jika iframe belum memuat target HTML (Mencegah blank saat refresh)
+                if (!iframe.src.includes(targetSrc) || targetSrc === "about:blank") {
+                    iframe.src = targetSrc;
+                }
+
+                if (roomKey !== 'bimtek') {
+                    setTimeout(() => {
+                        alert("Peta " + (roomData ? roomData.title : roomKey) + " sedang dalam tahap integrasi data.");
+                    }, 100);
                 }
             }
         }
