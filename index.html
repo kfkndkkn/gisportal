@@ -407,38 +407,47 @@
 
 <!-- MAP ROOM INTERACTIVE VIEW (Header BAPETEN Tetap Nampak di Atas) -->
     <div id="map-room-view" class="hidden flex-col h-screen w-screen overflow-hidden bg-slate-900 fixed inset-0 z-50">
+        <!-- MAP ROOM INTERACTIVE VIEW (HEADER PROPORSIO NAL & ANTI-OVERLAP) -->
+    <div id="map-room-view" class="hidden flex-col h-screen w-screen overflow-hidden bg-slate-900 fixed inset-0 z-50">
         
-        <!-- 1. HEADER UTAMA BAPETEN (Sticky / Fixed di Paling Atas Kamar Peta) -->
-        <header class="bg-white border-b border-slate-200 shrink-0 h-20 px-4 sm:px-8 flex items-center justify-between z-50 shadow-sm">
-            <div class="flex items-center gap-3 cursor-pointer" onclick="backToDashboard()">
-                <img src="logo/logo-bapeten.png" alt="BAPETEN" class="h-14 w-auto object-contain" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Logo_Bapeten.png'">
-                <div>
-                    <h1 class="font-bold text-slate-900 text-lg leading-tight tracking-tight">
+        <!-- 1. HEADER UTAMA BAPETEN -->
+        <header class="bg-white border-b border-slate-200 shrink-0 h-16 sm:h-20 px-4 sm:px-8 flex items-center justify-between z-50 shadow-sm">
+            <div class="flex items-center gap-3 cursor-pointer min-w-0" onclick="backToDashboard()">
+                <img src="logo/logo-bapeten.png" alt="BAPETEN" class="h-10 sm:h-14 w-auto object-contain flex-shrink-0" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Logo_Bapeten.png'">
+                <div class="min-w-0">
+                    <h1 class="font-bold text-slate-900 text-sm sm:text-lg leading-tight tracking-tight truncate">
                         Badan Pengawas Tenaga Nuklir
                     </h1>
-                    <p class="text-[11px] text-slate-500 font-medium">Direktorat Keteknikan dan Kesiapsiagaan Nuklir</p>
+                    <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate">Direktorat Keteknikan dan Kesiapsiagaan Nuklir</p>
                 </div>
             </div>
 
-            <!-- Tombol Kembali ke Beranda / Direktori Peta -->
-            <button onclick="showDashboard()" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs flex items-center space-x-2 shadow-md transition">
+            <!-- Tombol Kembali ke Beranda -->
+            <button onclick="showDashboard()" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs flex items-center space-x-2 shadow-md transition flex-shrink-0 ml-2">
                 <i class="fa-solid fa-arrow-left text-amber-400"></i>
-                <span>Kembali ke Beranda</span>
+                <span class="hidden sm:inline">Kembali ke Beranda</span>
+                <span class="sm:hidden">Beranda</span>
             </button>
         </header>
 
-        <!-- 2. SUB-HEADER BAR KAMAR PETA (Menampilkan Judul Kamar Peta yang Sedang Aktif) -->
-        <div class="bg-slate-900 text-white px-6 py-2.5 flex items-center justify-between border-b border-slate-800 shadow-inner shrink-0 h-10 z-40">
-            <div class="flex items-center space-x-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <!-- 2. SUB-HEADER BAR KAMAR PETA (RESPONSIF SAAT SPLIT SCREEN) -->
+        <div class="bg-slate-900 text-white px-4 sm:px-6 py-2 flex items-center justify-between border-b border-slate-800 shadow-inner shrink-0 min-h-[36px] z-40 gap-4 overflow-hidden">
+            <div class="flex items-center space-x-2 min-w-0 flex-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
                 <h2 id="active-room-title" class="font-bold text-xs sm:text-sm text-slate-200 truncate">
                     Peta Interaktif
                 </h2>
             </div>
-            <span id="active-room-subtitle" class="text-[10px] text-slate-400 hidden sm:inline">
+            <span id="active-room-subtitle" class="text-[10px] text-slate-400 hidden md:block truncate flex-shrink-0 max-w-[40%] text-right">
                 Sistem Informasi Geospasial Kesiapsiagaan Nuklir
             </span>
         </div>
+
+        <!-- 3. FRAME PETA -->
+        <div class="w-full h-[calc(100vh-5.5rem)] sm:h-[calc(100vh-7.25rem)] relative bg-slate-900 overflow-hidden">
+            <iframe id="map-iframe" src="" class="w-full h-full border-0" title="WebGIS Interactive Map"></iframe>
+        </div>
+    </div>
 
         <!-- 3. FRAME PETA (Mengisi Pas Seluruh Sisa Ruang Layar di Bawah Header) -->
         <div class="w-full h-[calc(100vh-7.5rem)] relative bg-slate-900 overflow-hidden">
