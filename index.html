@@ -405,34 +405,47 @@
         </div>
     </main>
 
-    <!-- MAP ROOM INTERACTIVE VIEW (IFRAME CONTAINER) -->
+<!-- MAP ROOM INTERACTIVE VIEW (Header BAPETEN Tetap Nampak di Atas) -->
     <div id="map-room-view" class="hidden flex-col h-screen w-screen overflow-hidden bg-slate-900 fixed inset-0 z-50">
         
-        <!-- Map Room Bar (Header Top Bar Kamar Peta) -->
-        <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between border-b border-slate-800 shadow-md shrink-0 h-16">
-            <div class="flex items-center space-x-3">
-                <button onclick="showDashboard()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold flex items-center space-x-1.5 transition">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    <span>Kembali ke Kamar Peta</span>
-                </button>
-                <div class="h-4 w-px bg-slate-700 hidden sm:block"></div>
+        <!-- 1. HEADER UTAMA BAPETEN (Sticky / Fixed di Paling Atas Kamar Peta) -->
+        <header class="bg-white border-b border-slate-200 shrink-0 h-20 px-4 sm:px-8 flex items-center justify-between z-50 shadow-sm">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="backToDashboard()">
+                <img src="logo/logo-bapeten.png" alt="BAPETEN" class="h-14 w-auto object-contain" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Logo_Bapeten.png'">
                 <div>
-                    <h2 id="active-room-title" class="font-bold text-sm sm:text-base text-white leading-none">
-                        Peta Interaktif
-                    </h2>
-                    <p id="active-room-subtitle" class="text-[11px] text-slate-400 mt-0.5">
+                    <h1 class="font-bold text-slate-900 text-lg leading-tight tracking-tight">
                         Badan Pengawas Tenaga Nuklir
-                    </p>
+                    </h1>
+                    <p class="text-[11px] text-slate-500 font-medium">Direktorat Keteknikan dan Kesiapsiagaan Nuklir</p>
                 </div>
             </div>
+
+            <!-- Tombol Kembali ke Beranda / Direktori Peta -->
+            <button onclick="showDashboard()" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs flex items-center space-x-2 shadow-md transition">
+                <i class="fa-solid fa-arrow-left text-amber-400"></i>
+                <span>Kembali ke Beranda</span>
+            </button>
+        </header>
+
+        <!-- 2. SUB-HEADER BAR KAMAR PETA (Menampilkan Judul Kamar Peta yang Sedang Aktif) -->
+        <div class="bg-slate-900 text-white px-6 py-2.5 flex items-center justify-between border-b border-slate-800 shadow-inner shrink-0 h-10 z-40">
+            <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <h2 id="active-room-title" class="font-bold text-xs sm:text-sm text-slate-200 truncate">
+                    Peta Interaktif
+                </h2>
+            </div>
+            <span id="active-room-subtitle" class="text-[10px] text-slate-400 hidden sm:inline">
+                Sistem Informasi Geospasial Kesiapsiagaan Nuklir
+            </span>
         </div>
 
-        <!-- Frame tempat dummy_bimtek_index.html dimuat (Penuh di bawah Topbar) -->
-        <div class="w-full h-[calc(100vh-4rem)] relative bg-slate-900 overflow-hidden">
+        <!-- 3. FRAME PETA (Mengisi Pas Seluruh Sisa Ruang Layar di Bawah Header) -->
+        <div class="w-full h-[calc(100vh-7.5rem)] relative bg-slate-900 overflow-hidden">
             <iframe id="map-iframe" src="" class="w-full h-full border-0" title="WebGIS Interactive Map"></iframe>
         </div>
     </div>
-
+    
     <!-- FOOTER -->
     <footer id="main-footer" class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
