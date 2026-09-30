@@ -11,19 +11,14 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     
-    <!-- FontAwesome Icons -->
+    <!-- FontAwesome Icons & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-    
-    <!-- Google Fonts (Inter) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* TAMBAHAN WAJIB: Agar HTML & Body di dalam iframe mengambil full tinggi layar tanpa scrollbar ganda */
-        * {
-        box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
         html, body {
             height: 100%;
             width: 100%;
@@ -33,11 +28,10 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* UBAH DI SINI: height diubah dari 100% menjadi 100vh agar mengisi 100% tinggi viewport iframe */
         #map { 
             flex: 1;
             height: 100%; 
-            width: 100&; 
+            width: 100%; 
             z-index: 1; 
         }
         
@@ -93,39 +87,12 @@
         .sidebar-smooth {
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .leaflet-control-attribution {
-            max-width: 90px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            transition: max-width 0.3s ease-in-out, opacity 0.3s ease-in-out;
-            opacity: 0.6;
-            border-radius: 6px;
-        }
-        .leaflet-control-attribution:hover {
-            max-width: 600px;
-            opacity: 1;
-        }
     </style>
 </head>
-<body class="bg-slate-100 flex flex-col h-screen overflow-hidden">
+<body class="bg-slate-100 flex flex-col h-full w-full overflow-hidden">
 
-    <!-- Navigation Bar -->
-    <header class="bg-slate-900 text-white border-b border-slate-800 px-4 py-3 flex justify-between items-center z-20 shadow-md h-[65px] flex-shrink-0">
-        <div class="flex items-center space-x-3">
-            <div class="bg-amber-500 text-slate-950 p-2 rounded-lg flex items-center justify-center font-bold shadow-lg">
-                <i class="fa-solid fa-radiation text-xl"></i>
-            </div>
-            <div>
-                <h1 class="text-lg font-bold leading-tight tracking-wide text-slate-100">BADAN PENGAWAS TENAGA NUKLIR</h1>
-                <p class="text-xs text-amber-400 font-medium">Peta Persebaran Bimtek Kesiapsiagaan Kenukliran</p>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Container -->
-    <div class="flex-1 flex relative overflow-hidden h-[calc(100vh-65px)] w-full">
+    <!-- Main Container mengisi 100% sisa layar iframe -->
+    <div class="flex-1 flex relative overflow-hidden h-full w-full">
 
         <!-- Left Panel / Sidebar -->
         <aside id="sidebar" class="h-full w-96 bg-white z-10 shadow-2xl flex flex-col border-r border-slate-200 flex-shrink-0 sidebar-smooth relative">
@@ -225,28 +192,16 @@
         };
 
         function initMap() {
-            // 1. Pilihan Berbagai Jenis Basemap
             const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 maxZoom: 19,
                 attribution: '&copy; Esri'
             });
 
-            const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
-                maxZoom: 20,
-                attribution: '&copy; Google'
-            });
-
-            const googleSatellite = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-                maxZoom: 20,
-                attribution: '&copy; Google'
-            });
-
             const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
+                attribution: '&copy; OpenStreetMap'
             });
 
-            // 2. Inisialisasi Peta (Default menggunakan ESRI Satelit)
             map = L.map('map', { 
                 zoomControl: false,
                 layers: [esriSatellite] 
@@ -254,17 +209,13 @@
 
             L.control.zoom({ position: 'topright' }).addTo(map);
 
-            // 3. Tambahkan Fitur Kontrol Pemilih Basemap di Pojok Kanan Atas
             const baseMaps = {
                 "ESRI Satelit": esriSatellite,
-                "Google Hybrid": googleHybrid,
-                "Google Satelit": googleSatellite,
                 "OpenStreetMap": openStreetMap,
             };
 
             L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
 
-            // 4. Kompas Arah Utara
             const northArrowControl = L.control({ position: 'topright' });
             northArrowControl.onAdd = function() {
                 const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control north-compass-box');
@@ -284,11 +235,13 @@
             markersGroup.addTo(map);
         }
 
+        // AMBIL DATA XML DENGAN DUA OPSI FILE JIKA SALAH SATU TIDAK KETEMU
         function fetchDataFromDatabase() {
-            fetch('./dummy_data_bimtek.xml')
+            const xmlFile = './dummy_data_bimtek.xml';
+            fetch(xmlFile)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error("Gagal mengambil file XML, status: " + response.status);
+                        return fetch('./data_bimtek.xml').then(res => res.text());
                     }
                     return response.text();
                 })
@@ -429,13 +382,8 @@
                     icon: createCustomMarkerIcon(p.status)
                 });
 
-                const fotoHtml = p.foto_url 
-                    ? `<img src="${p.foto_url}" class="w-full h-32 object-cover rounded-t-lg" alt="Foto Kegiatan" onerror="this.style.display='none'"/>` 
-                    : '';
-
                 const popupContent = `
                     <div class="bg-white">
-                        ${fotoHtml}
                         <div class="bg-slate-900 text-white p-3 border-b border-slate-800">
                             <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold ${colorConfig.badge} mb-1">
                                 ${p.status || '-'}
@@ -443,22 +391,10 @@
                             <h4 class="font-bold text-xs text-amber-400 leading-snug">${p.nama_kegiatan || 'Bimtek Kenukliran'}</h4>
                         </div>
                         <div class="p-3 text-xs space-y-1.5 text-slate-700">
-                            <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-building text-slate-400 mt-0.5"></i>
-                                <span><b>Instansi:</b> ${p.instansi || '-'}</span>
-                            </div>
-                            <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-location-dot text-slate-400 mt-0.5"></i>
-                                <span><b>Lokasi:</b> ${p.lokasi || '-'}</span>
-                            </div>
-                            <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-calendar-day text-slate-400 mt-0.5"></i>
-                                <span><b>Tanggal:</b> ${p.tanggal_mulai || '-'}</span>
-                            </div>
-                            <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-users text-slate-400 mt-0.5"></i>
-                                <span><b>Peserta:</b> ${p.jumlah_peserta || 0} Orang</span>
-                            </div>
+                            <div><b>Instansi:</b> ${p.instansi || '-'}</div>
+                            <div><b>Lokasi:</b> ${p.lokasi || '-'}</div>
+                            <div><b>Tanggal:</b> ${p.tanggal_mulai || '-'}</div>
+                            <div><b>Peserta:</b> ${p.jumlah_peserta || 0} Orang</div>
                         </div>
                     </div>
                 `;
@@ -473,14 +409,10 @@
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-1">
                         <span class="text-[10px] font-semibold px-2 py-0.5 rounded ${colorConfig.badge}">${p.status || '-'}</span>
-                        <span class="text-[11px] text-slate-400 font-medium"><i class="fa-regular fa-calendar"></i> ${p.tanggal_mulai || '-'}</span>
+                        <span class="text-[11px] text-slate-400 font-medium">${p.tanggal_mulai || '-'}</span>
                     </div>
-                    <h3 class="font-bold text-xs text-slate-800 line-clamp-1 hover:text-amber-600 transition-colors">${p.nama_kegiatan}</h3>
+                    <h3 class="font-bold text-xs text-slate-800 line-clamp-1">${p.nama_kegiatan}</h3>
                     <p class="text-[11px] text-slate-500 font-medium">${p.instansi} • ${p.lokasi}</p>
-                    <div class="mt-2 flex justify-between items-center text-[10px] text-slate-400">
-                        <span><i class="fa-solid fa-users text-amber-500"></i> ${p.jumlah_peserta || 0} Peserta</span>
-                        <span class="text-amber-600 font-semibold hover:underline">Fokus Lokasi <i class="fa-solid fa-arrow-right"></i></span>
-                    </div>
                 `;
 
                 card.onclick = () => {
@@ -516,16 +448,7 @@
                 }, 50);
             }
 
-            let start = null;
-            function step(timestamp) {
-                if (!start) start = timestamp;
-                let progress = timestamp - start;
-                if (map) map.invalidateSize();
-                if (progress < 400) {
-                    window.requestAnimationFrame(step);
-                }
-            }
-            window.requestAnimationFrame(step);
+            if (map) map.invalidateSize();
         }
     </script>
 </body>
