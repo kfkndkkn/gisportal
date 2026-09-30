@@ -668,35 +668,48 @@
         };
 
         /* -------------------------------------------------------------
-           ROOM NAVIGATION LOGIC
+           ROOM NAVIGATION LOGIC (DENGAN ROUTING URL HASH / REFRESH PROOF)
         ------------------------------------------------------------- */
+        let currentRoomKey = 'bimtek';
+
         function showDashboard() {
             document.getElementById('dashboard-view').classList.remove('hidden');
             document.getElementById('map-room-view').classList.add('hidden');
             document.getElementById('main-footer').classList.remove('hidden');
+
+            // Kosongkan iframe agar hemat RAM
+            const iframe = document.getElementById('map-iframe');
+            if (iframe) iframe.src = "";
+
+            // Hapus hash di URL tanpa reload halaman
+            history.pushState("", document.title, window.location.pathname + window.location.search);
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-function openMapRoom(roomKey) {
+        function openMapRoom(roomKey) {
             currentRoomKey = roomKey;
             const roomData = mapDataRooms[roomKey];
             const iframe = document.getElementById('map-iframe');
 
             if (!roomData) return;
 
-            // Update UI Header di Kamar Peta
+            // Update Header Judul Kamar Peta
             const titleEl = document.getElementById('active-room-title');
             const subtitleEl = document.getElementById('active-room-subtitle');
             
             if (titleEl) titleEl.innerText = roomData.title;
             if (subtitleEl) subtitleEl.innerText = roomData.subtitle;
 
-            // Switch Tampilan (Sembunyikan Beranda, Tampilkan Kamar Peta)
+            // Alihkan Tampilan
             document.getElementById('dashboard-view').classList.add('hidden');
             document.getElementById('main-footer').classList.add('hidden');
             document.getElementById('map-room-view').classList.remove('hidden');
 
-            // Load file peta ke dalam iframe
+            // Ubah Hash di URL browser (misal: #bimtek, #pelatihan)
+            window.location.hash = roomKey;
+
+            // Set source file iframe
             if (roomKey === 'bimtek') {
                 iframe.src = "dummy_bimtek_index.html"; 
             } else {
@@ -704,6 +717,28 @@ function openMapRoom(roomKey) {
                 alert("Peta " + roomData.title + " sedang dalam tahap integrasi data.");
             }
         }
+
+        /* -------------------------------------------------------------
+           OTOMATIS CEK URL HASH SAAT HALAMAN DI-REFRESH
+        ------------------------------------------------------------- */
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash && mapDataRooms[hash]) {
+                // Jika ada hash valid di URL saat refresh, langsung buka kamar petanya
+                openMapRoom(hash);
+            }
+        });
+
+        // Tangani navigasi jika user menekan tombol Back / Forward di browser
+        window.addEventListener('popstate', () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash && mapDataRooms[hash]) {
+                openMapRoom(hash);
+            } else {
+                showDashboard();
+            }
+        });
+        
         /* -------------------------------------------------------------
            LEAFLET MAP CONTROLLER
         ------------------------------------------------------------- */
