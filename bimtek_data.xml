@@ -1,0 +1,350 @@
+<table xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <row>
+    <id>1</id>
+    <instansi>Sat Brimob Polda Aceh</instansi>
+    <alamat>Lamgugob, Kec. Syiah Kuala, Kota Banda Aceh, Aceh</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>30</jumlah_peserta>
+    <tanggal_mulai>2023-11-15</tanggal_mulai>
+    <tanggal_selesai>2023-11-16</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>5.577724</latitude>
+    <longitude>95.350431</longitude>
+  </row>
+  <row>
+    <id>2</id>
+    <instansi>Sat Brimob Polda Sumatera Utara</instansi>
+    <alamat>Jl. K.H. Wahid Hasyim No. 3-I, Merdeka, Medan Baru, Merdeka, Kec. Medan Baru, Kota Medan, Sumatera Utara 20222</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>25</jumlah_peserta>
+    <tanggal_mulai>2019-08-28</tanggal_mulai>
+    <tanggal_selesai>2019-08-29</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>3.573389</latitude>
+    <longitude>98.657618</longitude>
+  </row>
+  <row>
+    <id>3</id>
+    <instansi>Sat Brimob Polda Sumatera Barat</instansi>
+    <alamat>Padang Sarai, Kec. Koto Tangah, Kota Padang, Sumatera Barat 25586</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>30</jumlah_peserta>
+    <tanggal_mulai>2017-07-12</tanggal_mulai>
+    <tanggal_selesai>2017-07-13</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-0.827308</latitude>
+    <longitude>100.311723</longitude>
+  </row>
+  <row>
+    <id>4</id>
+    <instansi>Sat Brimob Polda Riau</instansi>
+    <alamat>Jl. KH. Ahmad Dahlan, Harjosari, Kec. Sukajadi, Kota Pekanbaru, Riau 28156</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>30</jumlah_peserta>
+    <tanggal_mulai>2018-07-25</tanggal_mulai>
+    <tanggal_selesai>2018-07-26</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>0.517994</latitude>
+    <longitude>101.437379</longitude>
+  </row>
+  <row>
+    <id>5</id>
+    <instansi>Sat Brimob Polda Kepulauan Riau</instansi>
+    <alamat>Tembesi, Kec. Sagulung, Kota Batam, Kepulauan Riau 29472</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>30</jumlah_peserta>
+    <tanggal_mulai>2016-06-01</tanggal_mulai>
+    <tanggal_selesai>2016-06-02</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>1.030111</latitude>
+    <longitude>104.002123</longitude>
+  </row>
+  <row>
+    <id>6</id>
+    <instansi>Sat Brimob Polda Jambi</instansi>
+    <alamat>Jl. Lingkar Selatan No.999, Kenali Asam Bawah, Kec. Kota Baru, Kota Jambi, Jambi 36361</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>32</jumlah_peserta>
+    <tanggal_mulai>2018-02-14</tanggal_mulai>
+    <tanggal_selesai>2018-02-15</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-1.681817</latitude>
+    <longitude>103.62361</longitude>
+  </row>
+  <row>
+    <id>7</id>
+    <instansi>Sat Brimob Polda Sumatera Selatan</instansi>
+    <alamat>Bukit Besar, Jl. Srijaya Negara, Bukit Lama, Kec. Ilir Bar. I, Kota Palembang, Sumatera Selatan 30121</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>30</jumlah_peserta>
+    <tanggal_mulai>2017-08-29</tanggal_mulai>
+    <tanggal_selesai>2017-08-30</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-2.989247</latitude>
+    <longitude>104.729112</longitude>
+  </row>
+  <row>
+    <id>8</id>
+    <instansi>Sat Brimob Polda Lampung</instansi>
+    <alamat>Jl. K.H. Wahid Hasyim No. 3-I, Merdeka, Medan Baru, Merdeka, Kec. Medan Baru, Kota Medan, Sumatera Utara 20222</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>32</jumlah_peserta>
+    <tanggal_mulai>2018-03-15</tanggal_mulai>
+    <tanggal_selesai>2018-03-16</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-5.421418</latitude>
+    <longitude>105.268478</longitude>
+  </row>
+  <row>
+    <id>9</id>
+    <instansi>Sat Brimob Polda Banten</instansi>
+    <alamat>Jl. K.H. Amin Jasuta No.1 Serang, Lontarbaru, Kec. Serang, Kota Serang, Banten 42115</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>27</jumlah_peserta>
+    <tanggal_mulai>2017-11-29</tanggal_mulai>
+    <tanggal_selesai>2017-11-30</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-6.115281</latitude>
+    <longitude>106.143065</longitude>
+  </row>
+  <row>
+    <id>10</id>
+    <instansi>Sat Brimob Polda Jawa Barat</instansi>
+    <alamat>Jalan Kolonel Ahmad Syam, Sayang, Jatinangor, Kabupaten Sumedang, Jawa Barat 45363</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>35</jumlah_peserta>
+    <tanggal_mulai>2016-09-14</tanggal_mulai>
+    <tanggal_selesai>2016-09-15</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-6.947833</latitude>
+    <longitude>107.772468</longitude>
+  </row>
+  <row>
+    <id>11</id>
+    <instansi>Sat Brimob Polda Jawa Tengah</instansi>
+    <alamat>Jl. Jend. Pol. Anton Sujarwo 218, Srondol Wetan, Kec. Banyumanik, Kota Semarang, Jawa Tengah 50263</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>25</jumlah_peserta>
+    <tanggal_mulai>2016-12-01</tanggal_mulai>
+    <tanggal_selesai>2016-12-02</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-7.067473</latitude>
+    <longitude>110.41196</longitude>
+  </row>
+  <row>
+    <id>12</id>
+    <instansi>Sat Brimob Polda Daerah Istimewa Yogyakarta</instansi>
+    <alamat>Padang Sarai, Kec. Koto Tangah, Kota Padang, Sumatera Barat 25586</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>30</jumlah_peserta>
+    <tanggal_mulai>2016-10-11</tanggal_mulai>
+    <tanggal_selesai>2016-10-12</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-7.790218</latitude>
+    <longitude>110.385963</longitude>
+  </row>
+  <row>
+    <id>13</id>
+    <instansi>Sat Brimob Polda Jawa Timur</instansi>
+    <alamat>Jl. Gresik Gadukan Timur No.39, Morokrembangan, Kec. Krembangan, Kota SBY, Jawa Timur 60178</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>30</jumlah_peserta>
+    <tanggal_mulai>2016-12-14</tanggal_mulai>
+    <tanggal_selesai>2016-12-15</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-7.233217</latitude>
+    <longitude>112.724498</longitude>
+  </row>
+  <row>
+    <id>14</id>
+    <instansi>Sat Brimob Polda Bali</instansi>
+    <alamat>No., Jl. WR Supratman No.1/7, Kesiman Kertalangu, Kec. Denpasar Tim., Kota Denpasar, Bali 80237</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>30</jumlah_peserta>
+    <tanggal_mulai>2018-09-26</tanggal_mulai>
+    <tanggal_selesai>2018-09-27</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-8.635673</latitude>
+    <longitude>115.259109</longitude>
+  </row>
+  <row>
+    <id>15</id>
+    <instansi>Sat Brimob Polda Kalimantan Selatan</instansi>
+    <alamat>Bukit Besar, Jl. Srijaya Negara, Bukit Lama, Kec. Ilir Bar. I, Kota Palembang, Sumatera Selatan 30121</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>26</jumlah_peserta>
+    <tanggal_mulai>2019-12-03</tanggal_mulai>
+    <tanggal_selesai>2019-12-04</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-3.4501076</latitude>
+    <longitude>114.7992073</longitude>
+  </row>
+  <row>
+    <id>16</id>
+    <instansi>Sat Brimob Polda Kalimantan Timur</instansi>
+    <alamat>Jl. Mulawarman No.65, Gn. Bahagia, Kecamatan Balikpapan Selatan, Kota Balikpapan, Kalimantan Timur 76114</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>30</jumlah_peserta>
+    <tanggal_mulai>2017-03-29</tanggal_mulai>
+    <tanggal_selesai>2017-03-30</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-1.275245</latitude>
+    <longitude>116.862081</longitude>
+  </row>
+  <row>
+    <id>17</id>
+    <instansi>Pemadam Kebakaran (PMK) DKI Jakarta</instansi>
+    <alamat>Jl. Kyai Haji Zainul Arifin No.71, RT.10/RW.10, Duri Pulo, Kecamatan Gambir, Kota Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10140</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>50</jumlah_peserta>
+    <tanggal_mulai>2016-08-29</tanggal_mulai>
+    <tanggal_selesai>2016-08-31</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-6.1619419</latitude>
+    <longitude>106.8085795</longitude>
+  </row>
+  <row>
+    <id>18</id>
+    <instansi>Pemadam Kebakaran (PMK) DKI Jakarta</instansi>
+    <alamat>Jl. Kyai Haji Zainul Arifin No.71, RT.10/RW.10, Duri Pulo, Kecamatan Gambir, Kota Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10140</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>50</jumlah_peserta>
+    <tanggal_mulai>2017-11-06</tanggal_mulai>
+    <tanggal_selesai>2017-11-07</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-6.1619419</latitude>
+    <longitude>106.8085795</longitude>
+  </row>
+  <row>
+    <id>19</id>
+    <instansi>Ambulan Gawat Darurat (AGD) DKI Jakarta</instansi>
+    <alamat>Jl. Kesehatan No.10, RT.3/RW.6, Petojo Sel., Kecamatan Gambir, Kota Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10160</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>21</jumlah_peserta>
+    <tanggal_mulai>2016-10-18</tanggal_mulai>
+    <tanggal_selesai>2016-10-18</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-6.1721758</latitude>
+    <longitude>106.8144227</longitude>
+  </row>
+  <row>
+    <id>20</id>
+    <instansi>Pusat Krisis Kesehatan Kemenkes, Dinas Kesehatan Pemprov DKI Jakarta, dan Ambulan Gawat Darurat 118.</instansi>
+    <alamat>Jl. Kesehatan No.10, RT.3/RW.6, Petojo Sel., Kecamatan Gambir, Kota Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10160</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>24</jumlah_peserta>
+    <tanggal_mulai>2017-10-10</tanggal_mulai>
+    <tanggal_selesai>2017-10-11</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-6.1721758</latitude>
+    <longitude>106.8144227</longitude>
+  </row>
+  <row>
+    <id>21</id>
+    <instansi>Pusat Laboratorium Forensik (Puslabfor Bareskrim Polri)</instansi>
+    <alamat>Jl. Raya Babakan Madang No. 67, Cipambuan, Kecamatan Babakan Madang, Kabupaten Bogor, Jawa Barat</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>11</jumlah_peserta>
+    <tanggal_mulai>2018-03-12</tanggal_mulai>
+    <tanggal_selesai>2018-03-13</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-6.5523053</latitude>
+    <longitude>106.8474437</longitude>
+  </row>
+  <row>
+    <id>22</id>
+    <instansi>Satuan Pengamanan Kawasan Sains dan Teknologi (KST) B. J. Habibie, Serpong</instansi>
+    <alamat>Padang Sarai, Kec. Koto Tangah, Kota Padang, Sumatera Barat 25586</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>25</jumlah_peserta>
+    <tanggal_mulai>2018-10-23</tanggal_mulai>
+    <tanggal_selesai>2018-10-24</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-6.3539138</latitude>
+    <longitude>106.6693834</longitude>
+  </row>
+  <row>
+    <id>23</id>
+    <instansi>Kementerian Pertahanan</instansi>
+    <alamat>Jl. Medan Merdeka Barat No.13-14, RT.2/RW.3, Gambir, Kecamatan Gambir, Kota Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10110</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>35</jumlah_peserta>
+    <tanggal_mulai>2019-04-24</tanggal_mulai>
+    <tanggal_selesai>2019-04-25</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-6.1771278</latitude>
+    <longitude>106.8196862</longitude>
+  </row>
+  <row>
+    <id>24</id>
+    <instansi>Kantor Kesehatan Pelabuhan (KKP) Kementerian Kesehatan</instansi>
+    <alamat>Jl. Nusantara II Jl. Tol Pelabuhan No.2, Tj. Priok, Kec. Tj. Priok, Jkt Utara, Daerah Khusus Ibukota Jakarta 14430</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>30</jumlah_peserta>
+    <tanggal_mulai>2019-09-03</tanggal_mulai>
+    <tanggal_selesai>2019-09-04</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-6.1116062</latitude>
+    <longitude>106.8725315</longitude>
+  </row>
+  <row>
+    <id>25</id>
+    <instansi>Pusat Kesehatan TNI AD</instansi>
+    <alamat>Jl. Mayjen Sutoyo, RT.1/RW.11, Cililitan, Kec. Kramat jati, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13640</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>30</jumlah_peserta>
+    <tanggal_mulai>2020-02-25</tanggal_mulai>
+    <tanggal_selesai>2020-02-26</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-6.2604466</latitude>
+    <longitude>106.863257</longitude>
+  </row>
+  <row>
+    <id>26</id>
+    <instansi>Dinas Penanggulangan Kebakaran dan Penyelamatan Provinsi DKI Jakarta</instansi>
+    <alamat>Jl. Kyai Haji Zainul Arifin No.71, RT.10/RW.10, Duri Pulo, Kecamatan Gambir, Kota Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10140</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>20</jumlah_peserta>
+    <tanggal_mulai>2021-04-06</tanggal_mulai>
+    <tanggal_selesai>2021-04-07</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-6.1619419</latitude>
+    <longitude>106.8085795</longitude>
+  </row>
+  <row>
+    <id>27</id>
+    <instansi>Dinas Kebakaran dan Penanggulangan Bencana (Damkar PB) Kota Bandung</instansi>
+    <alamat>Jl. Sukabumi No.17, Kacapiring, Kec. Batununggal, Kota Bandung, Jawa Barat 40271</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>30</jumlah_peserta>
+    <tanggal_mulai>2022-09-28</tanggal_mulai>
+    <tanggal_selesai>2022-09-29</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-6.9165121</latitude>
+    <longitude>107.5927959</longitude>
+  </row>
+  <row>
+    <id>28</id>
+    <instansi>Badan Riset dan Inovasi Nasional (BRIN)</instansi>
+    <alamat>Jl. Raya Serpong, Muncul, Kec. Setu, Kota Tangerang Selatan, Banten 15314</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>30</jumlah_peserta>
+    <tanggal_mulai>2024-06-06</tanggal_mulai>
+    <tanggal_selesai>2024-06-07</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-6.3539138</latitude>
+    <longitude>106.6693834</longitude>
+  </row>
+  <row>
+    <id>29</id>
+    <instansi>Badan Nasional Pencarian dan Pertolongan (BASARNAS)</instansi>
+    <alamat>Jl. Angkasa Blok B. 15 No.Kav 2-3, RW.10, Gn. Sahari Sel., Kec. Kemayoran, Kota Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10610</alamat>
+    <kategori_pelatihan>Basic</kategori_pelatihan>
+    <jumlah_peserta>5</jumlah_peserta>
+    <tanggal_mulai>2024-06-06</tanggal_mulai>
+    <tanggal_selesai>2024-06-07</tanggal_selesai>
+    <foto_url xsi:nil="true"/>
+    <latitude>-6.1572458</latitude>
+    <longitude>106.8419827</longitude>
+  </row>
+</table>
