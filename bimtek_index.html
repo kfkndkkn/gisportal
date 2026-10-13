@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Peta Persebaran Bimtek Kesiapsiagaan Kenukliran</title>
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Leaflet CSS & FontAwesome Icons -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
@@ -34,7 +34,7 @@
             height: 100%; 
             z-index: 1; 
         }
-        
+
         .custom-div-icon { background: none; border: none; }
         .marker-pin {
             width: 32px; height: 32px;
@@ -85,7 +85,6 @@
             width: 42px;
         }
 
-        /* Transisi smooth menggunakan CSS transform */
         .sidebar-smooth {
             transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -141,7 +140,7 @@
                     <!-- TOMBOL POPUP KPI DASHBOARD -->
                     <button onclick="openKpiModal()" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center space-x-2 transition-all border border-slate-700">
                         <i class="fa-solid fa-chart-pie"></i>
-                        <span>Lihat Detail</span>
+                        <span>Lihat Detail Statistik & KPI Dashboard</span>
                     </button>
                 </div>
 
@@ -154,7 +153,7 @@
             </div>
         </aside>
 
-        <!-- Map Canvas Area (100% Layar Penuh) -->
+        <!-- Map Canvas Area -->
         <main class="w-full h-full relative bg-slate-900 overflow-hidden">
             <button id="show-sidebar-btn" onclick="toggleSidebar()" class="absolute top-4 left-4 z-[1000] bg-slate-900/90 text-white px-3.5 py-2.5 rounded-lg shadow-2xl hover:bg-slate-800 transition-all duration-300 flex items-center space-x-2 border border-slate-700 backdrop-blur-sm transform -translate-x-12 opacity-0 pointer-events-none">
                 <i class="fa-solid fa-bars text-amber-500"></i>
@@ -168,7 +167,7 @@
     <!-- MODAL POPUP DASHBOARD KPI STATISTIK -->
     <div id="kpi-modal" class="hidden fixed inset-0 z-[2000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
-            
+
             <!-- Modal Header -->
             <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800 flex-shrink-0">
                 <div class="flex items-center space-x-3">
@@ -185,9 +184,9 @@
                 </button>
             </div>
 
-            <!-- Modal Content (Grafik & Matriks) -->
+            <!-- Modal Content -->
             <div class="p-6 overflow-y-auto custom-scrollbar space-y-6 bg-slate-50 flex-1">
-                
+
                 <!-- Ringkasan Kartu KPI -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
@@ -221,8 +220,8 @@
 
                 <!-- Section Charts -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    
-                    <!-- Bar Chart: Tren Tahun 2016-2024 (Lebar 2/3) -->
+
+                    <!-- Bar Chart: Tren Tahun 2016-2024 -->
                     <div class="md:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
                         <div class="flex justify-between items-center mb-4">
                             <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-2">
@@ -231,64 +230,63 @@
                             <span class="text-[10px] text-slate-400 font-medium italic"><i class="fa-solid fa-hand-pointer mr-1"></i>Klik batang tahun untuk melihat detail</span>
                         </div>
                         
-                        <div class="relative flex-1 min-h-[260px] w-full">
+                        <div class="relative flex-1 min-h-[240px] w-full">
                             <canvas id="barChartYear"></canvas>
                         </div>
-                    </div>
-                    
-                <!-- PANEL DRILL-DOWN DETAIL TAHUN (Sembunyi secara default) -->
-                <div id="year-detail-panel" class="hidden mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3 animate-in fade-in duration-200">
-                    <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-                        <h5 class="font-bold text-xs text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-calendar-check text-amber-500"></i> Rincian Kegiatan Tahun <span id="selected-year-label" class="text-amber-600 font-extrabold">2024</span>
-                        </h5>
-                        <button onclick="hideYearDetail()" class="text-[11px] text-slate-400 hover:text-slate-600 underline">Tutup Rincian</button>
-                    </div>
 
-                    <div class="grid grid-cols-2 gap-3 text-xs">
-                        <!-- Detail Bimtek -->
-                        <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm space-y-1">
-                            <div class="flex justify-between items-center">
-                                <span class="font-semibold text-blue-700 flex items-center gap-1">
-                                    <i class="fa-solid fa-shield-halved"></i> Bimtek (Sat Brimob)
-                                </span>
-                                <span id="detail-bimtek-count" class="font-bold text-slate-800 bg-blue-50 px-2 py-0.5 rounded">0 Keg.</span>
+                        <!-- PANEL DRILL-DOWN DETAIL TAHUN -->
+                        <div id="year-detail-panel" class="hidden mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3 animate-in fade-in duration-200">
+                            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                                <h5 class="font-bold text-xs text-slate-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-calendar-check text-amber-500"></i> Rincian Kegiatan Tahun <span id="selected-year-label" class="text-amber-600 font-extrabold">2024</span>
+                                </h5>
+                                <button onclick="hideYearDetail()" class="text-[11px] text-slate-400 hover:text-slate-600 underline">Tutup Rincian</button>
                             </div>
-                            <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-100">
-                                <span>Total Peserta:</span>
-                                <span id="detail-bimtek-peserta" class="font-bold text-slate-700">0 Orang</span>
+
+                            <div class="grid grid-cols-2 gap-3 text-xs">
+                                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm space-y-1">
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-semibold text-blue-700 flex items-center gap-1">
+                                            <i class="fa-solid fa-shield-halved"></i> Bimtek (Sat Brimob)
+                                        </span>
+                                        <span id="detail-bimtek-count" class="font-bold text-slate-800 bg-blue-50 px-2 py-0.5 rounded">0 Keg.</span>
+                                    </div>
+                                    <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-100">
+                                        <span>Total Peserta:</span>
+                                        <span id="detail-bimtek-peserta" class="font-bold text-slate-700">0 Orang</span>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm space-y-1">
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-semibold text-emerald-700 flex items-center gap-1">
+                                            <i class="fa-solid fa-graduation-cap"></i> Diklat / Lainnya
+                                        </span>
+                                        <span id="detail-diklat-count" class="font-bold text-slate-800 bg-emerald-50 px-2 py-0.5 rounded">0 Keg.</span>
+                                    </div>
+                                    <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-100">
+                                        <span>Total Peserta:</span>
+                                        <span id="detail-diklat-peserta" class="font-bold text-slate-700">0 Orang</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Detail Diklat -->
-                        <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm space-y-1">
-                            <div class="flex justify-between items-center">
-                                <span class="font-semibold text-emerald-700 flex items-center gap-1">
-                                    <i class="fa-solid fa-graduation-cap"></i> Diklat / Lainnya
-                                </span>
-                                <span id="detail-diklat-count" class="font-bold text-slate-800 bg-emerald-50 px-2 py-0.5 rounded">0 Keg.</span>
-                            </div>
-                            <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-100">
-                                <span>Total Peserta:</span>
-                                <span id="detail-diklat-peserta" class="font-bold text-slate-700">0 Orang</span>
-                            </div>
+                    <!-- Pie Chart: Distribusi Bimtek vs Diklat -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+                        <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-amber-500"></i> Proporsi Jenis Kegiatan
+                        </h4>
+                        <div class="relative flex-1 min-h-[260px] w-full flex items-center justify-center">
+                            <canvas id="pieChartCategory"></canvas>
                         </div>
                     </div>
+
                 </div>
+
             </div>
 
-            <!-- Pie Chart -->
-            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
-                <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-chart-pie text-amber-500"></i> Proporsi Jenis Kegiatan
-                </h4>
-                <div class="relative flex-1 min-h-[260px] w-full flex items-center justify-center">
-                    <canvas id="pieChartCategory"></canvas>
-                </div>
-            </div>
-
-        </div>
-                    
             <!-- Modal Footer -->
             <div class="bg-white px-6 py-3 border-t border-slate-200 flex justify-end flex-shrink-0">
                 <button onclick="closeKpiModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition-colors">
@@ -330,7 +328,7 @@
                 maxZoom: 20,
                 attribution: '&copy; Google Maps'
             });
-            
+
             const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; OpenStreetMap'
@@ -369,6 +367,9 @@
             northArrowControl.addTo(map);
 
             markersGroup.addTo(map);
+
+            // Menjamin peta ter-render utuh saat pertama kali dibuka
+            setTimeout(() => { map.invalidateSize(); }, 300);
         }
 
         function formatRentangTanggal(tglMulai, tglSelesai) {
@@ -389,7 +390,7 @@
                     const parser = new DOMParser();
                     const xmlDoc = parser.parseFromString(xmlText, "text/xml");
                     const rows = xmlDoc.getElementsByTagName("row");
-            
+
                     const features = [];
                     for (let i = 0; i < rows.length; i++) {
                         const row = rows[i];
@@ -397,7 +398,7 @@
                             const el = row.getElementsByTagName(tagName)[0];
                             return el ? el.textContent.trim() : '';
                         };
-                
+
                         const lat = parseFloat(getVal('latitude'));
                         const lng = parseFloat(getVal('longitude'));
 
@@ -474,7 +475,7 @@
                 const p = feature.properties;
                 const dateStr = p.tanggal_mulai ? String(p.tanggal_mulai) : '';
                 const yearMatch = (yearFilter === 'ALL') || dateStr.startsWith(yearFilter);
-                
+
                 const searchMatch = (p.kategori_pelatihan || '').toLowerCase().includes(searchValue) ||
                                     (p.instansi || '').toLowerCase().includes(searchValue) ||
                                     (p.alamat || '').toLowerCase().includes(searchValue);
@@ -548,7 +549,7 @@
 
                 const card = document.createElement('div');
                 card.className = 'p-3.5 hover:bg-slate-50 cursor-pointer transition-colors border-l-4 border-amber-500';
-                
+
                 card.innerHTML = `
                     <div class="flex justify-between items-center mb-1.5">
                         <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-100 text-sky-800 border border-sky-200">
@@ -613,7 +614,7 @@
             const modal = document.getElementById('kpi-modal');
             modal.classList.remove('hidden');
 
-            hideYearDetail(); // Sembunyikan rincian tahun saat pertama kali buka
+            hideYearDetail();
 
             if (!rawGeoJSONData || !rawGeoJSONData.features) return;
 
@@ -650,7 +651,7 @@
             document.getElementById('kpi-count-diklat').innerText = diklatCount;
             document.getElementById('kpi-count-peserta').innerText = totalPeserta.toLocaleString('id-ID');
 
-            // Render Bar Chart + Event Klik Batang (Drill-down)
+            // Render Bar Chart + Drill-Down Click
             const ctxBar = document.getElementById('barChartYear').getContext('2d');
             if (yearBarChartInstance) yearBarChartInstance.destroy();
 
@@ -752,3 +753,6 @@
         function closeKpiModal() {
             document.getElementById('kpi-modal').classList.add('hidden');
         }
+    </script>
+</body>
+</html>
