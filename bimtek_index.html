@@ -379,13 +379,6 @@
             };
             northArrowControl.addTo(map);
 
-            markersGroup.addTo(map);
-
-            setTimeout(() => { 
-                if (map) map.invalidateSize(); 
-            }, 300);
-        }
-
             // Tambahkan Legenda Warna Titik di Peta
             const legendControl = L.control({ position: 'bottomright' });
             legendControl.onAdd = function() {
@@ -404,6 +397,13 @@
                 return div;
             };
             legendControl.addTo(map);
+            
+            markersGroup.addTo(map);
+
+            setTimeout(() => { 
+                if (map) map.invalidateSize(); 
+            }, 300);
+        }
         
         function formatRentangTanggal(tglMulai, tglSelesai) {
             if (!tglMulai) return '-';
