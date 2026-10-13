@@ -145,7 +145,7 @@
                 </div>
 
                 <div class="px-4 py-2 bg-slate-100 border-b border-slate-200 flex justify-between items-center flex-shrink-0">
-                    <span class="text-xs font-semibold text-slate-600 uppercase">Daftar Titik Bimtek</span>
+                    <span class="text-xs font-semibold text-slate-600 uppercase">Daftar Titik Bimtek (A-Z)</span>
                     <span id="stat-showing-count" class="text-xs font-medium text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full">0 Titik</span>
                 </div>
 
@@ -194,7 +194,7 @@
                             <i class="fa-solid fa-shield-halved"></i>
                         </div>
                         <div>
-                            <div class="text-xs text-slate-500 font-medium">Bimtek (Sat Brimob)</div>
+                            <div class="text-xs text-slate-500 font-medium">Bimtek</div>
                             <div id="kpi-count-bimtek" class="text-2xl font-bold text-slate-800">0</div>
                         </div>
                     </div>
@@ -203,7 +203,7 @@
                             <i class="fa-solid fa-graduation-cap"></i>
                         </div>
                         <div>
-                            <div class="text-xs text-slate-500 font-medium">Diklat / Pelatihan Lain</div>
+                            <div class="text-xs text-slate-500 font-medium">Diklat</div>
                             <div id="kpi-count-diklat" class="text-2xl font-bold text-slate-800">0</div>
                         </div>
                     </div>
@@ -234,7 +234,7 @@
                             <canvas id="barChartYear"></canvas>
                         </div>
 
-                        <!-- PANEL DRILL-DOWN DETAIL TAHUN -->
+                        <!-- PANEL DRILL-DOWN DETAIL TAHUN & RINCIAN INSTANSI -->
                         <div id="year-detail-panel" class="hidden mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3 animate-in fade-in duration-200">
                             <div class="flex justify-between items-center border-b border-slate-200 pb-2">
                                 <h5 class="font-bold text-xs text-slate-800 flex items-center gap-2">
@@ -243,30 +243,40 @@
                                 <button onclick="hideYearDetail()" class="text-[11px] text-slate-400 hover:text-slate-600 underline">Tutup Rincian</button>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-3 text-xs">
-                                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm space-y-1">
-                                    <div class="flex justify-between items-center">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                <!-- Detail Bimtek & Daftar Instansi -->
+                                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm space-y-2 flex flex-col">
+                                    <div class="flex justify-between items-center border-b border-slate-100 pb-1.5">
                                         <span class="font-semibold text-blue-700 flex items-center gap-1">
-                                            <i class="fa-solid fa-shield-halved"></i> Bimtek (Sat Brimob)
+                                            <i class="fa-solid fa-shield-halved"></i> Bimtek
                                         </span>
                                         <span id="detail-bimtek-count" class="font-bold text-slate-800 bg-blue-50 px-2 py-0.5 rounded">0 Keg.</span>
                                     </div>
-                                    <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-100">
+                                    <div class="text-[11px] text-slate-500 flex justify-between">
                                         <span>Total Peserta:</span>
                                         <span id="detail-bimtek-peserta" class="font-bold text-slate-700">0 Orang</span>
                                     </div>
+                                    <div class="pt-1.5 border-t border-slate-100 flex-1">
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Daftar Instansi:</span>
+                                        <ul id="detail-bimtek-list" class="space-y-1 pl-3 list-disc text-[11px] text-slate-600 max-h-32 overflow-y-auto custom-scrollbar"></ul>
+                                    </div>
                                 </div>
 
-                                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm space-y-1">
-                                    <div class="flex justify-between items-center">
+                                <!-- Detail Diklat & Daftar Instansi -->
+                                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm space-y-2 flex flex-col">
+                                    <div class="flex justify-between items-center border-b border-slate-100 pb-1.5">
                                         <span class="font-semibold text-emerald-700 flex items-center gap-1">
-                                            <i class="fa-solid fa-graduation-cap"></i> Diklat / Lainnya
+                                            <i class="fa-solid fa-graduation-cap"></i> Diklat
                                         </span>
                                         <span id="detail-diklat-count" class="font-bold text-slate-800 bg-emerald-50 px-2 py-0.5 rounded">0 Keg.</span>
                                     </div>
-                                    <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-100">
+                                    <div class="text-[11px] text-slate-500 flex justify-between">
                                         <span>Total Peserta:</span>
                                         <span id="detail-diklat-peserta" class="font-bold text-slate-700">0 Orang</span>
+                                    </div>
+                                    <div class="pt-1.5 border-t border-slate-100 flex-1">
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Daftar Instansi:</span>
+                                        <ul id="detail-diklat-list" class="space-y-1 pl-3 list-disc text-[11px] text-slate-600 max-h-32 overflow-y-auto custom-scrollbar"></ul>
                                     </div>
                                 </div>
                             </div>
@@ -368,7 +378,6 @@
 
             markersGroup.addTo(map);
 
-            // Memaksa Leaflet meresize kontainer agar peta muncul penuh
             setTimeout(() => { 
                 if (map) map.invalidateSize(); 
             }, 300);
@@ -485,6 +494,13 @@
                 return yearMatch && searchMatch;
             });
 
+            // REVISI 1: PENGURUTAN DAFTAR BERDASARKAN ABJAD (A-Z) INSTANSI
+            filteredFeatures.sort((a, b) => {
+                const nameA = (a.properties.instansi || '').toLowerCase();
+                const nameB = (b.properties.instansi || '').toLowerCase();
+                return nameA.localeCompare(nameB, 'id');
+            });
+
             document.getElementById('stat-total-events').innerText = filteredFeatures.length;
             const totalParticipants = filteredFeatures.reduce((acc, f) => acc + (Number(f.properties.jumlah_peserta) || 0), 0);
             document.getElementById('stat-total-participants').innerText = totalParticipants;
@@ -582,7 +598,6 @@
             document.getElementById('search-input').addEventListener('input', renderData);
             document.getElementById('year-filter').addEventListener('change', renderData);
             
-            // Auto resize peta saat layar berubah
             window.addEventListener('resize', () => {
                 if (map) map.invalidateSize();
             });
@@ -616,7 +631,6 @@
             window.requestAnimationFrame(animateMapResize);
         }
 
-        // FUNGSI UNTUK MEMBUKA & MEMUAT DATA POPUP KPI
         function openKpiModal() {
             const modal = document.getElementById('kpi-modal');
             modal.classList.remove('hidden');
@@ -658,7 +672,6 @@
             document.getElementById('kpi-count-diklat').innerText = diklatCount;
             document.getElementById('kpi-count-peserta').innerText = totalPeserta.toLocaleString('id-ID');
 
-            // Render Bar Chart + Drill-Down Click
             const ctxBar = document.getElementById('barChartYear').getContext('2d');
             if (yearBarChartInstance) yearBarChartInstance.destroy();
 
@@ -689,14 +702,13 @@
                 }
             });
 
-            // Render Pie Chart
             const ctxPie = document.getElementById('pieChartCategory').getContext('2d');
             if (categoryPieChartInstance) categoryPieChartInstance.destroy();
 
             categoryPieChartInstance = new Chart(ctxPie, {
                 type: 'pie',
                 data: {
-                    labels: ['Bimtek (Sat Brimob)', 'Diklat / Lainnya'],
+                    labels: ['Bimtek', 'Diklat'],
                     datasets: [{
                         data: [bimtekCount, diklatCount],
                         backgroundColor: ['#3b82f6', '#10b981'],
@@ -717,26 +729,33 @@
             });
         }
 
+        // REVISI 2: DAFTAR RINCIAN INSTANSI SESUAI TAHUN YANG DIKLIK
         function showYearDetail(year, features) {
             let bimtekCount = 0;
             let bimtekPeserta = 0;
             let diklatCount = 0;
             let diklatPeserta = 0;
 
+            const bimtekInstansiList = [];
+            const diklatInstansiList = [];
+
             features.forEach(f => {
                 const p = f.properties;
-                const instansi = (p.instansi || '').toLowerCase();
+                const instansiRaw = p.instansi || 'Instansi Tanpa Nama';
+                const instansiLower = instansiRaw.toLowerCase();
                 const peserta = parseInt(p.jumlah_peserta) || 0;
                 const tglMulai = p.tanggal_mulai || '';
                 const itemYear = tglMulai.substring(0, 4);
 
                 if (itemYear === year) {
-                    if (instansi.includes('sat brimob')) {
+                    if (instansiLower.includes('sat brimob')) {
                         bimtekCount++;
                         bimtekPeserta += peserta;
+                        bimtekInstansiList.push(`${instansiRaw} (${peserta} Peserta)`);
                     } else {
                         diklatCount++;
                         diklatPeserta += peserta;
+                        diklatInstansiList.push(`${instansiRaw} (${peserta} Peserta)`);
                     }
                 }
             });
@@ -746,6 +765,22 @@
             document.getElementById('detail-bimtek-peserta').innerText = `${bimtekPeserta.toLocaleString('id-ID')} Orang`;
             document.getElementById('detail-diklat-count').innerText = `${diklatCount} Keg.`;
             document.getElementById('detail-diklat-peserta').innerText = `${diklatPeserta.toLocaleString('id-ID')} Orang`;
+
+            // Render List Instansi Bimtek
+            const bimtekUl = document.getElementById('detail-bimtek-list');
+            if (bimtekInstansiList.length > 0) {
+                bimtekUl.innerHTML = bimtekInstansiList.map(item => `<li>${item}</li>`).join('');
+            } else {
+                bimtekUl.innerHTML = `<li class="text-slate-400 italic list-none">Tidak ada kegiatan Bimtek</li>`;
+            }
+
+            // Render List Instansi Diklat
+            const diklatUl = document.getElementById('detail-diklat-list');
+            if (diklatInstansiList.length > 0) {
+                diklatUl.innerHTML = diklatInstansiList.map(item => `<li>${item}</li>`).join('');
+            } else {
+                diklatUl.innerHTML = `<li class="text-slate-400 italic list-none">Tidak ada kegiatan Diklat</li>`;
+            }
 
             document.getElementById('year-detail-panel').classList.remove('hidden');
         }
