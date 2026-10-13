@@ -1,758 +1,681 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peta Persebaran Bimtek Kesiapsiagaan Kenukliran</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peta Persebaran Bimtek Kesiapsiagaan Kenukliran</title>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Leaflet CSS & FontAwesome Icons -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS & FontAwesome Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Chart.js CDN untuk Grafik KPI -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js CDN untuk Grafik KPI -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <style>
-        * { box-sizing: border-box; }
-        html, body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            font-family: 'Inter', sans-serif;
-        }
+    <style>
+        * { box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
 
-        #map { 
-            width: 100%; 
-            height: 100%; 
-            z-index: 1; 
-        }
+        #map { 
+            width: 100%; 
+            height: 100%; 
+            z-index: 1; 
+        }
 
-        .custom-div-icon { background: none; border: none; }
-        .marker-pin {
-            width: 32px; height: 32px;
-            border-radius: 50% 50% 50% 0;
-            position: absolute;
-            transform: rotate(-45deg);
-            left: 50%; top: 50%;
-            margin: -16px 0 0 -16px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
-            background-color: #0284c7;
-            transition: all 0.2s ease;
-        }
-        .marker-pin::after {
-            content: ''; width: 14px; height: 14px;
-            margin: 8px 0 0 8px; background: #fff;
-            position: absolute; border-radius: 50%;
-        }
-        .marker-pin i { transform: rotate(45deg); color: #1e293b; z-index: 10; font-size: 12px; }
+        .custom-div-icon { background: none; border: none; }
+        .marker-pin {
+            width: 32px; height: 32px;
+            border-radius: 50% 50% 50% 0;
+            position: absolute;
+            transform: rotate(-45deg);
+            left: 50%; top: 50%;
+            margin: -16px 0 0 -16px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+            background-color: #0284c7;
+            transition: all 0.2s ease;
+        }
+        .marker-pin::after {
+            content: ''; width: 14px; height: 14px;
+            margin: 8px 0 0 8px; background: #fff;
+            position: absolute; border-radius: 50%;
+        }
+        .marker-pin i { transform: rotate(45deg); color: #1e293b; z-index: 10; font-size: 12px; }
 
-        .leaflet-popup-content-wrapper {
-            padding: 0; border-radius: 12px; overflow: hidden;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        .leaflet-popup-content { margin: 0; line-height: 1.5; width: 290px !important; }
-        .leaflet-container a.leaflet-popup-close-button {
-            top: 10px; right: 10px; color: #ffffff;
-            background: rgba(0,0,0,0.3); border-radius: 50%;
-            width: 24px; height: 24px; display: flex;
-            align-items: center; justify-content: center; font-size: 14px;
-        }
+        .leaflet-popup-content-wrapper {
+            padding: 0; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .leaflet-popup-content { margin: 0; line-height: 1.5; width: 290px !important; }
+        .leaflet-container a.leaflet-popup-close-button {
+            top: 10px; right: 10px; color: #ffffff;
+            background: rgba(0,0,0,0.3); border-radius: 50%;
+            width: 24px; height: 24px; display: flex;
+            align-items: center; justify-content: center; font-size: 14px;
+        }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-        .north-compass-box {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            padding: 6px 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 42px;
-        }
+        .north-compass-box {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 6px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+        }
 
-        .sidebar-smooth {
-            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-    </style>
+        /* Transisi smooth menggunakan CSS transform */
+        .sidebar-smooth {
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
 </head>
 <body class="bg-slate-100 flex flex-col h-full w-full overflow-hidden">
 
-    <!-- Main Container -->
-    <div class="flex-1 flex relative overflow-hidden h-full w-full">
-
-        <!-- Left Panel / Sidebar -->
-        <aside id="sidebar" class="absolute top-0 left-0 h-full w-96 sm:w-[420px] bg-white z-[1000] shadow-2xl flex flex-col border-r border-slate-200 sidebar-smooth transform translate-x-0">
-            <div class="w-full flex flex-col h-full">
-                <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
-                    <h2 class="font-bold text-slate-800 text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-filter text-amber-500"></i> Filter & Pencarian
-                    </h2>
-                    <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-lg hover:bg-slate-200" title="Sembunyikan Panel">
-                        <i class="fa-solid fa-chevron-left text-lg"></i>
-                    </button>
-                </div>
-
-                <div class="p-3 space-y-2 bg-white border-b border-slate-100 flex-shrink-0">
-                    <div>
-                        <label class="text-[11px] font-semibold text-slate-500 uppercase mb-1 block">Cari Instansi / Alamat / Pelatihan</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                            <input type="text" id="search-input" placeholder="Ketik kata kunci..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="text-[11px] font-semibold text-slate-500 uppercase mb-1 block">Tahun Pelaksanaan</label>
-                        <select id="year-filter" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
-                            <option value="ALL">Semua Tahun</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- STATISTIK RINGKASAN & TOMBOL DETAIL KPI -->
-                <div class="p-2.5 bg-slate-50 border-b border-slate-100 flex-shrink-0 space-y-2">
-                    <div class="grid grid-cols-2 gap-2">
-                        <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm text-center">
-                            <div id="stat-total-events" class="text-lg font-bold text-slate-800">0</div>
-                            <div class="text-[11px] text-slate-500 font-medium">Total Keg. Bimtek</div>
-                        </div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm text-center">
-                            <div id="stat-total-participants" class="text-lg font-bold text-amber-600">0</div>
-                            <div class="text-[11px] text-slate-500 font-medium">Peserta Terlatih</div>
-                        </div>
-                    </div>
-
-                    <!-- TOMBOL POPUP KPI DASHBOARD -->
-                    <button onclick="openKpiModal()" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center space-x-2 transition-all border border-slate-700">
-                        <i class="fa-solid fa-chart-pie"></i>
-                        <span>Lihat Detail Statistik & KPI Dashboard</span>
-                    </button>
-                </div>
-
-                <div class="px-4 py-2 bg-slate-100 border-b border-slate-200 flex justify-between items-center flex-shrink-0">
-                    <span class="text-xs font-semibold text-slate-600 uppercase">Daftar Titik Bimtek</span>
-                    <span id="stat-showing-count" class="text-xs font-medium text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full">0 Titik</span>
-                </div>
-
-                <div id="event-list" class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-slate-100"></div>
-            </div>
-        </aside>
-
-        <!-- Map Canvas Area -->
-        <main class="w-full h-full relative bg-slate-900 overflow-hidden">
-            <button id="show-sidebar-btn" onclick="toggleSidebar()" class="absolute top-4 left-4 z-[1000] bg-slate-900/90 text-white px-3.5 py-2.5 rounded-lg shadow-2xl hover:bg-slate-800 transition-all duration-300 flex items-center space-x-2 border border-slate-700 backdrop-blur-sm transform -translate-x-12 opacity-0 pointer-events-none">
-                <i class="fa-solid fa-bars text-amber-500"></i>
-                <span class="text-xs font-semibold">Tampilkan Panel</span>
-            </button>
-
-            <div id="map"></div>
-        </main>
-    </div>
-
-    <!-- MODAL POPUP DASHBOARD KPI STATISTIK -->
-    <div id="kpi-modal" class="hidden fixed inset-0 z-[2000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
-
-            <!-- Modal Header -->
-            <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800 flex-shrink-0">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2 bg-amber-500 text-slate-950 rounded-lg font-bold">
-                        <i class="fa-solid fa-chart-line text-lg"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-sm sm:text-base text-slate-100">KPI Dashboard & Evaluasi Pelaksanaan Bimtek</h3>
-                        <p class="text-xs text-amber-400">Statistik Capaian Program Kesiapsiagaan Nuklir (2016 - 2024)</p>
-                    </div>
-                </div>
-                <button onclick="closeKpiModal()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition-colors">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
-
-            <!-- Modal Content -->
-            <div class="p-6 overflow-y-auto custom-scrollbar space-y-6 bg-slate-50 flex-1">
-
-                <!-- Ringkasan Kartu KPI -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-                        <div class="p-3 bg-blue-50 text-blue-600 rounded-xl text-xl">
-                            <i class="fa-solid fa-shield-halved"></i>
-                        </div>
-                        <div>
-                            <div class="text-xs text-slate-500 font-medium">Bimtek (Sat Brimob)</div>
-                            <div id="kpi-count-bimtek" class="text-2xl font-bold text-slate-800">0</div>
-                        </div>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-                        <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl text-xl">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                        </div>
-                        <div>
-                            <div class="text-xs text-slate-500 font-medium">Diklat / Pelatihan Lain</div>
-                            <div id="kpi-count-diklat" class="text-2xl font-bold text-slate-800">0</div>
-                        </div>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-                        <div class="p-3 bg-amber-50 text-amber-600 rounded-xl text-xl">
-                            <i class="fa-solid fa-users"></i>
-                        </div>
-                        <div>
-                            <div class="text-xs text-slate-500 font-medium">Total Alumni Peserta</div>
-                            <div id="kpi-count-peserta" class="text-2xl font-bold text-amber-600">0</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section Charts -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                    <!-- Bar Chart: Tren Tahun 2016-2024 -->
-                    <div class="md:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-2">
-                                <i class="fa-solid fa-chart-column text-amber-500"></i> Tren Pelaksanaan per Tahun (2016 - 2024)
-                            </h4>
-                            <span class="text-[10px] text-slate-400 font-medium italic"><i class="fa-solid fa-hand-pointer mr-1"></i>Klik batang tahun untuk melihat detail</span>
-                        </div>
-                        
-                        <div class="relative flex-1 min-h-[240px] w-full">
-                            <canvas id="barChartYear"></canvas>
-                        </div>
-
-                        <!-- PANEL DRILL-DOWN DETAIL TAHUN -->
-                        <div id="year-detail-panel" class="hidden mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3 animate-in fade-in duration-200">
-                            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-                                <h5 class="font-bold text-xs text-slate-800 flex items-center gap-2">
-                                    <i class="fa-solid fa-calendar-check text-amber-500"></i> Rincian Kegiatan Tahun <span id="selected-year-label" class="text-amber-600 font-extrabold">2024</span>
-                                </h5>
-                                <button onclick="hideYearDetail()" class="text-[11px] text-slate-400 hover:text-slate-600 underline">Tutup Rincian</button>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3 text-xs">
-                                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm space-y-1">
-                                    <div class="flex justify-between items-center">
-                                        <span class="font-semibold text-blue-700 flex items-center gap-1">
-                                            <i class="fa-solid fa-shield-halved"></i> Bimtek (Sat Brimob)
-                                        </span>
-                                        <span id="detail-bimtek-count" class="font-bold text-slate-800 bg-blue-50 px-2 py-0.5 rounded">0 Keg.</span>
-                                    </div>
-                                    <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-100">
-                                        <span>Total Peserta:</span>
-                                        <span id="detail-bimtek-peserta" class="font-bold text-slate-700">0 Orang</span>
-                                    </div>
-                                </div>
-
-                                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm space-y-1">
-                                    <div class="flex justify-between items-center">
-                                        <span class="font-semibold text-emerald-700 flex items-center gap-1">
-                                            <i class="fa-solid fa-graduation-cap"></i> Diklat / Lainnya
-                                        </span>
-                                        <span id="detail-diklat-count" class="font-bold text-slate-800 bg-emerald-50 px-2 py-0.5 rounded">0 Keg.</span>
-                                    </div>
-                                    <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-100">
-                                        <span>Total Peserta:</span>
-                                        <span id="detail-diklat-peserta" class="font-bold text-slate-700">0 Orang</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Pie Chart: Distribusi Bimtek vs Diklat -->
-                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
-                        <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-chart-pie text-amber-500"></i> Proporsi Jenis Kegiatan
-                        </h4>
-                        <div class="relative flex-1 min-h-[260px] w-full flex items-center justify-center">
-                            <canvas id="pieChartCategory"></canvas>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="bg-white px-6 py-3 border-t border-slate-200 flex justify-end flex-shrink-0">
-                <button onclick="closeKpiModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition-colors">
-                    Tutup
-                </button>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-
-    <script>
-        let rawGeoJSONData = null;
-        let map;
-        let markersGroup = L.layerGroup();
-        let yearBarChartInstance = null;
-        let categoryPieChartInstance = null;
-
-        window.onload = function() {
-            initMap();
-            fetchDataFromDatabase();
-            setupEventListeners();
-        };
-
-        function initMap() {
-            const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                maxZoom: 19,
-                attribution: '&copy; Esri'
-            });
-
-            const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
-                maxZoom: 20,
-                attribution: '&copy; Google Maps'
-            });
-
-            const googleSatellite = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-                maxZoom: 20,
-                attribution: '&copy; Google Maps'
-            });
-
-            const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap'
-            });
-
-            map = L.map('map', { 
-                zoomControl: false,
-                layers: [esriSatellite] 
-            }).setView([-2.5489, 118.0149], 5);
-
-            L.control.zoom({ position: 'topright' }).addTo(map);
-
-            const baseMaps = {
-                "ESRI Satelit": esriSatellite,
-                "Google Hybrid": googleHybrid,
-                "Google Satelit": googleSatellite,
-                "OpenStreetMap": openStreetMap
-            };
-
-            L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
-
-            const northArrowControl = L.control({ position: 'topright' });
-            northArrowControl.onAdd = function() {
-                const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control north-compass-box');
-                div.innerHTML = `
-                    <span style="font-size: 11px; font-weight: 800; color: #f59e0b; margin-bottom: 2px;">N</span>
-                    <svg width="20" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L17 12H12V2Z" fill="#ef4444"/>
-                        <path d="M12 2L7 12H12V2Z" fill="#f87171"/>
-                        <path d="M12 22L17 12H12V22Z" fill="#94a3b8"/>
-                        <path d="M12 22L7 12H12V22Z" fill="#cbd5e1"/>
-                    </svg>
-                `;
-                return div;
-            };
-            northArrowControl.addTo(map);
-
-            markersGroup.addTo(map);
-
-            // Menjamin peta ter-render utuh saat pertama kali dibuka
-            setTimeout(() => { map.invalidateSize(); }, 300);
-        }
-
-        function formatRentangTanggal(tglMulai, tglSelesai) {
-            if (!tglMulai) return '-';
-            if (!tglSelesai || tglMulai === tglSelesai) return tglMulai;
-            return `${tglMulai} s.d. ${tglSelesai}`;
-        }
-
-        function fetchDataFromDatabase() {
-            fetch('./bimtek_data.xml')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Gagal mengambil file XML, status: " + response.status);
-                    }
-                    return response.text();
-                })
-                .then(xmlText => {
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-                    const rows = xmlDoc.getElementsByTagName("row");
-
-                    const features = [];
-                    for (let i = 0; i < rows.length; i++) {
-                        const row = rows[i];
-                        const getVal = (tagName) => {
-                            const el = row.getElementsByTagName(tagName)[0];
-                            return el ? el.textContent.trim() : '';
-                        };
-
-                        const lat = parseFloat(getVal('latitude'));
-                        const lng = parseFloat(getVal('longitude'));
-
-                        if (!isNaN(lat) && !isNaN(lng)) {
-                            features.push({
-                                type: 'Feature',
-                                geometry: {
-                                    type: 'Point',
-                                    coordinates: [lng, lat]
-                                },
-                                properties: {
-                                    id: getVal('id'),
-                                    instansi: getVal('instansi'),
-                                    alamat: getVal('alamat'),
-                                    kategori_pelatihan: getVal('kategori_pelatihan'),
-                                    jumlah_peserta: getVal('jumlah_peserta'),
-                                    tanggal_mulai: getVal('tanggal_mulai'),
-                                    tanggal_selesai: getVal('tanggal_selesai'),
-                                    foto_url: getVal('foto_url')
-                                }
-                            });
-                        }
-                    }
-
-                    rawGeoJSONData = { type: 'FeatureCollection', features: features };
-                    populateYearFilter(features);
-                    renderData();
-                })
-                .catch(err => console.error("Error memuat XML:", err));
-        }
-
-        function populateYearFilter(features) {
-            const yearSelect = document.getElementById('year-filter');
-            const years = [...new Set(features.map(f => {
-                const dateStr = f.properties.tanggal_mulai;
-                return dateStr ? String(dateStr).substring(0, 4) : null;
-            }).filter(Boolean))].sort((a, b) => b - a);
-
-            yearSelect.innerHTML = '<option value="ALL">Semua Tahun</option>';
-            years.forEach(year => {
-                const opt = document.createElement('option');
-                opt.value = year;
-                opt.innerText = year;
-                yearSelect.appendChild(opt);
-            });
-        }
-
-        function createCustomMarkerIcon() {
-            const html = `
-                <div class="marker-pin">
-                    <i class="fa-solid fa-radiation"></i>
-                </div>
-            `;
-
-            return L.divIcon({
-                className: 'custom-div-icon',
-                html: html,
-                iconSize: [30, 42],
-                iconAnchor: [15, 42]
-            });
-        }
-
-        function renderData() {
-            markersGroup.clearLayers();
-            const listContainer = document.getElementById('event-list');
-            listContainer.innerHTML = '';
-
-            if (!rawGeoJSONData || !rawGeoJSONData.features) return;
-
-            const searchValue = document.getElementById('search-input').value.toLowerCase();
-            const yearFilter = document.getElementById('year-filter').value;
-
-            const filteredFeatures = rawGeoJSONData.features.filter(feature => {
-                const p = feature.properties;
-                const dateStr = p.tanggal_mulai ? String(p.tanggal_mulai) : '';
-                const yearMatch = (yearFilter === 'ALL') || dateStr.startsWith(yearFilter);
-
-                const searchMatch = (p.kategori_pelatihan || '').toLowerCase().includes(searchValue) ||
-                                    (p.instansi || '').toLowerCase().includes(searchValue) ||
-                                    (p.alamat || '').toLowerCase().includes(searchValue);
-
-                return yearMatch && searchMatch;
-            });
-
-            document.getElementById('stat-total-events').innerText = filteredFeatures.length;
-            const totalParticipants = filteredFeatures.reduce((acc, f) => acc + (Number(f.properties.jumlah_peserta) || 0), 0);
-            document.getElementById('stat-total-participants').innerText = totalParticipants;
-            document.getElementById('stat-showing-count').innerText = `${filteredFeatures.length} Titik`;
-
-            if (filteredFeatures.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="p-6 text-center text-slate-400">
-                        <i class="fa-solid fa-location-slash text-2xl mb-2"></i>
-                        <p class="text-xs font-medium">Tidak ada data bimtek yang cocok.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            filteredFeatures.forEach(feature => {
-                const p = feature.properties;
-                const coords = feature.geometry.coordinates;
-                const lat = coords[1];
-                const lng = coords[0];
-
-                const rentangTgl = formatRentangTanggal(p.tanggal_mulai, p.tanggal_selesai);
-
-                const marker = L.marker([lat, lng], {
-                    icon: createCustomMarkerIcon()
-                });
-
-                const fotoHtml = p.foto_url 
-                    ? `<img src="${p.foto_url}" class="w-full h-32 object-cover rounded-t-lg" alt="Foto Kegiatan" onerror="this.style.display='none'"/>` 
-                    : '';
-
-                const popupContent = `
-                    <div class="bg-white">
-                        ${fotoHtml}
-                        <div class="bg-slate-900 text-white p-3 border-b border-slate-800">
-                            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 mb-1">
-                                <i class="fa-solid fa-graduation-cap mr-1"></i> Kategori: ${p.kategori_pelatihan || 'Basic'}
-                            </span>
-                            <h4 class="font-bold text-xs text-amber-400 leading-snug">${p.instansi || 'Instansi Bimtek'}</h4>
-                        </div>
-                        <div class="p-3 text-xs space-y-1.5 text-slate-700">
-                            <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-layer-group text-slate-400 mt-0.5"></i>
-                                <span><b>Kategori Pelatihan:</b> ${p.kategori_pelatihan || 'Basic'}</span>
-                            </div>
-                            <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-location-dot text-slate-400 mt-0.5"></i>
-                                <span><b>Alamat:</b> ${p.alamat || '-'}</span>
-                            </div>
-                            <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-calendar-day text-slate-400 mt-0.5"></i>
-                                <span><b>Tanggal:</b> ${rentangTgl}</span>
-                            </div>
-                            <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-users text-slate-400 mt-0.5"></i>
-                                <span><b>Jumlah Peserta:</b> ${p.jumlah_peserta || 0} Orang</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                marker.bindPopup(popupContent);
-                markersGroup.addLayer(marker);
-
-                const card = document.createElement('div');
-                card.className = 'p-3.5 hover:bg-slate-50 cursor-pointer transition-colors border-l-4 border-amber-500';
-
-                card.innerHTML = `
-                    <div class="flex justify-between items-center mb-1.5">
-                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-100 text-sky-800 border border-sky-200">
-                            <i class="fa-solid fa-award mr-1"></i>Pelatihan ${p.kategori_pelatihan || 'Basic'}
-                        </span>
-                        <span class="text-[11px] text-slate-400 font-medium">
-                            <i class="fa-regular fa-calendar"></i> ${rentangTgl}
-                        </span>
-                    </div>
-                    <h3 class="font-bold text-xs text-slate-800 line-clamp-1 hover:text-amber-600 transition-colors">${p.instansi}</h3>
-                    <p class="text-[11px] text-slate-500 font-medium line-clamp-1">${p.alamat}</p>
-                    <div class="mt-2 flex justify-between items-center text-[10px] text-slate-400">
-                        <span><i class="fa-solid fa-users text-amber-500"></i> ${p.jumlah_peserta || 0} Peserta</span>
-                        <span class="text-amber-600 font-semibold hover:underline">Fokus Lokasi <i class="fa-solid fa-arrow-right"></i></span>
-                    </div>
-                `;
-
-                card.onclick = () => {
-                    map.flyTo([lat, lng], 12, { duration: 1.2 });
-                    marker.openPopup();
-                };
-
-                listContainer.appendChild(card);
-            });
-        }
-
-        function setupEventListeners() {
-            document.getElementById('search-input').addEventListener('input', renderData);
-            document.getElementById('year-filter').addEventListener('change', renderData);
-        }
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const showBtn = document.getElementById('show-sidebar-btn');
-
-            const isHidden = sidebar.classList.contains('-translate-x-full');
-
-            if (isHidden) {
-                sidebar.classList.remove('-translate-x-full');
-                showBtn.classList.add('-translate-x-12', 'opacity-0', 'pointer-events-none');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                showBtn.classList.remove('-translate-x-12', 'opacity-0', 'pointer-events-none');
-            }
-
-            let start = null;
-            function animateMapResize(timestamp) {
-                if (!start) start = timestamp;
-                let progress = timestamp - start;
-
-                if (map) map.invalidateSize();
-
-                if (progress < 500) {
-                    window.requestAnimationFrame(animateMapResize);
-                }
-            }
-            window.requestAnimationFrame(animateMapResize);
-        }
-
-        // FUNGSI UNTUK MEMBUKA & MEMUAT DATA POPUP KPI
-        function openKpiModal() {
-            const modal = document.getElementById('kpi-modal');
-            modal.classList.remove('hidden');
-
-            hideYearDetail();
-
-            if (!rawGeoJSONData || !rawGeoJSONData.features) return;
-
-            const features = rawGeoJSONData.features;
-
-            let bimtekCount = 0;
-            let diklatCount = 0;
-            let totalPeserta = 0;
-
-            const yearsRange = ['2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'];
-            const yearCounts = { '2016': 0, '2017': 0, '2018': 0, '2019': 0, '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0 };
-
-            features.forEach(f => {
-                const p = f.properties;
-                const instansi = (p.instansi || '').toLowerCase();
-                const peserta = parseInt(p.jumlah_peserta) || 0;
-                const tglMulai = p.tanggal_mulai || '';
-                const year = tglMulai.substring(0, 4);
-
-                totalPeserta += peserta;
-
-                if (instansi.includes('sat brimob')) {
-                    bimtekCount++;
-                } else {
-                    diklatCount++;
-                }
-
-                if (yearCounts.hasOwnProperty(year)) {
-                    yearCounts[year]++;
-                }
-            });
-
-            document.getElementById('kpi-count-bimtek').innerText = bimtekCount;
-            document.getElementById('kpi-count-diklat').innerText = diklatCount;
-            document.getElementById('kpi-count-peserta').innerText = totalPeserta.toLocaleString('id-ID');
-
-            // Render Bar Chart + Drill-Down Click
-            const ctxBar = document.getElementById('barChartYear').getContext('2d');
-            if (yearBarChartInstance) yearBarChartInstance.destroy();
-
-            yearBarChartInstance = new Chart(ctxBar, {
-                type: 'bar',
-                data: {
-                    labels: yearsRange,
-                    datasets: [{
-                        label: 'Jumlah Kegiatan',
-                        data: yearsRange.map(y => yearCounts[y]),
-                        backgroundColor: '#0284c7',
-                        borderRadius: 6,
-                        hoverBackgroundColor: '#0369a1'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
-                    onClick: (event, elements) => {
-                        if (elements.length > 0) {
-                            const clickedIndex = elements[0].index;
-                            const selectedYear = yearsRange[clickedIndex];
-                            showYearDetail(selectedYear, features);
-                        }
-                    }
-                }
-            });
-
-            // Render Pie Chart
-            const ctxPie = document.getElementById('pieChartCategory').getContext('2d');
-            if (categoryPieChartInstance) categoryPieChartInstance.destroy();
-
-            categoryPieChartInstance = new Chart(ctxPie, {
-                type: 'pie',
-                data: {
-                    labels: ['Bimtek (Sat Brimob)', 'Diklat / Lainnya'],
-                    datasets: [{
-                        data: [bimtekCount, diklatCount],
-                        backgroundColor: ['#3b82f6', '#10b981'],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
-                        }
-                    }
-                }
-            });
-        }
-
-        // FUNGSI UNTUK HITUNG & TAMPILKAN DETAIL TAHUN YANG DIKLIK
-        function showYearDetail(year, features) {
-            let bimtekCount = 0;
-            let bimtekPeserta = 0;
-            let diklatCount = 0;
-            let diklatPeserta = 0;
-
-            features.forEach(f => {
-                const p = f.properties;
-                const instansi = (p.instansi || '').toLowerCase();
-                const peserta = parseInt(p.jumlah_peserta) || 0;
-                const tglMulai = p.tanggal_mulai || '';
-                const itemYear = tglMulai.substring(0, 4);
-
-                if (itemYear === year) {
-                    if (instansi.includes('sat brimob')) {
-                        bimtekCount++;
-                        bimtekPeserta += peserta;
-                    } else {
-                        diklatCount++;
-                        diklatPeserta += peserta;
-                    }
-                }
-            });
-
-            document.getElementById('selected-year-label').innerText = year;
-            document.getElementById('detail-bimtek-count').innerText = `${bimtekCount} Keg.`;
-            document.getElementById('detail-bimtek-peserta').innerText = `${bimtekPeserta.toLocaleString('id-ID')} Orang`;
-            document.getElementById('detail-diklat-count').innerText = `${diklatCount} Keg.`;
-            document.getElementById('detail-diklat-peserta').innerText = `${diklatPeserta.toLocaleString('id-ID')} Orang`;
-
-            document.getElementById('year-detail-panel').classList.remove('hidden');
-        }
-
-        function hideYearDetail() {
-            const panel = document.getElementById('year-detail-panel');
-            if (panel) panel.classList.add('hidden');
-        }
-
-        // FUNGSI MENUTUP MODAL POPUP
-        function closeKpiModal() {
-            document.getElementById('kpi-modal').classList.add('hidden');
-        }
-    </script>
+    <!-- Main Container -->
+    <div class="flex-1 flex relative overflow-hidden h-full w-full">
+
+        <!-- Left Panel / Sidebar -->
+        <aside id="sidebar" class="absolute top-0 left-0 h-full w-96 sm:w-[420px] bg-white z-[1000] shadow-2xl flex flex-col border-r border-slate-200 sidebar-smooth transform translate-x-0">
+            <div class="w-full flex flex-col h-full">
+                <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
+                    <h2 class="font-bold text-slate-800 text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-filter text-amber-500"></i> Filter & Pencarian
+                    </h2>
+                    <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-lg hover:bg-slate-200" title="Sembunyikan Panel">
+                        <i class="fa-solid fa-chevron-left text-lg"></i>
+                    </button>
+                </div>
+
+                <div class="p-3 space-y-2 bg-white border-b border-slate-100 flex-shrink-0">
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-500 uppercase mb-1 block">Cari Instansi / Alamat / Pelatihan</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                            <input type="text" id="search-input" placeholder="Ketik kata kunci..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-500 uppercase mb-1 block">Tahun Pelaksanaan</label>
+                        <select id="year-filter" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
+                            <option value="ALL">Semua Tahun</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- STATISTIK RINGKASAN & TOMBOL DETAIL KPI -->
+                <div class="p-2.5 bg-slate-50 border-b border-slate-100 flex-shrink-0 space-y-2">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm text-center">
+                            <div id="stat-total-events" class="text-lg font-bold text-slate-800">0</div>
+                            <div class="text-[11px] text-slate-500 font-medium">Total Keg. Bimtek</div>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm text-center">
+                            <div id="stat-total-participants" class="text-lg font-bold text-amber-600">0</div>
+                            <div class="text-[11px] text-slate-500 font-medium">Peserta Terlatih</div>
+                        </div>
+                    </div>
+
+                    <!-- TOMBOL POPUP KPI DASHBOARD -->
+                    <button onclick="openKpiModal()" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center space-x-2 transition-all border border-slate-700">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Lihat Detail Statistik & KPI Dashboard</span>
+                    </button>
+                </div>
+
+                <div class="px-4 py-2 bg-slate-100 border-b border-slate-200 flex justify-between items-center flex-shrink-0">
+                    <span class="text-xs font-semibold text-slate-600 uppercase">Daftar Titik Bimtek</span>
+                    <span id="stat-showing-count" class="text-xs font-medium text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full">0 Titik</span>
+                </div>
+
+                <div id="event-list" class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-slate-100"></div>
+            </div>
+        </aside>
+
+        <!-- Map Canvas Area (100% Layar Penuh) -->
+        <main class="w-full h-full relative bg-slate-900 overflow-hidden">
+            <button id="show-sidebar-btn" onclick="toggleSidebar()" class="absolute top-4 left-4 z-[1000] bg-slate-900/90 text-white px-3.5 py-2.5 rounded-lg shadow-2xl hover:bg-slate-800 transition-all duration-300 flex items-center space-x-2 border border-slate-700 backdrop-blur-sm transform -translate-x-12 opacity-0 pointer-events-none">
+                <i class="fa-solid fa-bars text-amber-500"></i>
+                <span class="text-xs font-semibold">Tampilkan Panel</span>
+            </button>
+
+            <div id="map"></div>
+        </main>
+    </div>
+
+    <!-- MODAL POPUP DASHBOARD KPI STATISTIK -->
+    <div id="kpi-modal" class="hidden fixed inset-0 z-[2000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
+
+            <!-- Modal Header -->
+            <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800 flex-shrink-0">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-amber-500 text-slate-950 rounded-lg font-bold">
+                        <i class="fa-solid fa-chart-line text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm sm:text-base text-slate-100">KPI Dashboard & Evaluasi Pelaksanaan Bimtek</h3>
+                        <p class="text-xs text-amber-400">Statistik Capaian Program Kesiapsiagaan Nuklir (2016 - 2024)</p>
+                    </div>
+                </div>
+                <button onclick="closeKpiModal()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content (Grafik & Matriks) -->
+            <div class="p-6 overflow-y-auto custom-scrollbar space-y-6 bg-slate-50 flex-1">
+
+                <!-- Ringkasan Kartu KPI -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                        <div class="p-3 bg-blue-50 text-blue-600 rounded-xl text-xl">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-500 font-medium">Bimtek (Sat Brimob)</div>
+                            <div id="kpi-count-bimtek" class="text-2xl font-bold text-slate-800">0</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                        <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl text-xl">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-500 font-medium">Diklat / Pelatihan Lain</div>
+                            <div id="kpi-count-diklat" class="text-2xl font-bold text-slate-800">0</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                        <div class="p-3 bg-amber-50 text-amber-600 rounded-xl text-xl">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-500 font-medium">Total Alumni Peserta</div>
+                            <div id="kpi-count-peserta" class="text-2xl font-bold text-amber-600">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Charts -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <!-- Bar Chart: Tren Tahun 2016-2024 (Lebar 2/3) -->
+                    <div class="md:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+                        <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-column text-amber-500"></i> Tren Pelaksanaan per Tahun (2016 - 2024)
+                        </h4>
+                        <div class="relative flex-1 min-h-[260px] w-full">
+                            <canvas id="barChartYear"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Pie Chart: Distribusi Bimtek vs Diklat (Lebar 1/3) -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+                        <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-amber-500"></i> Proporsi Jenis Kegiatan
+                        </h4>
+                        <div class="relative flex-1 min-h-[260px] w-full flex items-center justify-center">
+                            <canvas id="pieChartCategory"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="bg-white px-6 py-3 border-t border-slate-200 flex justify-end flex-shrink-0">
+                <button onclick="closeKpiModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition-colors">
+                    Tutup
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+    <script>
+        let rawGeoJSONData = null;
+        let map;
+        let markersGroup = L.layerGroup();
+        let yearBarChartInstance = null;
+        let categoryPieChartInstance = null;
+
+        window.onload = function() {
+            initMap();
+            fetchDataFromDatabase();
+            setupEventListeners();
+        };
+
+        function initMap() {
+            const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19,
+                attribution: '&copy; Esri'
+            });
+
+            const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                attribution: '&copy; Google Maps'
+            });
+
+            const googleSatellite = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                attribution: '&copy; Google Maps'
+            });
+
+            const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            });
+
+            map = L.map('map', { 
+                zoomControl: false,
+                layers: [esriSatellite] 
+            }).setView([-2.5489, 118.0149], 5);
+
+            L.control.zoom({ position: 'topright' }).addTo(map);
+
+            const baseMaps = {
+                "ESRI Satelit": esriSatellite,
+                "Google Hybrid": googleHybrid,
+                "Google Satelit": googleSatellite,
+                "OpenStreetMap": openStreetMap
+            };
+
+            L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+
+            const northArrowControl = L.control({ position: 'topright' });
+            northArrowControl.onAdd = function() {
+                const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control north-compass-box');
+                div.innerHTML = `
+                    <span style="font-size: 11px; font-weight: 800; color: #f59e0b; margin-bottom: 2px;">N</span>
+                    <svg width="20" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L17 12H12V2Z" fill="#ef4444"/>
+                        <path d="M12 2L7 12H12V2Z" fill="#f87171"/>
+                        <path d="M12 22L17 12H12V22Z" fill="#94a3b8"/>
+                        <path d="M12 22L7 12H12V22Z" fill="#cbd5e1"/>
+                    </svg>
+                `;
+                return div;
+            };
+            northArrowControl.addTo(map);
+
+            markersGroup.addTo(map);
+        }
+
+        function formatRentangTanggal(tglMulai, tglSelesai) {
+            if (!tglMulai) return '-';
+            if (!tglSelesai || tglMulai === tglSelesai) return tglMulai;
+            return `${tglMulai} s.d. ${tglSelesai}`;
+        }
+
+        function fetchDataFromDatabase() {
+            fetch('./bimtek_data.xml')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Gagal mengambil file XML, status: " + response.status);
+                    }
+                    return response.text();
+                })
+                .then(xmlText => {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+                    const rows = xmlDoc.getElementsByTagName("row");
+
+                    const features = [];
+                    for (let i = 0; i < rows.length; i++) {
+                        const row = rows[i];
+                        const getVal = (tagName) => {
+                            const el = row.getElementsByTagName(tagName)[0];
+                            return el ? el.textContent.trim() : '';
+                        };
+
+                        const lat = parseFloat(getVal('latitude'));
+                        const lng = parseFloat(getVal('longitude'));
+
+                        if (!isNaN(lat) && !isNaN(lng)) {
+                            features.push({
+                                type: 'Feature',
+                                geometry: {
+                                    type: 'Point',
+                                    coordinates: [lng, lat]
+                                },
+                                properties: {
+                                    id: getVal('id'),
+                                    instansi: getVal('instansi'),
+                                    alamat: getVal('alamat'),
+                                    kategori_pelatihan: getVal('kategori_pelatihan'),
+                                    jumlah_peserta: getVal('jumlah_peserta'),
+                                    tanggal_mulai: getVal('tanggal_mulai'),
+                                    tanggal_selesai: getVal('tanggal_selesai'),
+                                    foto_url: getVal('foto_url')
+                                }
+                            });
+                        }
+                    }
+
+                    rawGeoJSONData = { type: 'FeatureCollection', features: features };
+                    populateYearFilter(features);
+                    renderData();
+                })
+                .catch(err => console.error("Error memuat XML:", err));
+        }
+
+        function populateYearFilter(features) {
+            const yearSelect = document.getElementById('year-filter');
+            const years = [...new Set(features.map(f => {
+                const dateStr = f.properties.tanggal_mulai;
+                return dateStr ? String(dateStr).substring(0, 4) : null;
+            }).filter(Boolean))].sort((a, b) => b - a);
+
+            yearSelect.innerHTML = '<option value="ALL">Semua Tahun</option>';
+            years.forEach(year => {
+                const opt = document.createElement('option');
+                opt.value = year;
+                opt.innerText = year;
+                yearSelect.appendChild(opt);
+            });
+        }
+
+        function createCustomMarkerIcon() {
+            const html = `
+                <div class="marker-pin">
+                    <i class="fa-solid fa-radiation"></i>
+                </div>
+            `;
+
+            return L.divIcon({
+                className: 'custom-div-icon',
+                html: html,
+                iconSize: [30, 42],
+                iconAnchor: [15, 42]
+            });
+        }
+
+        function renderData() {
+            markersGroup.clearLayers();
+            const listContainer = document.getElementById('event-list');
+            listContainer.innerHTML = '';
+
+            if (!rawGeoJSONData || !rawGeoJSONData.features) return;
+
+            const searchValue = document.getElementById('search-input').value.toLowerCase();
+            const yearFilter = document.getElementById('year-filter').value;
+
+            const filteredFeatures = rawGeoJSONData.features.filter(feature => {
+                const p = feature.properties;
+                const dateStr = p.tanggal_mulai ? String(p.tanggal_mulai) : '';
+                const yearMatch = (yearFilter === 'ALL') || dateStr.startsWith(yearFilter);
+
+                const searchMatch = (p.kategori_pelatihan || '').toLowerCase().includes(searchValue) ||
+                                    (p.instansi || '').toLowerCase().includes(searchValue) ||
+                                    (p.alamat || '').toLowerCase().includes(searchValue);
+
+                return yearMatch && searchMatch;
+            });
+
+            document.getElementById('stat-total-events').innerText = filteredFeatures.length;
+            const totalParticipants = filteredFeatures.reduce((acc, f) => acc + (Number(f.properties.jumlah_peserta) || 0), 0);
+            document.getElementById('stat-total-participants').innerText = totalParticipants;
+            document.getElementById('stat-showing-count').innerText = `${filteredFeatures.length} Titik`;
+
+            if (filteredFeatures.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="p-6 text-center text-slate-400">
+                        <i class="fa-solid fa-location-slash text-2xl mb-2"></i>
+                        <p class="text-xs font-medium">Tidak ada data bimtek yang cocok.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredFeatures.forEach(feature => {
+                const p = feature.properties;
+                const coords = feature.geometry.coordinates;
+                const lat = coords[1];
+                const lng = coords[0];
+
+                const rentangTgl = formatRentangTanggal(p.tanggal_mulai, p.tanggal_selesai);
+
+                const marker = L.marker([lat, lng], {
+                    icon: createCustomMarkerIcon()
+                });
+
+                const fotoHtml = p.foto_url 
+                    ? `<img src="${p.foto_url}" class="w-full h-32 object-cover rounded-t-lg" alt="Foto Kegiatan" onerror="this.style.display='none'"/>` 
+                    : '';
+
+                const popupContent = `
+                    <div class="bg-white">
+                        ${fotoHtml}
+                        <div class="bg-slate-900 text-white p-3 border-b border-slate-800">
+                            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 mb-1">
+                                <i class="fa-solid fa-graduation-cap mr-1"></i> Kategori: ${p.kategori_pelatihan || 'Basic'}
+                            </span>
+                            <h4 class="font-bold text-xs text-amber-400 leading-snug">${p.instansi || 'Instansi Bimtek'}</h4>
+                        </div>
+                        <div class="p-3 text-xs space-y-1.5 text-slate-700">
+                            <div class="flex items-start gap-2">
+                                <i class="fa-solid fa-layer-group text-slate-400 mt-0.5"></i>
+                                <span><b>Kategori Pelatihan:</b> ${p.kategori_pelatihan || 'Basic'}</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <i class="fa-solid fa-location-dot text-slate-400 mt-0.5"></i>
+                                <span><b>Alamat:</b> ${p.alamat || '-'}</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <i class="fa-solid fa-calendar-day text-slate-400 mt-0.5"></i>
+                                <span><b>Tanggal:</b> ${rentangTgl}</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <i class="fa-solid fa-users text-slate-400 mt-0.5"></i>
+                                <span><b>Jumlah Peserta:</b> ${p.jumlah_peserta || 0} Orang</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                marker.bindPopup(popupContent);
+                markersGroup.addLayer(marker);
+
+                const card = document.createElement('div');
+                card.className = 'p-3.5 hover:bg-slate-50 cursor-pointer transition-colors border-l-4 border-amber-500';
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-100 text-sky-800 border border-sky-200">
+                            <i class="fa-solid fa-award mr-1"></i>Pelatihan ${p.kategori_pelatihan || 'Basic'}
+                        </span>
+                        <span class="text-[11px] text-slate-400 font-medium">
+                            <i class="fa-regular fa-calendar"></i> ${rentangTgl}
+                        </span>
+                    </div>
+                    <h3 class="font-bold text-xs text-slate-800 line-clamp-1 hover:text-amber-600 transition-colors">${p.instansi}</h3>
+                    <p class="text-[11px] text-slate-500 font-medium line-clamp-1">${p.alamat}</p>
+                    <div class="mt-2 flex justify-between items-center text-[10px] text-slate-400">
+                        <span><i class="fa-solid fa-users text-amber-500"></i> ${p.jumlah_peserta || 0} Peserta</span>
+                        <span class="text-amber-600 font-semibold hover:underline">Fokus Lokasi <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                `;
+
+                card.onclick = () => {
+                    map.flyTo([lat, lng], 12, { duration: 1.2 });
+                    marker.openPopup();
+                };
+
+                listContainer.appendChild(card);
+            });
+        }
+
+        function setupEventListeners() {
+            document.getElementById('search-input').addEventListener('input', renderData);
+            document.getElementById('year-filter').addEventListener('change', renderData);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const showBtn = document.getElementById('show-sidebar-btn');
+
+            const isHidden = sidebar.classList.contains('-translate-x-full');
+
+            if (isHidden) {
+                sidebar.classList.remove('-translate-x-full');
+                showBtn.classList.add('-translate-x-12', 'opacity-0', 'pointer-events-none');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                showBtn.classList.remove('-translate-x-12', 'opacity-0', 'pointer-events-none');
+            }
+
+            let start = null;
+            function animateMapResize(timestamp) {
+                if (!start) start = timestamp;
+                let progress = timestamp - start;
+
+                if (map) map.invalidateSize();
+
+                if (progress < 500) {
+                    window.requestAnimationFrame(animateMapResize);
+                }
+            }
+            window.requestAnimationFrame(animateMapResize);
+        }
+
+        // FUNGSI UNTUK MEMBUKA & MEMUAT DATA POPUP KPI
+        function openKpiModal() {
+            const modal = document.getElementById('kpi-modal');
+            modal.classList.remove('hidden');
+
+            if (!rawGeoJSONData || !rawGeoJSONData.features) return;
+
+            const features = rawGeoJSONData.features;
+
+            // 1. Klasifikasi Bimtek (Sat Brimob) vs Diklat (Sisa data)
+            let bimtekCount = 0;
+            let diklatCount = 0;
+            let totalPeserta = 0;
+
+            // 2. Tahun 2016-2024 untuk Bar Chart
+            const yearsRange = ['2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'];
+            const yearCounts = { '2016': 0, '2017': 0, '2018': 0, '2019': 0, '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0 };
+
+            features.forEach(f => {
+                const p = f.properties;
+                const instansi = (p.instansi || '').toLowerCase();
+                const peserta = parseInt(p.jumlah_peserta) || 0;
+                const tglMulai = p.tanggal_mulai || '';
+                const year = tglMulai.substring(0, 4);
+
+                totalPeserta += peserta;
+
+                // Logika pemisah Bimtek vs Diklat
+                if (instansi.includes('sat brimob')) {
+                    bimtekCount++;
+                } else {
+                    diklatCount++;
+                }
+
+                // Logika pembagi per Tahun 2016-2024
+                if (yearCounts.hasOwnProperty(year)) {
+                    yearCounts[year]++;
+                }
+            });
+
+            // Update Angka di Ringkasan KPI
+            document.getElementById('kpi-count-bimtek').innerText = bimtekCount;
+            document.getElementById('kpi-count-diklat').innerText = diklatCount;
+            document.getElementById('kpi-count-peserta').innerText = totalPeserta.toLocaleString('id-ID');
+
+            // Render/Update Bar Chart (Tahun 2016-2024)
+            const ctxBar = document.getElementById('barChartYear').getContext('2d');
+            if (yearBarChartInstance) yearBarChartInstance.destroy();
+
+            yearBarChartInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: yearsRange,
+                    datasets: [{
+                        label: 'Jumlah Kegiatan',
+                        data: yearsRange.map(y => yearCounts[y]),
+                        backgroundColor: '#0284c7',
+                        borderRadius: 6,
+                        hoverBackgroundColor: '#0369a1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            });
+
+            // Render/Update Pie Chart (Bimtek vs Diklat)
+            const ctxPie = document.getElementById('pieChartCategory').getContext('2d');
+            if (categoryPieChartInstance) categoryPieChartInstance.destroy();
+
+            categoryPieChartInstance = new Chart(ctxPie, {
+                type: 'pie',
+                data: {
+                    labels: ['Bimtek (Sat Brimob)', 'Diklat / Lainnya'],
+                    datasets: [{
+                        data: [bimtekCount, diklatCount],
+                        backgroundColor: ['#3b82f6', '#10b981'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 11, family: 'Inter' },
+                                boxWidth: 12
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // FUNGSI MENUTUP MODAL POPUP
+        function closeKpiModal() {
+            document.getElementById('kpi-modal').classList.add('hidden');
+        }
+    </script>
 </body>
 </html>
