@@ -91,8 +91,34 @@
 </head>
 <body class="bg-slate-100 flex flex-col h-full w-full overflow-hidden">
 
+    <!-- HEADER / NAVBAR BAPETEN -->
+    <header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between z-[1001] flex-shrink-0">
+        <div class="flex items-center space-x-3">
+            <img src="logo/peta-indonesia.png" alt="Logo" class="h-10 w-auto object-contain" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/29/Garuda_Pancasila_Logo.pt.png'"/>
+            <div>
+                <h1 class="font-bold text-slate-800 text-sm sm:text-base leading-tight">Badan Pengawas Tenaga Nuklir</h1>
+                <p class="text-xs text-slate-500 font-medium">Direktorat Keteknikan dan Kesiapsiagaan Nuklir</p>
+            </div>
+        </div>
+        <a href="index.html" class="bg-slate-900 hover:bg-slate-800 text-amber-400 px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors shadow-sm">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Kembali ke Beranda</span>
+        </a>
+    </header>
+
+    <!-- SUB HEADER TITLE -->
+    <div class="bg-slate-900 text-white px-6 py-2.5 flex items-center justify-between z-[1001] border-b border-slate-800 flex-shrink-0">
+        <div class="flex items-center space-x-2 text-xs sm:text-sm font-semibold">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Peta Pelaksanaan Bimbingan Teknis Nasional Tanggap Darurat Nuklir</span>
+        </div>
+        <div class="text-[11px] text-slate-400 hidden sm:block">
+            Sebaran Kegiatan Bimtek Peningkatan Kapasitas SDM Kesiapsiagaan Nuklir
+        </div>
+    </div>
+
     <!-- Main Container -->
-    <div class="flex-1 flex relative overflow-hidden h-full w-full">
+    <div class="flex-1 flex relative overflow-hidden w-full">
 
         <!-- Left Panel / Sidebar -->
         <aside id="sidebar" class="absolute top-0 left-0 h-full w-96 sm:w-[420px] bg-white z-[1000] shadow-2xl flex flex-col border-r border-slate-200 sidebar-smooth transform translate-x-0">
@@ -123,24 +149,24 @@
                     </div>
                 </div>
 
-                <!-- STATISTIK RINGKASAN & TOMBOL DETAIL KPI -->
+                <!-- STATISTIK RINGKASAN & TOMBOL POPUP KPI DETAIL -->
                 <div class="p-2.5 bg-slate-50 border-b border-slate-100 flex-shrink-0 space-y-2">
                     <div class="grid grid-cols-2 gap-2">
-                        <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm text-center">
-                            <div id="stat-total-events" class="text-lg font-bold text-slate-800">0</div>
-                            <div class="text-[11px] text-slate-500 font-medium">Total Keg. Bimtek</div>
+                        <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm text-center flex flex-col justify-between">
+                            <div>
+                                <div id="stat-total-events" class="text-lg font-bold text-slate-800">0</div>
+                                <div class="text-[11px] text-slate-500 font-medium">Total Keg. Bimtek</div>
+                            </div>
+                            <!-- TEKS/TOMBOL DETAIL DI BAWAH TULISAN TOTAL KEG. BIMTEK -->
+                            <button onclick="openKpiModal()" class="mt-1 text-[10px] text-amber-600 font-bold hover:underline flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-chart-pie"></i> Lihat Detail
+                            </button>
                         </div>
                         <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm text-center">
                             <div id="stat-total-participants" class="text-lg font-bold text-amber-600">0</div>
                             <div class="text-[11px] text-slate-500 font-medium">Peserta Terlatih</div>
                         </div>
                     </div>
-
-                    <!-- TOMBOL POPUP KPI DASHBOARD -->
-                    <button onclick="openKpiModal()" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center space-x-2 transition-all border border-slate-700">
-                        <i class="fa-solid fa-chart-pie"></i>
-                        <span>Lihat Detail Statistik & KPI Dashboard</span>
-                    </button>
                 </div>
 
                 <div class="px-4 py-2 bg-slate-100 border-b border-slate-200 flex justify-between items-center flex-shrink-0">
@@ -153,7 +179,7 @@
         </aside>
 
         <!-- Map Canvas Area -->
-        <main class="w-full h-full relative bg-slate-900 overflow-hidden">
+        <main class="w-full h-full relative bg-slate-900 overflow-hidden flex-1">
             <button id="show-sidebar-btn" onclick="toggleSidebar()" class="absolute top-4 left-4 z-[1000] bg-slate-900/90 text-white px-3.5 py-2.5 rounded-lg shadow-2xl hover:bg-slate-800 transition-all duration-300 flex items-center space-x-2 border border-slate-700 backdrop-blur-sm transform -translate-x-12 opacity-0 pointer-events-none">
                 <i class="fa-solid fa-bars text-amber-500"></i>
                 <span class="text-xs font-semibold">Tampilkan Panel</span>
@@ -161,7 +187,7 @@
 
             <div id="map"></div>
 
-            <!-- LEGENDA WARNA TITIK DI POJOK KANAN BAWAH -->
+            <!-- LEGENDA WARNA TITIK -->
             <div class="absolute bottom-6 right-6 bg-white/95 backdrop-blur-md p-3 rounded-xl shadow-xl border border-slate-200 z-[1000] max-w-xs text-xs space-y-2 hidden sm:block">
                 <div class="font-bold text-slate-800 border-b pb-1">Keterangan Titik Kegiatan</div>
                 <div class="flex items-center space-x-2">
@@ -198,8 +224,6 @@
 
             <!-- Modal Content -->
             <div class="p-6 overflow-y-auto custom-scrollbar space-y-6 bg-slate-50 flex-1">
-                
-                <!-- Ringkasan Akumulasi Kartu KPI -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
                         <div class="p-3 bg-blue-50 text-blue-600 rounded-xl text-xl">
@@ -230,7 +254,6 @@
                     </div>
                 </div>
 
-                <!-- Section Charts -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="md:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
                         <div class="flex justify-between items-center mb-3">
@@ -254,7 +277,6 @@
                     </div>
                 </div>
 
-                <!-- PANEL DRILL-DOWN DETAIL TAHUN -->
                 <div id="year-detail-panel" class="hidden bg-slate-900 text-white p-5 rounded-xl shadow-lg border border-slate-800 space-y-4 animate-in slide-in-from-bottom-2 duration-300">
                     <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                         <div class="flex items-center space-x-2">
@@ -380,6 +402,9 @@
             northArrowControl.addTo(map);
 
             markersGroup.addTo(map);
+
+            // Trigger resize agar Leaflet menggambar ulang basemap dengan ukuran baru
+            setTimeout(() => { map.invalidateSize(); }, 300);
         }
 
         function formatRentangTanggal(tglMulai, tglSelesai) {
@@ -456,284 +481,5 @@
             });
         }
 
-        // FUNGSI MEMBUAT PIN MARKER BERDASARKAN WARNA (BIMTEK: BIRU, DIKLAT: ORANGE)
         function createCustomMarkerIcon(isBimtek) {
-            const pinColor = isBimtek ? '#0284c7' : '#f97316'; // Biru vs Orange
-            const html = `
-                <div class="marker-pin" style="background-color: ${pinColor};">
-                    <i class="fa-solid fa-radiation"></i>
-                </div>
-            `;
-
-            return L.divIcon({
-                className: 'custom-div-icon',
-                html: html,
-                iconSize: [30, 42],
-                iconAnchor: [15, 42]
-            });
-        }
-
-        function renderData() {
-            markersGroup.clearLayers();
-            const listContainer = document.getElementById('event-list');
-            listContainer.innerHTML = '';
-
-            if (!rawGeoJSONData || !rawGeoJSONData.features) return;
-
-            const searchValue = document.getElementById('search-input').value.toLowerCase();
-            const yearFilter = document.getElementById('year-filter').value;
-
-            const filteredFeatures = rawGeoJSONData.features.filter(feature => {
-                const p = feature.properties;
-                const dateStr = p.tanggal_mulai ? String(p.tanggal_mulai) : '';
-                const yearMatch = (yearFilter === 'ALL') || dateStr.startsWith(yearFilter);
-                
-                const searchMatch = (p.kategori_pelatihan || '').toLowerCase().includes(searchValue) ||
-                                    (p.instansi || '').toLowerCase().includes(searchValue) ||
-                                    (p.alamat || '').toLowerCase().includes(searchValue);
-
-                return yearMatch && searchMatch;
-            });
-
-            document.getElementById('stat-total-events').innerText = filteredFeatures.length;
-            const totalParticipants = filteredFeatures.reduce((acc, f) => acc + (Number(f.properties.jumlah_peserta) || 0), 0);
-            document.getElementById('stat-total-participants').innerText = totalParticipants;
-            document.getElementById('stat-showing-count').innerText = `${filteredFeatures.length} Titik`;
-
-            if (filteredFeatures.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="p-6 text-center text-slate-400">
-                        <i class="fa-solid fa-location-slash text-2xl mb-2"></i>
-                        <p class="text-xs font-medium">Tidak ada data bimtek yang cocok.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            filteredFeatures.forEach(feature => {
-                const p = feature.properties;
-                const coords = feature.geometry.coordinates;
-                const lat = coords[1];
-                const lng = coords[0];
-
-                const instansiLower = (p.instansi || '').toLowerCase();
-                const isBimtek = instansiLower.includes('sat brimob');
-
-                const rentangTgl = formatRentangTanggal(p.tanggal_mulai, p.tanggal_selesai);
-
-                const marker = L.marker([lat, lng], {
-                    icon: createCustomMarkerIcon(isBimtek)
-                });
-
-                const fotoHtml = p.foto_url 
-                    ? `<img src="${p.foto_url}" class="w-full h-32 object-cover rounded-t-lg" alt="Foto Kegiatan" onerror="this.style.display='none'"/>` 
-                    : '';
-
-                const popupContent = `
-                    <div class="bg-white">
-                        ${fotoHtml}
-                        <div class="bg-slate-900 text-white p-3 border-b border-slate-800">
-                            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold ${isBimtek ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30' : 'bg-orange-500/20 text-orange-300 border border-orange-500/30'} mb-1">
-                                <i class="fa-solid ${isBimtek ? 'fa-shield-halved' : 'fa-graduation-cap'} mr-1"></i> ${isBimtek ? 'Bimtek (Sat Brimob)' : 'Diklat / Pelatihan'}
-                            </span>
-                            <h4 class="font-bold text-xs text-amber-400 leading-snug">${p.instansi || 'Instansi Bimtek'}</h4>
-                        </div>
-                        <div class="p-3 text-xs space-y-1.5 text-slate-700">
-                            <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-layer-group text-slate-400 mt-0.5"></i>
-                                <span><b>Kategori Pelatihan:</b> ${p.kategori_pelatihan || 'Basic'}</span>
-                            </div>
-                            <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-location-dot text-slate-400 mt-0.5"></i>
-                                <span><b>Alamat:</b> ${p.alamat || '-'}</span>
-                            </div>
-                            <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-calendar-day text-slate-400 mt-0.5"></i>
-                                <span><b>Tanggal:</b> ${rentangTgl}</span>
-                            </div>
-                            <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-users text-slate-400 mt-0.5"></i>
-                                <span><b>Jumlah Peserta:</b> ${p.jumlah_peserta || 0} Orang</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                marker.bindPopup(popupContent);
-                markersGroup.addLayer(marker);
-
-                const card = document.createElement('div');
-                card.className = `p-3.5 hover:bg-slate-50 cursor-pointer transition-colors border-l-4 ${isBimtek ? 'border-sky-500' : 'border-orange-500'}`;
-                
-                card.innerHTML = `
-                    <div class="flex justify-between items-center mb-1.5">
-                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded ${isBimtek ? 'bg-sky-100 text-sky-800 border border-sky-200' : 'bg-orange-100 text-orange-800 border border-orange-200'}">
-                            <i class="fa-solid ${isBimtek ? 'fa-shield-halved' : 'fa-award'} mr-1"></i>${isBimtek ? 'Bimtek' : 'Diklat'}
-                        </span>
-                        <span class="text-[11px] text-slate-400 font-medium">
-                            <i class="fa-regular fa-calendar"></i> ${rentangTgl}
-                        </span>
-                    </div>
-                    <h3 class="font-bold text-xs text-slate-800 line-clamp-1 hover:text-amber-600 transition-colors">${p.instansi}</h3>
-                    <p class="text-[11px] text-slate-500 font-medium line-clamp-1">${p.alamat}</p>
-                    <div class="mt-2 flex justify-between items-center text-[10px] text-slate-400">
-                        <span><i class="fa-solid fa-users text-amber-500"></i> ${p.jumlah_peserta || 0} Peserta</span>
-                        <span class="text-amber-600 font-semibold hover:underline">Fokus Lokasi <i class="fa-solid fa-arrow-right"></i></span>
-                    </div>
-                `;
-
-                card.onclick = () => {
-                    map.flyTo([lat, lng], 12, { duration: 1.2 });
-                    marker.openPopup();
-                };
-
-                listContainer.appendChild(card);
-            });
-        }
-
-        function setupEventListeners() {
-            document.getElementById('search-input').addEventListener('input', renderData);
-            document.getElementById('year-filter').addEventListener('change', renderData);
-        }
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const showBtn = document.getElementById('show-sidebar-btn');
-
-            const isHidden = sidebar.classList.contains('-translate-x-full');
-
-            if (isHidden) {
-                sidebar.classList.remove('-translate-x-full');
-                showBtn.classList.add('-translate-x-12', 'opacity-0', 'pointer-events-none');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                showBtn.classList.remove('-translate-x-12', 'opacity-0', 'pointer-events-none');
-            }
-
-            let start = null;
-            function animateMapResize(timestamp) {
-                if (!start) start = timestamp;
-                let progress = timestamp - start;
-
-                if (map) map.invalidateSize();
-
-                if (progress < 500) {
-                    window.requestAnimationFrame(animateMapResize);
-                }
-            }
-            window.requestAnimationFrame(animateMapResize);
-        }
-
-        function openKpiModal() {
-            const modal = document.getElementById('kpi-modal');
-            modal.classList.remove('hidden');
-
-            if (!rawGeoJSONData || !rawGeoJSONData.features) return;
-
-            const features = rawGeoJSONData.features;
-
-            let bimtekCount = 0;
-            let diklatCount = 0;
-            let totalPeserta = 0;
-
-            const yearsRange = ['2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'];
-            const yearCounts = { '2016': 0, '2017': 0, '2018': 0, '2019': 0, '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0 };
-
-            features.forEach(f => {
-                const p = f.properties;
-                const instansi = (p.instansi || '').toLowerCase();
-                const peserta = parseInt(p.jumlah_peserta) || 0;
-                const tglMulai = p.tanggal_mulai || '';
-                const year = tglMulai.substring(0, 4);
-
-                totalPeserta += peserta;
-
-                if (instansi.includes('sat brimob')) {
-                    bimtekCount++;
-                } else {
-                    diklatCount++;
-                }
-
-                if (yearCounts.hasOwnProperty(year)) {
-                    yearCounts[year]++;
-                }
-            });
-
-            document.getElementById('kpi-count-bimtek').innerText = bimtekCount;
-            document.getElementById('kpi-count-diklat').innerText = diklatCount;
-            document.getElementById('kpi-count-peserta').innerText = totalPeserta.toLocaleString('id-ID');
-
-            const ctxBar = document.getElementById('barChartYear').getContext('2d');
-            if (yearBarChartInstance) yearBarChartInstance.destroy();
-
-            yearBarChartInstance = new Chart(ctxBar, {
-                type: 'bar',
-                data: {
-                    labels: yearsRange,
-                    datasets: [{
-                        label: 'Jumlah Kegiatan',
-                        data: yearsRange.map(y => yearCounts[y]),
-                        backgroundColor: '#0284c7',
-                        borderRadius: 6,
-                        hoverBackgroundColor: '#f59e0b'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { stepSize: 1 }
-                        }
-                    },
-                    onClick: (event, elements) => {
-                        if (elements && elements.length > 0) {
-                            const clickedIndex = elements[0].index;
-                            const selectedYear = yearsRange[clickedIndex];
-                            showYearDetail(selectedYear);
-                        }
-                    }
-                }
-            });
-
-            const ctxPie = document.getElementById('pieChartCategory').getContext('2d');
-            if (categoryPieChartInstance) categoryPieChartInstance.destroy();
-
-            categoryPieChartInstance = new Chart(ctxPie, {
-                type: 'pie',
-                data: {
-                    labels: ['Bimtek (Sat Brimob)', 'Diklat / Lainnya'],
-                    datasets: [{
-                        data: [bimtekCount, diklatCount],
-                        backgroundColor: ['#0284c7', '#f97316'],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: { size: 11, family: 'Inter' },
-                                boxWidth: 12
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function showYearDetail(year) {
-            const panel = document.getElementById('year-detail-panel');
-            panel.classList.remove('hidden');
-
-            document.getElementById('detail-year-title').innerText = year;
-
-            if (!rawGeoJSONData || !rawGeoJSONData.features) return;
+            const pinColor = isBimtek ? '#0284c7' : '#f9731
