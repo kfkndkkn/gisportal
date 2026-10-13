@@ -36,6 +36,8 @@
         }
         
         .custom-div-icon { background: none; border: none; }
+        
+        /* Marker Pin Styling Base */
         .marker-pin {
             width: 32px; height: 32px;
             border-radius: 50% 50% 50% 0;
@@ -48,9 +50,9 @@
             transition: all 0.2s ease;
         }
 
-        /* Variasi Warna Pin */
-        .marker-pin.pin-bimtek { background-color: #0284c7; } /* Biru untuk Bimtek Brimob */
-        .marker-pin.pin-diklat { background-color: #10b981; } /* Hijau untuk Diklat/Lainnya */
+        /* Variasi Warna Pin Marker */
+        .marker-pin.pin-bimtek { background-color: #0284c7; } /* Biru: Bimtek */
+        .marker-pin.pin-diklat { background-color: #10b981; } /* Hijau: Diklat */
 
         .marker-pin::after {
             content: ''; width: 14px; height: 14px;
@@ -58,6 +60,7 @@
             position: absolute; border-radius: 50%;
         }
         .marker-pin i { transform: rotate(45deg); color: #1e293b; z-index: 10; font-size: 12px; }
+
         .leaflet-popup-content-wrapper {
             padding: 0; border-radius: 12px; overflow: hidden;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -98,8 +101,8 @@
     <!-- Main Container -->
     <div class="flex-1 flex relative overflow-hidden h-full w-full">
 
-        <!-- Left Panel / Sidebar -->
-        <aside id="sidebar" class="absolute top-0 left-0 h-full w-96 sm:w-[420px] bg-white z-[1000] shadow-2xl flex flex-col border-r border-slate-200 sidebar-smooth transform translate-x-0">
+        <!-- Left Panel / Sidebar (Di-set tersembunyi '-translate-x-full' saat awal buka) -->
+        <aside id="sidebar" class="absolute top-0 left-0 h-full w-96 sm:w-[420px] bg-white z-[1000] shadow-2xl flex flex-col border-r border-slate-200 sidebar-smooth transform -translate-x-full">
             <div class="w-full flex flex-col h-full">
                 <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
                     <h2 class="font-bold text-slate-800 text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
@@ -143,7 +146,7 @@
                     <!-- TOMBOL POPUP KPI DASHBOARD -->
                     <button onclick="openKpiModal()" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center space-x-2 transition-all border border-slate-700">
                         <i class="fa-solid fa-chart-pie"></i>
-                        <span>Lihat Detail</span>
+                        <span>Lihat Detail Statistik & KPI Dashboard</span>
                     </button>
                 </div>
 
@@ -158,7 +161,8 @@
 
         <!-- Map Canvas Area -->
         <main class="w-full h-full relative bg-slate-900 overflow-hidden flex-1">
-            <aside id="sidebar" class="absolute top-0 left-0 h-full w-96 sm:w-[420px] bg-white z-[1000] shadow-2xl flex flex-col border-r border-slate-200 sidebar-smooth transform -translate-x-full">
+            <!-- Tombol Buka Panel (Di-set aktif/terlihat saat awal buka) -->
+            <button id="show-sidebar-btn" onclick="toggleSidebar()" class="absolute top-4 left-4 z-[1000] bg-slate-900/90 text-white px-3.5 py-2.5 rounded-lg shadow-2xl hover:bg-slate-800 transition-all duration-300 flex items-center space-x-2 border border-slate-700 backdrop-blur-sm transform translate-x-0 opacity-100">
                 <i class="fa-solid fa-bars text-amber-500"></i>
                 <span class="text-xs font-semibold">Tampilkan Panel</span>
             </button>
@@ -178,7 +182,7 @@
                         <i class="fa-solid fa-chart-line text-lg"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-sm sm:text-base text-slate-100">Detail Pelaksanaan Bimtek dan Diklat</h3>
+                        <h3 class="font-bold text-sm sm:text-base text-slate-100">KPI Dashboard & Evaluasi Pelaksanaan Bimtek</h3>
                         <p class="text-xs text-amber-400">Statistik Capaian Program Kesiapsiagaan Nuklir (2016 - 2024)</p>
                     </div>
                 </div>
@@ -230,7 +234,7 @@
                             <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-2">
                                 <i class="fa-solid fa-chart-column text-amber-500"></i> Tren Pelaksanaan per Tahun (2016 - 2024)
                             </h4>
-                            <span class="text-[10px] text-slate-400 font-medium italic"><i class="fa-solid fa-hand-pointer mr-1"></i>Klik chart untuk melihat detail</span>
+                            <span class="text-[10px] text-slate-400 font-medium italic"><i class="fa-solid fa-hand-pointer mr-1"></i>Klik batang tahun untuk melihat detail</span>
                         </div>
                         
                         <div class="relative flex-1 min-h-[240px] w-full">
@@ -379,7 +383,7 @@
             };
             northArrowControl.addTo(map);
 
-            // Tambahkan Legenda Warna Titik di Peta
+            // LEGENDA KETERANGAN WARNA TITIK DI PETA
             const legendControl = L.control({ position: 'bottomright' });
             legendControl.onAdd = function() {
                 const div = L.DomUtil.create('div', 'bg-slate-900/90 text-white p-2.5 rounded-lg border border-slate-700 shadow-xl text-[11px] backdrop-blur-sm space-y-1.5');
@@ -397,14 +401,14 @@
                 return div;
             };
             legendControl.addTo(map);
-            
+
             markersGroup.addTo(map);
 
             setTimeout(() => { 
                 if (map) map.invalidateSize(); 
             }, 300);
         }
-        
+
         function formatRentangTanggal(tglMulai, tglSelesai) {
             if (!tglMulai) return '-';
             if (!tglSelesai || tglMulai === tglSelesai) return tglMulai;
@@ -519,7 +523,6 @@
                 return yearMatch && searchMatch;
             });
 
-            // REVISI 1: PENGURUTAN DAFTAR BERDASARKAN ABJAD (A-Z) INSTANSI
             filteredFeatures.sort((a, b) => {
                 const nameA = (a.properties.instansi || '').toLowerCase();
                 const nameB = (b.properties.instansi || '').toLowerCase();
@@ -754,7 +757,6 @@
             });
         }
 
-        // REVISI 2: DAFTAR RINCIAN INSTANSI SESUAI TAHUN YANG DIKLIK
         function showYearDetail(year, features) {
             let bimtekCount = 0;
             let bimtekPeserta = 0;
@@ -791,7 +793,6 @@
             document.getElementById('detail-diklat-count').innerText = `${diklatCount} Keg.`;
             document.getElementById('detail-diklat-peserta').innerText = `${diklatPeserta.toLocaleString('id-ID')} Orang`;
 
-            // Render List Instansi Bimtek
             const bimtekUl = document.getElementById('detail-bimtek-list');
             if (bimtekInstansiList.length > 0) {
                 bimtekUl.innerHTML = bimtekInstansiList.map(item => `<li>${item}</li>`).join('');
@@ -799,7 +800,6 @@
                 bimtekUl.innerHTML = `<li class="text-slate-400 italic list-none">Tidak ada kegiatan Bimtek</li>`;
             }
 
-            // Render List Instansi Diklat
             const diklatUl = document.getElementById('detail-diklat-list');
             if (diklatInstansiList.length > 0) {
                 diklatUl.innerHTML = diklatInstansiList.map(item => `<li>${item}</li>`).join('');
