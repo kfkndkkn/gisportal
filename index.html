@@ -111,6 +111,14 @@
                         <i class="fa-solid fa-map-location-dot text-amber-400"></i>
                         <span>Peta Interaktif</span>
                     </button>
+
+                    <!-- AREA TOMBOL LOGIN / USER STATUS (TAMBAHAN UTAMA) -->
+                    <div id="auth-buttons-nav" class="ml-2">
+                        <button onclick="openLoginModal()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center space-x-1.5 shadow-md transition">
+                            <i class="fa-solid fa-right-to-bracket"></i>
+                            <span>Login</span>
+                        </button>
+                    </div>
                 </nav>
 
                 <!-- Mobile Menu Button -->
@@ -128,10 +136,16 @@
             <a href="#" class="block px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-slate-100">Profil</a>
             <a href="#" class="block px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-slate-100">Informasi & Layanan</a>
             <a href="#" class="block px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-slate-100">Panduan</a>
-            <button onclick="openMapRoom('bimtek'); toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-md font-semibold bg-brand-900 text-white flex items-center space-x-2">
+            <button onclick="openMapRoom('bimtek'); toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-md font-semibold bg-brand-900 text-white flex items-center space-x-2 mb-2">
                 <i class="fa-solid fa-map-location-dot text-amber-400"></i>
                 <span>Buka Peta Interaktif</span>
             </button>
+            <div id="auth-buttons-mobile">
+                <button onclick="openLoginModal(); toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-md font-bold bg-amber-500 text-slate-950 flex items-center space-x-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Login</span>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -148,7 +162,7 @@
                     <i class="fa-solid fa-shield-halved mr-1.5"></i> Portal Resmi Badan Pengawas Tenaga Nuklir
                 </span>
                 <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3 leading-tight">
-                    Visualisasi Implementasi I-Consep Melalui Geoportal Kesiapsiagaan & Tanggap Darurat Nuklir
+                    Visualisasi Implementasi I-CoNSEP Melalui Geoportal Kesiapsiagaan & Tanggap Darurat Nuklir
                 </h2>
                 <p class="text-slate-300 text-sm sm:text-base mb-6 leading-relaxed">
                     Pilih peta tematik di bawah ini untuk membuka peta interaktif pelaksanaan bimbingan teknis, latihan uji coba, persebaran sensor monitoring I-RDMS, laporan kedaruratan, hingga pengawasan sumber terbungkus well logging.
@@ -214,10 +228,10 @@
             </button>
         </div>
 
-        <!-- KAMAR PETA GRID -->
+        <!-- BANNER PETA GRID -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="map-cards-container">
             
-            <!-- KAMAR 1: Bimtek Tanggap Darurat Nuklir -->
+            <!-- BANNER 1: Bimtek Tanggap Darurat Nuklir -->
             <div class="map-card group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl cursor-pointer relative flex flex-col z-10"
                  data-category="kesiapsiagaan"
                  data-title="peta pelaksanaan bimbingan teknis nasional tanggap darurat nuklir"
@@ -246,15 +260,15 @@
                         Pemetaan sebaran pelaksanaan bimbingan teknis peningkatan kapasitas SDM tanggap darurat nuklir tingkat nasional dan daerah.
                     </p>
                     <div class="flex items-center justify-between text-xs border-t border-slate-100 pt-3">
-                        <span class="text-slate-500 font-medium"><i class="fa-regular fa-calendar mr-1"></i> Update: Sep 2026</span>
+                        <span class="text-slate-500 font-medium"><i class="fa-regular fa-calendar mr-1"></i> Update: Jun 2024</span>
                         <span class="text-brand-600 font-bold flex items-center group-hover:translate-x-1 transition-transform">
-                            Buka Kamar Peta <i class="fa-solid fa-arrow-right ml-1"></i>
+                            Buka Interactive Map <i class="fa-solid fa-arrow-right ml-1"></i>
                         </span>
                     </div>
                 </div>
             </div>
 
-            <!-- KAMAR 2: Pelatihan & Uji Coba -->
+            <!-- BANNER 2: Pelatihan & Uji Coba -->
             <div class="map-card group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl cursor-pointer relative flex flex-col z-10"
                  data-category="kesiapsiagaan"
                  data-title="peta pelaksanaan pelatihan uji coba penanggulangan kesiapsiagaan nuklir nasional"
@@ -285,13 +299,13 @@
                     <div class="flex items-center justify-between text-xs border-t border-slate-100 pt-3">
                         <span class="text-slate-500 font-medium"><i class="fa-regular fa-calendar mr-1"></i> Update: Ags 2026</span>
                         <span class="text-brand-600 font-bold flex items-center group-hover:translate-x-1 transition-transform">
-                            Buka Kamar Peta <i class="fa-solid fa-arrow-right ml-1"></i>
+                            Buka Interactive Map <i class="fa-solid fa-arrow-right ml-1"></i>
                         </span>
                     </div>
                 </div>
             </div>
 
-            <!-- KAMAR 3: Potensi Lokasi I-RDMS -->
+            <!-- BANNER 3: Potensi Lokasi I-RDMS -->
             <div class="map-card group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl cursor-pointer relative flex flex-col z-10"
                  data-category="monitoring"
                  data-title="peta potensi lokasi pemasangan i-rdms integrated radiation monitoring system"
@@ -322,13 +336,13 @@
                     <div class="flex items-center justify-between text-xs border-t border-slate-100 pt-3">
                         <span class="text-slate-500 font-medium"><i class="fa-regular fa-calendar mr-1"></i> Update: Kontinu</span>
                         <span class="text-brand-600 font-bold flex items-center group-hover:translate-x-1 transition-transform">
-                            Buka Kamar Peta <i class="fa-solid fa-arrow-right ml-1"></i>
+                            Buka Interactive Map <i class="fa-solid fa-arrow-right ml-1"></i>
                         </span>
                     </div>
                 </div>
             </div>
 
-            <!-- KAMAR 4: Laporan Kecelakaan / Kedaruratan -->
+            <!-- BANNER 4: Laporan Kecelakaan / Kedaruratan -->
             <div class="map-card group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl cursor-pointer relative flex flex-col z-10"
                  data-category="kedaruratan"
                  data-title="peta laporan kecelakaan kedaruratan nuklir incident report"
@@ -359,13 +373,13 @@
                     <div class="flex items-center justify-between text-xs border-t border-slate-100 pt-3">
                         <span class="text-slate-500 font-medium"><i class="fa-regular fa-calendar mr-1"></i> Real-time Hotline</span>
                         <span class="text-brand-600 font-bold flex items-center group-hover:translate-x-1 transition-transform">
-                            Buka Kamar Peta <i class="fa-solid fa-arrow-right ml-1"></i>
+                            Buka Interactive Map <i class="fa-solid fa-arrow-right ml-1"></i>
                         </span>
                     </div>
                 </div>
             </div>
 
-            <!-- KAMAR 5: Abandoned Well Logging -->
+            <!-- BANNER 5: Abandoned Well Logging -->
             <div class="map-card group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl cursor-pointer relative flex flex-col z-10"
                  data-category="sumber"
                  data-title="peta abandoned well logging sumber radioaktif terbungkus"
@@ -396,7 +410,7 @@
                     <div class="flex items-center justify-between text-xs border-t border-slate-100 pt-3">
                         <span class="text-slate-500 font-medium"><i class="fa-regular fa-calendar mr-1"></i> Update: Jul 2026</span>
                         <span class="text-brand-600 font-bold flex items-center group-hover:translate-x-1 transition-transform">
-                            Buka Kamar Peta <i class="fa-solid fa-arrow-right ml-1"></i>
+                            Buka Interactive Map <i class="fa-solid fa-arrow-right ml-1"></i>
                         </span>
                     </div>
                 </div>
@@ -408,7 +422,7 @@
     <!-- MAP ROOM INTERACTIVE VIEW -->
     <div id="map-room-view" class="hidden flex-col h-screen w-screen overflow-hidden bg-slate-900 fixed inset-0 z-50">
         
-        <!-- Header BAPETEN di atas kamar peta -->
+        <!-- Header BAPETEN di atas Banner peta -->
         <header class="bg-white border-b border-slate-200 shrink-0 h-16 sm:h-20 px-4 sm:px-8 flex items-center justify-between z-50 shadow-sm gap-2">
             <div class="flex items-center gap-3 cursor-pointer min-w-0" onclick="backToDashboard()">
                 <img src="logo/logo-bapeten.png" alt="BAPETEN" class="h-10 sm:h-14 w-auto object-contain flex-shrink-0" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Logo_Bapeten.png'">
@@ -427,7 +441,7 @@
             </button>
         </header>
 
-        <!-- Sub-header bar judul kamar peta (responsif antitumpuk) -->
+        <!-- Sub-header bar judul BANNER peta (responsif antitumpuk) -->
         <div class="bg-slate-900 text-white px-4 sm:px-6 py-2 flex items-center justify-between border-b border-slate-800 shadow-inner shrink-0 min-h-[36px] z-40 gap-4 overflow-hidden">
             <div class="flex items-center space-x-2 min-w-0 flex-1">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
@@ -443,6 +457,35 @@
         <!-- Frame tempat bimtek_index.html dimuat -->
         <div class="w-full h-[calc(100vh-5.5rem)] sm:h-[calc(100vh-7.25rem)] relative bg-slate-900 overflow-hidden">
             <iframe id="map-iframe" src="" class="w-full h-full border-0" title="WebGIS Interactive Map"></iframe>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP LOGIN ADMINISTRATOR (TAMBAHAN UTAMA) -->
+    <div id="login-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden p-6 space-y-5 animate-in fade-in duration-200">
+            
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-sm text-amber-400 flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield"></i> Login Administrator BAPETEN
+                </h3>
+                <button onclick="closeLoginModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Username Admin</label>
+                    <input type="text" id="admin-username" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Username internal..." required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+                    <input type="password" id="admin-password" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="••••••••" required>
+                </div>
+                <div id="login-error" class="hidden text-xs text-red-400 bg-red-950/50 p-2 rounded border border-red-800"></div>
+                <button type="submit" class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs transition-colors shadow-lg">
+                    Masuk Sebagai Admin
+                </button>
+            </form>
+
         </div>
     </div>
 
@@ -462,7 +505,7 @@
                 <div>
                     <h4 class="text-white font-bold mb-2">Link Cepat</h4>
                     <ul class="space-y-1 text-[11px]">
-                        <li><a href="#" class="hover:text-amber-400">Direktori Kamar Peta</a></li>
+                        <li><a href="#" class="hover:text-amber-400">Direktori Interactive Map</a></li>
                         <li><a href="#" class="hover:text-amber-400">Monitoring I-RDMS Real-time</a></li>
                         <li><a href="#" class="hover:text-amber-400">Standard Operasional Prosedur (SOP)</a></li>
                     </ul>
@@ -479,8 +522,10 @@
         </div>
     </footer>
 
-    <!-- JAVASCRIPT NAVIGASI UTAMA -->
+    <!-- JAVASCRIPT NAVIGASI UTAMA & AUTENTIKASI -->
     <script>
+        const API_BASE_URL = "http://127.0.0.1:8000/api";
+
         const mapDataRooms = {
             bimtek: {
                 title: "Peta Pelaksanaan Bimbingan Teknis Nasional Tanggap Darurat Nuklir",
@@ -506,6 +551,109 @@
 
         var currentRoomKey = 'bimtek';
 
+        window.addEventListener('DOMContentLoaded', () => {
+            checkUserSession();
+
+            const hash = window.location.hash.replace('#', '');
+            if (hash && mapDataRooms[hash]) {
+                openMapRoom(hash);
+            }
+        });
+
+        // FUNGSI CEK STATUS LOGIN USER (PUBLIC / ADMIN)
+        function checkUserSession() {
+            const userRole = localStorage.getItem('user_role');
+            const userName = localStorage.getItem('user_name');
+            const navBtnContainer = document.getElementById('auth-buttons-nav');
+            const mobileBtnContainer = document.getElementById('auth-buttons-mobile');
+
+            if (userRole === 'ADMIN' && userName) {
+                const adminBadgeHtml = `
+                    <div class="flex items-center space-x-2 bg-slate-900 border border-amber-500/50 px-3 py-1.5 rounded-xl shadow-sm">
+                        <i class="fa-solid fa-user-shield text-amber-400"></i>
+                        <div class="text-left leading-none">
+                            <span class="text-xs font-bold text-slate-100 block">${userName}</span>
+                            <span class="text-[9px] text-amber-400 font-extrabold uppercase">ADMIN MODE</span>
+                        </div>
+                        <button onclick="handleLogout()" class="ml-1 text-slate-400 hover:text-red-400 transition-colors" title="Keluar Mode Admin">
+                            <i class="fa-solid fa-power-off text-xs"></i>
+                        </button>
+                    </div>
+                `;
+                if (navBtnContainer) navBtnContainer.innerHTML = adminBadgeHtml;
+                if (mobileBtnContainer) mobileBtnContainer.innerHTML = adminBadgeHtml;
+            } else {
+                const loginBtnHtml = `
+                    <button onclick="openLoginModal()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center space-x-1.5 shadow-md transition">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Login</span>
+                    </button>
+                `;
+                if (navBtnContainer) navBtnContainer.innerHTML = loginBtnHtml;
+                if (mobileBtnContainer) mobileBtnContainer.innerHTML = loginBtnHtml;
+            }
+        }
+
+        function openLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+            const errorDiv = document.getElementById('login-error');
+
+            errorDiv.classList.add('hidden');
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/login-admin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('user_role', data.role);
+                    localStorage.setItem('user_name', data.username);
+                    closeLoginModal();
+                    checkUserSession();
+
+                    // Reload iframe peta jika sedang berada di dalam interactive map
+                    const iframe = document.getElementById('map-iframe');
+                    if (iframe && iframe.src) {
+                        iframe.contentWindow.location.reload();
+                    }
+
+                    alert("Login Admin Berhasil! Anda sekarang dalam Mode Akses Data Presisi.");
+                } else {
+                    errorDiv.innerText = data.detail || 'Login gagal!';
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (err) {
+                errorDiv.innerText = 'Gagal terhubung ke server Backend Python!';
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.clear();
+            checkUserSession();
+
+            // Reload iframe peta jika sedang berada di dalam interactive map
+            const iframe = document.getElementById('map-iframe');
+            if (iframe && iframe.src) {
+                iframe.contentWindow.location.reload();
+            }
+
+            alert("Anda telah keluar dari Mode Admin (Kembali ke Akses Publik).");
+        }
+
         function showDashboard() {
             const dashboard = document.getElementById('dashboard-view');
             const mapRoomView = document.getElementById('map-room-view');
@@ -530,7 +678,7 @@
         }
 
         function openMapRoom(roomKey) {
-            console.log("Membuka kamar peta:", roomKey);
+            console.log("Membuka interactive map:", roomKey);
             currentRoomKey = roomKey;
 
             const dashboard = document.getElementById('dashboard-view');
@@ -562,7 +710,6 @@
                     targetSrc = "about:blank";
                 }
 
-                // Cek jika iframe belum memuat target HTML (Mencegah blank saat refresh)
                 if (!iframe.src.includes(targetSrc) || targetSrc === "about:blank") {
                     iframe.src = targetSrc;
                 }
@@ -611,13 +758,6 @@
             const menu = document.getElementById('mobile-menu');
             menu.classList.toggle('hidden');
         }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const hash = window.location.hash.replace('#', '');
-            if (hash && mapDataRooms[hash]) {
-                openMapRoom(hash);
-            }
-        });
 
         window.addEventListener('popstate', () => {
             const hash = window.location.hash.replace('#', '');
