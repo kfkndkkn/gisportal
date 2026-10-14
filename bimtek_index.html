@@ -416,57 +416,47 @@
         }
 
         function fetchDataFromDatabase() {
-            fetch('./bimtek_data.xml')
+            // Ambil Role User dari localStorage (dikirim dari login.html)
+            const userRole = localStorage.getItem('user_role') || 'PUBLIC';
+            const userName = localStorage.getItem('user_name') || 'Guest';
+
+            // Kirim request ke Backend Python sesuai role pengguna
+            fetch(`http://127.0.0.1:8000/api/peta/kegiatan?role=${userRole}`)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error("Gagal mengambil file XML, status: " + response.status);
+                        throw new Error("Gagal mengambil data dari API, status: " + response.status);
                     }
-                    return response.text();
+                    return response.json();
                 })
-                .then(xmlText => {
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-                    const rows = xmlDoc.getElementsByTagName("row");
+                .then(geoJsonData => {
+                    // Format ulang GeoJSON ke struktur data internal Leaflet
+                    const features = geoJsonData.features.map(feature => {
+                        const props = feature.properties;
+                        const coords = feature.geometry.coordinates; // [lng, lat]
 
-                    const features = [];
-                    for (let i = 0; i < rows.length; i++) {
-                        const row = rows[i];
-                        const getVal = (tagName) => {
-                            const el = row.getElementsByTagName(tagName)[0];
-                            return el ? el.textContent.trim() : '';
+                        return {
+                            type: 'Feature',
+                            geometry: feature.geometry,
+                            properties: {
+                                id: props.id,
+                                instansi: props.instansi,
+                                alamat: props.alamat,
+                                kategori_pelatihan: props.kategori_pelatihan,
+                                jumlah_peserta: props.jumlah_peserta,
+                                tanggal_mulai: props.tanggal_mulai,
+                                tanggal_selesai: props.tanggal_selesai,
+                                foto_url: props.foto_url || ''
+                            }
                         };
-
-                        const lat = parseFloat(getVal('latitude'));
-                        const lng = parseFloat(getVal('longitude'));
-
-                        if (!isNaN(lat) && !isNaN(lng)) {
-                            features.push({
-                                type: 'Feature',
-                                geometry: {
-                                    type: 'Point',
-                                    coordinates: [lng, lat]
-                                },
-                                properties: {
-                                    id: getVal('id'),
-                                    instansi: getVal('instansi'),
-                                    alamat: getVal('alamat'),
-                                    kategori_pelatihan: getVal('kategori_pelatihan'),
-                                    jumlah_peserta: getVal('jumlah_peserta'),
-                                    tanggal_mulai: getVal('tanggal_mulai'),
-                                    tanggal_selesai: getVal('tanggal_selesai'),
-                                    foto_url: getVal('foto_url')
-                                }
-                            });
-                        }
-                    }
+                    });
 
                     rawGeoJSONData = { type: 'FeatureCollection', features: features };
                     populateYearFilter(features);
                     renderData();
                 })
-                .catch(err => console.error("Error memuat XML:", err));
+                .catch(err => console.error("Error memuat Data Spasial API:", err));
         }
-
+        
         function populateYearFilter(features) {
             const yearSelect = document.getElementById('year-filter');
             const years = [...new Set(features.map(f => {
