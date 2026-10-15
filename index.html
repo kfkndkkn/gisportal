@@ -82,7 +82,7 @@
                             <a href="#" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50">Tugas & Fungsi DKKN</a>
                         </div>
                     </div>
-
+                
                     <div class="relative group">
                         <button class="px-3 py-2 rounded-lg text-slate-700 hover:text-brand-800 hover:bg-slate-100 flex items-center space-x-1 transition">
                             <span>Informasi & Layanan</span>
@@ -94,21 +94,22 @@
                             <a href="#" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50"><i class="fa-solid fa-file-pdf mr-2 text-blue-500"></i>Laporan Tahunan Safety</a>
                         </div>
                     </div>
-
+                
                     <a href="#" class="px-3 py-2 rounded-lg text-slate-700 hover:text-brand-800 hover:bg-slate-100 transition">Panduan</a>
                     
-                    <!-- Tombol Login Admin Desktop -->
-                    <button id="btn-login-admin" onclick="openLoginModal()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs flex items-center space-x-2 transition border border-slate-300 ml-1">
-                        <i class="fa-solid fa-user-lock text-slate-600"></i>
-                        <span id="label-login-btn">Login Admin</span>
-                    </button>
-
+                    <!-- 1. TOMBOL PETA INTERAKTIF (Sekarang Posisi Kiri) -->
                     <button onclick="openMapRoom('bimtek')" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs flex items-center space-x-2 shadow-md transition ml-1">
                         <i class="fa-solid fa-map-location-dot text-amber-400"></i>
                         <span>Peta Interaktif</span>
                     </button>
+                
+                    <!-- 2. TOMBOL LOGIN (Sekarang Posisi Paling Kanan & Teks 'Login') -->
+                    <button id="btn-login-admin" onclick="openLoginModal()" class="px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-800 text-white font-semibold text-xs flex items-center space-x-2 shadow-sm transition ml-1">
+                        <i class="fa-solid fa-user-lock text-amber-300"></i>
+                        <span id="label-login-btn">Login</span>
+                    </button>
                 </nav>
-
+                
                 <!-- Mobile Menu Button -->
                 <div class="flex items-center md:hidden flex-shrink-0">
                     <button onclick="toggleMobileMenu()" class="p-2 rounded-lg text-slate-600 hover:bg-slate-100">
@@ -545,21 +546,23 @@
             const btnLogin = document.getElementById('btn-login-admin');
             const labelBtn = document.getElementById('label-login-btn');
             const mobileBtn = document.getElementById('mobile-label-login-btn');
-
+        
             if (session) {
                 labelBtn.innerText = "Logout (" + session.user.email.split('@')[0] + ")";
-                mobileBtn.innerText = "Logout (" + session.user.email.split('@')[0] + ")";
+                if (mobileBtn) mobileBtn.innerText = "Logout (" + session.user.email.split('@')[0] + ")";
                 btnLogin.onclick = logoutAdmin;
-                btnLogin.classList.replace('bg-slate-100', 'bg-emerald-100');
-                btnLogin.classList.replace('text-slate-800', 'text-emerald-800');
+                
+                // Warna saat user sudah Login (Hijau Emerald)
+                btnLogin.className = "px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center space-x-2 shadow-sm transition ml-1";
             } else {
-                labelBtn.innerText = "Login Admin";
-                mobileBtn.innerText = "Login Admin";
+                labelBtn.innerText = "Login";
+                if (mobileBtn) mobileBtn.innerText = "Login";
                 btnLogin.onclick = openLoginModal;
-                btnLogin.classList.replace('bg-emerald-100', 'bg-slate-100');
-                btnLogin.classList.replace('text-emerald-800', 'text-slate-800');
+                
+                // Warna saat user Belum Login (Biru WebGIS Brand)
+                btnLogin.className = "px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-800 text-white font-semibold text-xs flex items-center space-x-2 shadow-sm transition ml-1";
             }
-
+        
             // Kirim notifikasi status login terbaru ke iframe peta yang aktif
             notifyIframeAuthChange(!!session);
         }
