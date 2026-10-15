@@ -330,6 +330,14 @@
             setupEventListeners();
         };
 
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'RESIZE_MAP') {
+                if (map) {
+                    setTimeout(() => { map.invalidateSize(); }, 200);
+                }
+            }
+        });
+
         function initMap() {
             const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 maxZoom: 19,
