@@ -198,9 +198,14 @@
         </main>
     </div>
 
-   <!-- MODAL POPUP DETAIL DASHBOARD STATISTIK -->
-    <div id="kpi-modal" class="hidden fixed inset-0 z-[2000] bg-slate-950/70 backdrop-blur-sm flex items-start justify-center p-4">
-        <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col mt-[70px] max-h-[82vh] animate-in fade-in zoom-in duration-200">
+       <!-- MODAL POPUP DETAIL DASHBOARD STATISTIK -->
+    <div id="kpi-modal" class="hidden fixed inset-0 z-[2000] bg-slate-950/70 backdrop-blur-sm flex flex-col items-center justify-start p-3">
+        
+        <!-- Spacer Kosong untuk Melewati Baris Header + Sub-header Hitam di Atas -->
+        <div class="w-full h-[75px] flex-shrink-0"></div>
+    
+        <!-- Window Pop-up Modal -->
+        <div class="bg-white w-full max-w-5xl rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col flex-1 max-h-[calc(100vh-90px)] animate-in fade-in zoom-in duration-200">
     
             <!-- Modal Header Ramping -->
             <div class="bg-slate-900 text-white px-5 py-2.5 flex items-center justify-between border-b border-slate-800 flex-shrink-0">
@@ -218,36 +223,36 @@
                 </button>
             </div>
     
-            <!-- Modal Content Area -->
-            <div class="p-4 overflow-y-auto custom-scrollbar space-y-4 bg-slate-50 flex-1">
+            <!-- Modal Content Area (Isi Dashboard) -->
+            <div class="p-5 overflow-y-auto custom-scrollbar space-y-4 bg-slate-50 flex-1">
     
                 <!-- Ringkasan Statistik -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
-                        <div class="p-2 bg-blue-50 text-blue-600 rounded-lg text-lg">
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="p-2.5 bg-blue-50 text-blue-600 rounded-xl text-lg">
                             <i class="fa-solid fa-shield-halved"></i>
                         </div>
                         <div>
-                            <div class="text-[11px] text-slate-500 font-medium">Bimtek</div>
-                            <div id="kpi-count-bimtek" class="text-lg font-bold text-slate-800">0</div>
+                            <div class="text-xs text-slate-500 font-medium">Bimtek</div>
+                            <div id="kpi-count-bimtek" class="text-xl font-bold text-slate-800">0</div>
                         </div>
                     </div>
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
-                        <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg text-lg">
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl text-lg">
                             <i class="fa-solid fa-graduation-cap"></i>
                         </div>
                         <div>
-                            <div class="text-[11px] text-slate-500 font-medium">Diklat</div>
-                            <div id="kpi-count-diklat" class="text-lg font-bold text-slate-800">0</div>
+                            <div class="text-xs text-slate-500 font-medium">Diklat</div>
+                            <div id="kpi-count-diklat" class="text-xl font-bold text-slate-800">0</div>
                         </div>
                     </div>
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
-                        <div class="p-2 bg-amber-50 text-amber-600 rounded-xl text-lg">
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="p-2.5 bg-amber-50 text-amber-600 rounded-xl text-lg">
                             <i class="fa-solid fa-users"></i>
                         </div>
                         <div>
-                            <div class="text-[11px] text-slate-500 font-medium">Total Alumni Peserta</div>
-                            <div id="kpi-count-peserta" class="text-lg font-bold text-amber-600">0</div>
+                            <div class="text-xs text-slate-500 font-medium">Total Alumni Peserta</div>
+                            <div id="kpi-count-peserta" class="text-xl font-bold text-amber-600">0</div>
                         </div>
                     </div>
                 </div>
@@ -256,53 +261,53 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
     
                     <!-- Bar Chart & Detail Tahun -->
-                    <div class="md:col-span-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col space-y-2">
+                    <div class="md:col-span-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col space-y-3">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                             <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                                 <i class="fa-solid fa-chart-column text-amber-500"></i> Tren Pelaksanaan per Tahun (2016 - 2024)
                             </h4>
-                            <span class="text-[10px] text-slate-400 italic"><i class="fa-solid fa-hand-pointer mr-1"></i>Klik batang untuk rincian</span>
+                            <span class="text-[11px] text-slate-400 italic"><i class="fa-solid fa-hand-pointer mr-1"></i>Klik batang untuk rincian</span>
                         </div>
                         
-                        <div class="relative w-full" style="height: 180px;">
+                        <div class="relative w-full" style="height: 220px;">
                             <canvas id="barChartYear"></canvas>
                         </div>
     
                         <!-- Panel Rincian Detail Tahun -->
-                        <div id="year-detail-panel" class="hidden p-2.5 bg-slate-50 border border-slate-200 rounded-lg space-y-2 animate-in fade-in duration-150">
-                            <div class="flex justify-between items-center border-b border-slate-200 pb-1">
+                        <div id="year-detail-panel" class="hidden p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2 animate-in fade-in duration-150">
+                            <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
                                 <h5 class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
                                     <i class="fa-solid fa-calendar-check text-amber-500"></i> Rincian Tahun <span id="selected-year-label" class="text-amber-600 font-extrabold">2024</span>
                                 </h5>
-                                <button onclick="hideYearDetail()" class="text-[10px] text-slate-400 hover:text-slate-600 underline">Tutup Rincian</button>
+                                <button onclick="hideYearDetail()" class="text-[11px] text-slate-400 hover:text-slate-600 underline">Tutup Rincian</button>
                             </div>
     
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                                <div class="bg-white p-2 rounded border border-slate-200 shadow-sm space-y-1">
+                                <div class="bg-white p-2.5 rounded border border-slate-200 shadow-sm space-y-1">
                                     <div class="flex justify-between items-center border-b border-slate-100 pb-1">
-                                        <span class="font-semibold text-blue-700 text-[11px]"><i class="fa-solid fa-shield-halved mr-1"></i>Bimtek</span>
-                                        <span id="detail-bimtek-count" class="font-bold text-slate-800 bg-blue-50 px-1.5 py-0.5 rounded text-[10px]">0 Keg.</span>
+                                        <span class="font-semibold text-blue-700 text-xs"><i class="fa-solid fa-shield-halved mr-1"></i>Bimtek</span>
+                                        <span id="detail-bimtek-count" class="font-bold text-slate-800 bg-blue-50 px-1.5 py-0.5 rounded text-[11px]">0 Keg.</span>
                                     </div>
-                                    <div class="text-[10px] text-slate-500 flex justify-between">
+                                    <div class="text-[11px] text-slate-500 flex justify-between pt-0.5">
                                         <span>Peserta:</span>
                                         <span id="detail-bimtek-peserta" class="font-bold text-slate-700">0 Orang</span>
                                     </div>
                                     <div class="pt-1 border-t border-slate-100">
-                                        <ul id="detail-bimtek-list" class="space-y-1 pl-3 list-disc text-[10px] text-slate-600 max-h-20 overflow-y-auto custom-scrollbar"></ul>
+                                        <ul id="detail-bimtek-list" class="space-y-1 pl-3 list-disc text-[11px] text-slate-600 max-h-24 overflow-y-auto custom-scrollbar"></ul>
                                     </div>
                                 </div>
     
-                                <div class="bg-white p-2 rounded border border-slate-200 shadow-sm space-y-1">
+                                <div class="bg-white p-2.5 rounded border border-slate-200 shadow-sm space-y-1">
                                     <div class="flex justify-between items-center border-b border-slate-100 pb-1">
-                                        <span class="font-semibold text-emerald-700 text-[11px]"><i class="fa-solid fa-graduation-cap mr-1"></i>Diklat</span>
-                                        <span id="detail-diklat-count" class="font-bold text-slate-800 bg-emerald-50 px-1.5 py-0.5 rounded text-[10px]">0 Keg.</span>
+                                        <span class="font-semibold text-emerald-700 text-xs"><i class="fa-solid fa-graduation-cap mr-1"></i>Diklat</span>
+                                        <span id="detail-diklat-count" class="font-bold text-slate-800 bg-emerald-50 px-1.5 py-0.5 rounded text-[11px]">0 Keg.</span>
                                     </div>
-                                    <div class="text-[10px] text-slate-500 flex justify-between">
+                                    <div class="text-[11px] text-slate-500 flex justify-between pt-0.5">
                                         <span>Peserta:</span>
                                         <span id="detail-diklat-peserta" class="font-bold text-slate-700">0 Orang</span>
                                     </div>
                                     <div class="pt-1 border-t border-slate-100">
-                                        <ul id="detail-diklat-list" class="space-y-1 pl-3 list-disc text-[10px] text-slate-600 max-h-20 overflow-y-auto custom-scrollbar"></ul>
+                                        <ul id="detail-diklat-list" class="space-y-1 pl-3 list-disc text-[11px] text-slate-600 max-h-24 overflow-y-auto custom-scrollbar"></ul>
                                     </div>
                                 </div>
                             </div>
@@ -310,13 +315,13 @@
                     </div>
     
                     <!-- Pie Chart -->
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col space-y-2">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col space-y-3">
                         <div class="border-b border-slate-100 pb-2">
                             <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                                 <i class="fa-solid fa-chart-pie text-amber-500"></i> Proporsi Jenis Kegiatan
                             </h4>
                         </div>
-                        <div class="relative w-full flex items-center justify-center" style="height: 180px;">
+                        <div class="relative w-full flex items-center justify-center" style="height: 220px;">
                             <canvas id="pieChartCategory"></canvas>
                         </div>
                     </div>
@@ -326,7 +331,7 @@
             </div>
     
             <!-- Modal Footer -->
-            <div class="bg-white px-5 py-2 border-t border-slate-200 flex justify-end flex-shrink-0">
+            <div class="bg-white px-5 py-2.5 border-t border-slate-200 flex justify-end flex-shrink-0">
                 <button onclick="closeKpiModal()" class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition-colors">
                     Tutup
                 </button>
