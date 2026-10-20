@@ -15,7 +15,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Chart.js CDN untuk Grafik KPI -->
+    <!-- Leaflet MarkerCluster CSS (Untuk Agregasi Titik) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -35,45 +39,70 @@
             z-index: 1; 
         }
         
+        /* Pin Marker Ramping Baru tanpa logo nuklir */
         .custom-div-icon { background: none; border: none; }
-        
-        /* Marker Pin Styling Base */
-        .marker-pin {
-            width: 32px; height: 32px;
-            border-radius: 50% 50% 50% 0;
+        .slim-pin {
+            width: 22px;
+            height: 32px;
             position: absolute;
+            left: 50%;
+            top: 50%;
+            margin: -32px 0 0 -11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 3px 4px rgba(0,0,0,0.4));
+            transition: transform 0.2s ease;
+        }
+        .slim-pin:hover {
+            transform: scale(1.15);
+        }
+        .slim-pin-inner {
+            width: 22px;
+            height: 22px;
+            border-radius: 50% 50% 50% 0;
             transform: rotate(-45deg);
-            left: 50%; top: 50%;
-            margin: -16px 0 0 -16px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
-            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        /* Variasi Warna Pin Marker */
-        .marker-pin.pin-bimtek { background-color: #0284c7; } /* Biru: Bimtek */
-        .marker-pin.pin-diklat { background-color: #10b981; } /* Hijau: Diklat */
-
-        .marker-pin::after {
-            content: ''; width: 14px; height: 14px;
-            margin: 8px 0 0 8px; background: #fff;
-            position: absolute; border-radius: 50%;
+        .slim-pin-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            transform: rotate(45deg);
         }
-        .marker-pin i { transform: rotate(45deg); color: #1e293b; z-index: 10; font-size: 12px; }
+        .pin-bimtek .slim-pin-inner { background-color: #0284c7; } /* Biru */
+        .pin-diklat .slim-pin-inner { background-color: #10b981; } /* Hijau */
+
+        /* Custom MarkerCluster Styling */
+        .marker-cluster-custom {
+            background: rgba(15, 23, 42, 0.85) !important;
+            border: 2px solid #f59e0b !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            font-size: 12px !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+        }
 
         .leaflet-popup-content-wrapper {
             padding: 0; border-radius: 12px; overflow: hidden;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
         }
-        .leaflet-popup-content { margin: 0; line-height: 1.5; width: 290px !important; }
+        .leaflet-popup-content { margin: 0; line-height: 1.5; width: 300px !important; }
         .leaflet-container a.leaflet-popup-close-button {
-            top: 10px; right: 10px; color: #ffffff;
-            background: rgba(0,0,0,0.3); border-radius: 50%;
-            width: 24px; height: 24px; display: flex;
-            align-items: center; justify-content: center; font-size: 14px;
+            top: 8px; right: 8px; color: #ffffff;
+            background: rgba(0,0,0,0.4); border-radius: 50%;
+            width: 22px; height: 22px; display: flex;
+            align-items: center; justify-content: center; font-size: 12px;
         }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
@@ -101,7 +130,7 @@
     <!-- Main Container -->
     <div class="flex-1 flex relative overflow-hidden h-full w-full">
 
-        <!-- Left Panel / Sidebar (Di-set tersembunyi '-translate-x-full' saat awal buka) -->
+        <!-- Left Panel / Sidebar -->
         <aside id="sidebar" class="absolute top-0 left-0 h-full w-96 sm:w-[420px] bg-white z-[1000] shadow-2xl flex flex-col border-r border-slate-200 sidebar-smooth transform -translate-x-full">
             <div class="w-full flex flex-col h-full">
                 <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
@@ -130,7 +159,7 @@
                     </div>
                 </div>
 
-                <!-- STATISTIK RINGKASAN & TOMBOL DETAIL KPI -->
+                <!-- STATISTIK RINGKASAN & TOMBOL DETAIL -->
                 <div class="p-2.5 bg-slate-50 border-b border-slate-100 flex-shrink-0 space-y-2">
                     <div class="grid grid-cols-2 gap-2">
                         <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm text-center">
@@ -143,10 +172,9 @@
                         </div>
                     </div>
 
-                    <!-- TOMBOL POPUP KPI DASHBOARD -->
                     <button onclick="openKpiModal()" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center space-x-2 transition-all border border-slate-700">
                         <i class="fa-solid fa-chart-pie"></i>
-                        <span>Lihat Detail</span>
+                        <span>Lihat Detail Dashboard</span>
                     </button>
                 </div>
 
@@ -161,7 +189,6 @@
 
         <!-- Map Canvas Area -->
         <main class="w-full h-full relative bg-slate-900 overflow-hidden flex-1">
-            <!-- Tombol Buka Panel (Di-set aktif/terlihat saat awal buka) -->
             <button id="show-sidebar-btn" onclick="toggleSidebar()" class="absolute top-4 left-4 z-[1000] bg-slate-900/90 text-white px-3.5 py-2.5 rounded-lg shadow-2xl hover:bg-slate-800 transition-all duration-300 flex items-center space-x-2 border border-slate-700 backdrop-blur-sm transform translate-x-0 opacity-100">
                 <i class="fa-solid fa-bars text-amber-500"></i>
                 <span class="text-xs font-semibold">Tampilkan Panel</span>
@@ -171,131 +198,128 @@
         </main>
     </div>
 
-    <!-- MODAL POPUP DASHBOARD KPI STATISTIK -->
-    <div id="kpi-modal" class="hidden fixed inset-0 z-[2000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
+    <!-- MODAL POPUP DETAIL DASHBOARD STATISTIK (DIBERIKAN HEADER LEBIH RINGKAS & FIXED HEIGHT CHART) -->
+    <div id="kpi-modal" class="hidden fixed inset-0 z-[2000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 pt-12">
+        <div class="bg-white w-full max-w-6xl rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in zoom-in duration-200">
 
-            <!-- Modal Header -->
-            <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800 flex-shrink-0">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2 bg-amber-500 text-slate-950 rounded-lg font-bold">
-                        <i class="fa-solid fa-chart-line text-lg"></i>
+            <!-- Modal Header Ramping (Slim) -->
+            <div class="bg-slate-900 text-white px-5 py-2.5 flex items-center justify-between border-b border-slate-800 flex-shrink-0">
+                <div class="flex items-center space-x-2.5">
+                    <div class="p-1.5 bg-amber-500 text-slate-950 rounded-md font-bold text-xs">
+                        <i class="fa-solid fa-chart-line"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-sm sm:text-base text-slate-100">KPI Dashboard & Evaluasi Pelaksanaan Bimtek</h3>
-                        <p class="text-xs text-amber-400">Statistik Capaian Program Kesiapsiagaan Nuklir (2016 - 2024)</p>
+                        <h3 class="font-bold text-xs sm:text-sm text-slate-100 leading-none">Dashboard Evaluasi Pelaksanaan Bimtek</h3>
+                        <p class="text-[10px] text-amber-400 mt-0.5">Statistik Capaian Program Kesiapsiagaan Nuklir (2016 - 2024)</p>
                     </div>
                 </div>
-                <button onclick="closeKpiModal()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition-colors">
-                    <i class="fa-solid fa-xmark text-xl"></i>
+                <button onclick="closeKpiModal()" class="text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800 transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
 
-            <!-- Modal Content -->
-            <div class="p-6 overflow-y-auto custom-scrollbar space-y-6 bg-slate-50 flex-1">
+            <!-- Modal Content Area -->
+            <div class="p-4 overflow-y-auto custom-scrollbar space-y-4 bg-slate-50 flex-1">
 
-                <!-- Ringkasan Kartu KPI -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-                        <div class="p-3 bg-blue-50 text-blue-600 rounded-xl text-xl">
+                <!-- Ringkasan Statistik -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="p-2.5 bg-blue-50 text-blue-600 rounded-lg text-lg">
                             <i class="fa-solid fa-shield-halved"></i>
                         </div>
                         <div>
-                            <div class="text-xs text-slate-500 font-medium">Bimtek</div>
-                            <div id="kpi-count-bimtek" class="text-2xl font-bold text-slate-800">0</div>
+                            <div class="text-[11px] text-slate-500 font-medium">Bimtek</div>
+                            <div id="kpi-count-bimtek" class="text-xl font-bold text-slate-800">0</div>
                         </div>
                     </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-                        <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl text-xl">
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-lg text-lg">
                             <i class="fa-solid fa-graduation-cap"></i>
                         </div>
                         <div>
-                            <div class="text-xs text-slate-500 font-medium">Diklat</div>
-                            <div id="kpi-count-diklat" class="text-2xl font-bold text-slate-800">0</div>
+                            <div class="text-[11px] text-slate-500 font-medium">Diklat</div>
+                            <div id="kpi-count-diklat" class="text-xl font-bold text-slate-800">0</div>
                         </div>
                     </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-                        <div class="p-3 bg-amber-50 text-amber-600 rounded-xl text-xl">
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="p-2.5 bg-amber-50 text-amber-600 rounded-lg text-lg">
                             <i class="fa-solid fa-users"></i>
                         </div>
                         <div>
-                            <div class="text-xs text-slate-500 font-medium">Total Alumni Peserta</div>
-                            <div id="kpi-count-peserta" class="text-2xl font-bold text-amber-600">0</div>
+                            <div class="text-[11px] text-slate-500 font-medium">Total Alumni Peserta</div>
+                            <div id="kpi-count-peserta" class="text-xl font-bold text-amber-600">0</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Section Charts -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Section Charts & Drill-Down Panel (Diatur agar ukuran stabil) -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
 
-                    <!-- Bar Chart: Tren Tahun 2016-2024 -->
-                    <div class="md:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                    <!-- Bar Chart & Detail Tahun -->
+                    <div class="lg:col-span-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                            <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                                 <i class="fa-solid fa-chart-column text-amber-500"></i> Tren Pelaksanaan per Tahun (2016 - 2024)
                             </h4>
-                            <span class="text-[10px] text-slate-400 font-medium italic"><i class="fa-solid fa-hand-pointer mr-1"></i>Klik batang tahun untuk melihat detail</span>
+                            <span class="text-[10px] text-slate-400 italic"><i class="fa-solid fa-hand-pointer mr-1"></i>Klik batang untuk rincian</span>
                         </div>
                         
-                        <div class="relative flex-1 min-h-[240px] w-full">
+                        <!-- Kontainer Grafik Batang Berukuran Tetap -->
+                        <div class="relative w-full" style="height: 200px;">
                             <canvas id="barChartYear"></canvas>
                         </div>
 
-                        <!-- PANEL DRILL-DOWN DETAIL TAHUN & RINCIAN INSTANSI -->
-                        <div id="year-detail-panel" class="hidden mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3 animate-in fade-in duration-200">
-                            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-                                <h5 class="font-bold text-xs text-slate-800 flex items-center gap-2">
-                                    <i class="fa-solid fa-calendar-check text-amber-500"></i> Rincian Kegiatan Tahun <span id="selected-year-label" class="text-amber-600 font-extrabold">2024</span>
+                        <!-- PANEL RINCIAN TAHUN (Tinggi Tetap / Internal Scrollbar agar tidak merusak layout) -->
+                        <div id="year-detail-panel" class="hidden p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2 animate-in fade-in duration-150">
+                            <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+                                <h5 class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-calendar-check text-amber-500"></i> Rincian Tahun <span id="selected-year-label" class="text-amber-600 font-extrabold">2024</span>
                                 </h5>
-                                <button onclick="hideYearDetail()" class="text-[11px] text-slate-400 hover:text-slate-600 underline">Tutup Rincian</button>
+                                <button onclick="hideYearDetail()" class="text-[10px] text-slate-400 hover:text-slate-600 underline">Tutup Rincian</button>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                                <!-- Detail Bimtek & Daftar Instansi -->
-                                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm space-y-2 flex flex-col">
-                                    <div class="flex justify-between items-center border-b border-slate-100 pb-1.5">
-                                        <span class="font-semibold text-blue-700 flex items-center gap-1">
-                                            <i class="fa-solid fa-shield-halved"></i> Bimtek
-                                        </span>
-                                        <span id="detail-bimtek-count" class="font-bold text-slate-800 bg-blue-50 px-2 py-0.5 rounded">0 Keg.</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                <!-- Bimtek -->
+                                <div class="bg-white p-2.5 rounded border border-slate-200 shadow-sm space-y-1">
+                                    <div class="flex justify-between items-center border-b border-slate-100 pb-1">
+                                        <span class="font-semibold text-blue-700 text-[11px]"><i class="fa-solid fa-shield-halved mr-1"></i>Bimtek</span>
+                                        <span id="detail-bimtek-count" class="font-bold text-slate-800 bg-blue-50 px-1.5 py-0.5 rounded text-[10px]">0 Keg.</span>
                                     </div>
-                                    <div class="text-[11px] text-slate-500 flex justify-between">
-                                        <span>Total Peserta:</span>
+                                    <div class="text-[10px] text-slate-500 flex justify-between">
+                                        <span>Peserta:</span>
                                         <span id="detail-bimtek-peserta" class="font-bold text-slate-700">0 Orang</span>
                                     </div>
-                                    <div class="pt-1.5 border-t border-slate-100 flex-1">
-                                        <span class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Daftar Instansi:</span>
-                                        <ul id="detail-bimtek-list" class="space-y-1 pl-3 list-disc text-[11px] text-slate-600 max-h-32 overflow-y-auto custom-scrollbar"></ul>
+                                    <div class="pt-1 border-t border-slate-100">
+                                        <ul id="detail-bimtek-list" class="space-y-1 pl-3 list-disc text-[10px] text-slate-600 max-h-24 overflow-y-auto custom-scrollbar"></ul>
                                     </div>
                                 </div>
 
-                                <!-- Detail Diklat & Daftar Instansi -->
-                                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm space-y-2 flex flex-col">
-                                    <div class="flex justify-between items-center border-b border-slate-100 pb-1.5">
-                                        <span class="font-semibold text-emerald-700 flex items-center gap-1">
-                                            <i class="fa-solid fa-graduation-cap"></i> Diklat
-                                        </span>
-                                        <span id="detail-diklat-count" class="font-bold text-slate-800 bg-emerald-50 px-2 py-0.5 rounded">0 Keg.</span>
+                                <!-- Diklat -->
+                                <div class="bg-white p-2.5 rounded border border-slate-200 shadow-sm space-y-1">
+                                    <div class="flex justify-between items-center border-b border-slate-100 pb-1">
+                                        <span class="font-semibold text-emerald-700 text-[11px]"><i class="fa-solid fa-graduation-cap mr-1"></i>Diklat</span>
+                                        <span id="detail-diklat-count" class="font-bold text-slate-800 bg-emerald-50 px-1.5 py-0.5 rounded text-[10px]">0 Keg.</span>
                                     </div>
-                                    <div class="text-[11px] text-slate-500 flex justify-between">
-                                        <span>Total Peserta:</span>
+                                    <div class="text-[10px] text-slate-500 flex justify-between">
+                                        <span>Peserta:</span>
                                         <span id="detail-diklat-peserta" class="font-bold text-slate-700">0 Orang</span>
                                     </div>
-                                    <div class="pt-1.5 border-t border-slate-100 flex-1">
-                                        <span class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Daftar Instansi:</span>
-                                        <ul id="detail-diklat-list" class="space-y-1 pl-3 list-disc text-[11px] text-slate-600 max-h-32 overflow-y-auto custom-scrollbar"></ul>
+                                    <div class="pt-1 border-t border-slate-100">
+                                        <ul id="detail-diklat-list" class="space-y-1 pl-3 list-disc text-[10px] text-slate-600 max-h-24 overflow-y-auto custom-scrollbar"></ul>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Pie Chart: Distribusi Bimtek vs Diklat -->
-                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
-                        <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-chart-pie text-amber-500"></i> Proporsi Jenis Kegiatan
-                        </h4>
-                        <div class="relative flex-1 min-h-[260px] w-full flex items-center justify-center">
+                    <!-- Pie Chart (Tinggi Tetap & Kokoh) -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col space-y-3">
+                        <div class="border-b border-slate-100 pb-2">
+                            <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-chart-pie text-amber-500"></i> Proporsi Jenis Kegiatan
+                            </h4>
+                        </div>
+                        <div class="relative w-full flex items-center justify-center" style="height: 200px;">
                             <canvas id="pieChartCategory"></canvas>
                         </div>
                     </div>
@@ -304,23 +328,22 @@
 
             </div>
 
-            <!-- Modal Footer -->
-            <div class="bg-white px-6 py-3 border-t border-slate-200 flex justify-end flex-shrink-0">
-                <button onclick="closeKpiModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition-colors">
+            <div class="bg-white px-5 py-2.5 border-t border-slate-200 flex justify-end flex-shrink-0">
+                <button onclick="closeKpiModal()" class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-md transition-colors">
                     Tutup
                 </button>
             </div>
-
         </div>
     </div>
 
-    <!-- Leaflet JS -->
+    <!-- Leaflet JS & Leaflet MarkerCluster JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
     <script>
         let rawGeoJSONData = null;
         let map;
-        let markersGroup = L.layerGroup();
+        let clusterGroup;
         let yearBarChartInstance = null;
         let categoryPieChartInstance = null;
 
@@ -330,33 +353,18 @@
             setupEventListeners();
         };
 
-        window.addEventListener('message', function(event) {
-            if (event.data && event.data.type === 'RESIZE_MAP') {
-                if (map) {
-                    setTimeout(() => { map.invalidateSize(); }, 200);
-                }
-            }
-        });
-
         function initMap() {
             const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                maxZoom: 19,
-                attribution: '&copy; Esri'
+                maxZoom: 19, attribution: '&copy; Esri'
             });
-
             const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
-                maxZoom: 20,
-                attribution: '&copy; Google Maps'
+                maxZoom: 20, attribution: '&copy; Google Maps'
             });
-
             const googleSatellite = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-                maxZoom: 20,
-                attribution: '&copy; Google Maps'
+                maxZoom: 20, attribution: '&copy; Google Maps'
             });
-
             const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap'
+                maxZoom: 19, attribution: '&copy; OpenStreetMap'
             });
 
             map = L.map('map', { 
@@ -372,8 +380,53 @@
                 "Google Satelit": googleSatellite,
                 "OpenStreetMap": openStreetMap
             };
-
             L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+
+            // Inisialisasi Group MarkerCluster dengan Agregasi & Popup Scrollable
+            clusterGroup = L.markerClusterGroup({
+                showCoverageOnHover: false,
+                zoomToBoundsOnClick: false, // Dimatikan agar klik cluster bisa membuka Popup Scrollable
+                iconCreateFunction: function(cluster) {
+                    const count = cluster.getChildCount();
+                    return L.divIcon({
+                        html: `<div><span>${count}</span></div>`,
+                        className: 'marker-cluster-custom',
+                        iconSize: L.point(36, 36)
+                    });
+                }
+            });
+
+            // KLIK AGREGAT / CLUSTER -> Buka Popup Scrollable Daftar Titik Didalamnya
+            clusterGroup.on('clusterclick', function (a) {
+                const childMarkers = a.layer.getAllChildMarkers();
+                let popupContent = `
+                    <div class="bg-white">
+                        <div class="bg-slate-900 text-amber-400 p-2.5 font-bold text-xs border-b border-slate-800 flex justify-between items-center">
+                            <span><i class="fa-solid fa-layer-group mr-1.5"></i>Kelompok Lokasi (${childMarkers.length} Titik)</span>
+                        </div>
+                        <div class="max-h-56 overflow-y-auto custom-scrollbar divide-y divide-slate-100 p-1">
+                `;
+
+                childMarkers.forEach(m => {
+                    const p = m.featureProperties;
+                    popupContent += `
+                        <div class="p-2 hover:bg-slate-50 cursor-pointer text-xs" onclick="zoomToPoint(${m.getLatLng().lat}, ${m.getLatLng().lng})">
+                            <div class="font-bold text-slate-800">${p.instansi}</div>
+                            <div class="text-[11px] text-slate-500 line-clamp-1">${p.alamat}</div>
+                            <div class="text-[10px] text-amber-600 font-medium mt-0.5"><i class="fa-solid fa-users mr-1"></i>${p.jumlah_peserta || 0} Peserta</div>
+                        </div>
+                    `;
+                });
+
+                popupContent += `</div></div>`;
+
+                L.popup()
+                    .setLatLng(a.latlng)
+                    .setContent(popupContent)
+                    .openOn(map);
+            });
+
+            map.addLayer(clusterGroup);
 
             const northArrowControl = L.control({ position: 'topright' });
             northArrowControl.onAdd = function() {
@@ -391,30 +444,34 @@
             };
             northArrowControl.addTo(map);
 
-            // LEGENDA KETERANGAN WARNA TITIK DI PETA
             const legendControl = L.control({ position: 'bottomright' });
             legendControl.onAdd = function() {
                 const div = L.DomUtil.create('div', 'bg-slate-900/90 text-white p-2.5 rounded-lg border border-slate-700 shadow-xl text-[11px] backdrop-blur-sm space-y-1.5');
                 div.innerHTML = `
                     <div class="font-bold text-slate-300 border-b border-slate-700 pb-1 mb-1">Keterangan Titik</div>
                     <div class="flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full bg-sky-600 inline-block"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-sky-600 inline-block"></span>
                         <span>Bimtek</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
                         <span>Diklat</span>
+                    </div>
+                    <div class="flex items-center gap-2 pt-1 border-t border-slate-800">
+                        <span class="w-3.5 h-3.5 rounded-full border border-amber-400 bg-slate-900 text-amber-400 text-[9px] font-bold flex items-center justify-center">N</span>
+                        <span>Agregat / Cluster</span>
                     </div>
                 `;
                 return div;
             };
             legendControl.addTo(map);
 
-            markersGroup.addTo(map);
+            setTimeout(() => { if (map) map.invalidateSize(); }, 300);
+        }
 
-            setTimeout(() => { 
-                if (map) map.invalidateSize(); 
-            }, 300);
+        function zoomToPoint(lat, lng) {
+            map.closePopup();
+            map.flyTo([lat, lng], 15, { duration: 1.2 });
         }
 
         function formatRentangTanggal(tglMulai, tglSelesai) {
@@ -424,55 +481,19 @@
         }
 
         function fetchDataFromDatabase() {
-            fetch('./bimtek_data.xml')
+            const userRole = localStorage.getItem('user_role') || 'PUBLIC';
+
+            fetch(`http://127.0.0.1:8000/api/peta/xml-kegiatan?role=${userRole}`)
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Gagal mengambil file XML, status: " + response.status);
-                    }
-                    return response.text();
+                    if (!response.ok) throw new Error("Gagal mengambil data, status: " + response.status);
+                    return response.json();
                 })
-                .then(xmlText => {
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-                    const rows = xmlDoc.getElementsByTagName("row");
-
-                    const features = [];
-                    for (let i = 0; i < rows.length; i++) {
-                        const row = rows[i];
-                        const getVal = (tagName) => {
-                            const el = row.getElementsByTagName(tagName)[0];
-                            return el ? el.textContent.trim() : '';
-                        };
-
-                        const lat = parseFloat(getVal('latitude'));
-                        const lng = parseFloat(getVal('longitude'));
-
-                        if (!isNaN(lat) && !isNaN(lng)) {
-                            features.push({
-                                type: 'Feature',
-                                geometry: {
-                                    type: 'Point',
-                                    coordinates: [lng, lat]
-                                },
-                                properties: {
-                                    id: getVal('id'),
-                                    instansi: getVal('instansi'),
-                                    alamat: getVal('alamat'),
-                                    kategori_pelatihan: getVal('kategori_pelatihan'),
-                                    jumlah_peserta: getVal('jumlah_peserta'),
-                                    tanggal_mulai: getVal('tanggal_mulai'),
-                                    tanggal_selesai: getVal('tanggal_selesai'),
-                                    foto_url: getVal('foto_url')
-                                }
-                            });
-                        }
-                    }
-
-                    rawGeoJSONData = { type: 'FeatureCollection', features: features };
-                    populateYearFilter(features);
+                .then(data => {
+                    rawGeoJSONData = data;
+                    populateYearFilter(data.features || []);
                     renderData();
                 })
-                .catch(err => console.error("Error memuat XML:", err));
+                .catch(err => console.error("Error memuat GeoJSON:", err));
         }
 
         function populateYearFilter(features) {
@@ -491,26 +512,29 @@
             });
         }
 
-        function createCustomMarkerIcon(instansi) {
+        // MEMBUAT PIN RAMPING ELEGAN (TANPA SIMBOL NUKLIR)
+        function createSlimMarkerIcon(instansi) {
             const isBimtek = (instansi || '').toLowerCase().includes('sat brimob');
             const colorClass = isBimtek ? 'pin-bimtek' : 'pin-diklat';
 
             const html = `
-                <div class="marker-pin ${colorClass}">
-                    <i class="fa-solid fa-radiation"></i>
+                <div class="slim-pin ${colorClass}">
+                    <div class="slim-pin-inner">
+                        <div class="slim-pin-dot"></div>
+                    </div>
                 </div>
             `;
 
             return L.divIcon({
                 className: 'custom-div-icon',
                 html: html,
-                iconSize: [30, 42],
-                iconAnchor: [15, 42]
+                iconSize: [22, 32],
+                iconAnchor: [11, 32]
             });
         }
 
         function renderData() {
-            markersGroup.clearLayers();
+            clusterGroup.clearLayers();
             const listContainer = document.getElementById('event-list');
             listContainer.innerHTML = '';
 
@@ -561,8 +585,11 @@
                 const rentangTgl = formatRentangTanggal(p.tanggal_mulai, p.tanggal_selesai);
 
                 const marker = L.marker([lat, lng], {
-                    icon: createCustomMarkerIcon(p.instansi)
+                    icon: createSlimMarkerIcon(p.instansi)
                 });
+
+                // Simpan atribut di objek marker agar bisa dibaca saat klik agregat
+                marker.featureProperties = p;
 
                 const fotoHtml = p.foto_url 
                     ? `<img src="${p.foto_url}" class="w-full h-32 object-cover rounded-t-lg" alt="Foto Kegiatan" onerror="this.style.display='none'"/>` 
@@ -578,10 +605,6 @@
                             <h4 class="font-bold text-xs text-amber-400 leading-snug">${p.instansi || 'Instansi Bimtek'}</h4>
                         </div>
                         <div class="p-3 text-xs space-y-1.5 text-slate-700">
-                            <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-layer-group text-slate-400 mt-0.5"></i>
-                                <span><b>Kategori Pelatihan:</b> ${p.kategori_pelatihan || 'Basic'}</span>
-                            </div>
                             <div class="flex items-start gap-2">
                                 <i class="fa-solid fa-location-dot text-slate-400 mt-0.5"></i>
                                 <span><b>Alamat:</b> ${p.alamat || '-'}</span>
@@ -599,30 +622,30 @@
                 `;
 
                 marker.bindPopup(popupContent);
-                markersGroup.addLayer(marker);
+                clusterGroup.addLayer(marker);
 
                 const card = document.createElement('div');
-                card.className = 'p-3.5 hover:bg-slate-50 cursor-pointer transition-colors border-l-4 border-amber-500';
+                card.className = 'p-3 hover:bg-slate-50 cursor-pointer transition-colors border-l-4 border-amber-500';
 
                 card.innerHTML = `
-                    <div class="flex justify-between items-center mb-1.5">
+                    <div class="flex justify-between items-center mb-1">
                         <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-100 text-sky-800 border border-sky-200">
-                            <i class="fa-solid fa-award mr-1"></i>Pelatihan ${p.kategori_pelatihan || 'Basic'}
+                            Pelatihan ${p.kategori_pelatihan || 'Basic'}
                         </span>
-                        <span class="text-[11px] text-slate-400 font-medium">
+                        <span class="text-[10px] text-slate-400">
                             <i class="fa-regular fa-calendar"></i> ${rentangTgl}
                         </span>
                     </div>
                     <h3 class="font-bold text-xs text-slate-800 line-clamp-1 hover:text-amber-600 transition-colors">${p.instansi}</h3>
                     <p class="text-[11px] text-slate-500 font-medium line-clamp-1">${p.alamat}</p>
-                    <div class="mt-2 flex justify-between items-center text-[10px] text-slate-400">
+                    <div class="mt-1.5 flex justify-between items-center text-[10px] text-slate-400">
                         <span><i class="fa-solid fa-users text-amber-500"></i> ${p.jumlah_peserta || 0} Peserta</span>
                         <span class="text-amber-600 font-semibold hover:underline">Fokus Lokasi <i class="fa-solid fa-arrow-right"></i></span>
                     </div>
                 `;
 
                 card.onclick = () => {
-                    map.flyTo([lat, lng], 12, { duration: 1.2 });
+                    map.flyTo([lat, lng], 14, { duration: 1.2 });
                     marker.openPopup();
                 };
 
@@ -719,13 +742,13 @@
                         label: 'Jumlah Kegiatan',
                         data: yearsRange.map(y => yearCounts[y]),
                         backgroundColor: '#0284c7',
-                        borderRadius: 6,
+                        borderRadius: 4,
                         hoverBackgroundColor: '#0369a1'
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: false, // Menjaga grafik tidak loncat ukurannya
                     plugins: { legend: { display: false } },
                     scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
                     onClick: (event, elements) => {
@@ -747,7 +770,7 @@
                     labels: ['Bimtek', 'Diklat'],
                     datasets: [{
                         data: [bimtekCount, diklatCount],
-                        backgroundColor: ['#3b82f6', '#10b981'],
+                        backgroundColor: ['#0284c7', '#10b981'],
                         borderWidth: 2,
                         borderColor: '#ffffff'
                     }]
@@ -758,7 +781,7 @@
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                            labels: { font: { size: 10, family: 'Inter' }, boxWidth: 10 }
                         }
                     }
                 }
