@@ -68,6 +68,21 @@
         .sidebar-smooth {
             transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        /* Tooltip custom ramping */
+        .custom-tooltip-clean {
+            background-color: rgba(15, 23, 42, 0.95) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            color: #ffffff !important;
+            border-radius: 6px !important;
+            padding: 4px 8px !important;
+            font-size: 11px !important;
+            font-weight: 500 !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+        }
+        .custom-tooltip-clean::before {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="bg-slate-100 flex flex-col h-full w-full overflow-hidden">
@@ -261,11 +276,11 @@
         let rawGeoJSONData = null;
         let map;
         let geojsonLayerGroup = null;
-        let layerMapById = {}; // Menyimpan referensi layer poligon untuk interaksi klik sidebar
+        let layerMapById = {};
         let yearBarChartInstance = null;
         let categoryPieChartInstance = null;
 
-        // Kamus pemetaan nama wilayah resmi agar tidak pernah muncul 'NULL'
+        // Kamus nama resmi untuk daerah yang memiliki kegiatan latihan
         const NAMA_RESMI_MAP = {
             'serpong': 'Kota Tangerang Selatan (Serpong)',
             'jakarta': 'Provinsi DKI Jakarta',
@@ -312,7 +327,7 @@
 
             geojsonLayerGroup = L.featureGroup().addTo(map);
 
-            // Kompas Arah Utara
+            // Kompas
             const northArrowControl = L.control({ position: 'topright' });
             northArrowControl.onAdd = function() {
                 const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control north-compass-box');
@@ -329,7 +344,7 @@
             };
             northArrowControl.addTo(map);
 
-            // Legenda Koroplet Frekuensi Latihan
+            // Legenda
             const legendControl = L.control({ position: 'bottomright' });
             legendControl.onAdd = function() {
                 const div = L.DomUtil.create('div', 'bg-slate-900/90 text-white p-2.5 rounded-lg border border-slate-700 shadow-xl text-[11px] backdrop-blur-sm space-y-1.5');
@@ -365,15 +380,14 @@
 
         // Skema Warna Koroplet
         function getColorByCount(count) {
-            if (count >= 6) return '#7f1d1d'; // Sangat Tinggi
-            if (count >= 4) return '#b91c1c'; // Tinggi
-            if (count >= 2) return '#ea580c'; // Sedang
-            if (count >= 1) return '#f59e0b'; // Rendah
-            return '#ffffff';                 // Tidak ada latihan: Putih
+            if (count >= 6) return '#7f1d1d';
+            if (count >= 4) return '#b91c1c';
+            if (count >= 2) return '#ea580c';
+            if (count >= 1) return '#f59e0b';
+            return '#ffffff';
         }
 
         function fetchDataFromGeoJSON() {
-            // Memanggil file statis GeoJSON dengan query timestamp agar anti-cache
             fetch('./koroplet_latihan_nuklir.geojson?v=' + Date.now())
                 .then(response => {
                     if (!response.ok) throw new Error("Gagal mengambil file GeoJSON, status: " + response.status);
@@ -423,7 +437,41 @@
             });
         }
 
-        // FUNGSI RENDER DATA (SUDAH DIPERBAIKI DARI SYNTAX ERROR)
+        // Ekstraktor Cerdas Nama Wilayah (Mendeteksi nama asli properti apa pun yang ada di GeoJSON)
+        function resolveRegionName(p) {
+            if (p.kunci_wilayah && NAMA_RESMI_MAP[p.kunci_wilayah]) {
+                return NAMA_RESMI_MAP[p.kunci_wilayah];
+            }
+
+            const priorityKeys = [
+                'nama_wilayah', 'WADMKK', 'NAMOBJ', 'kabupaten_kota', 'kabupaten', 
+                'KAB_KOTA', 'NAME_2', 'nm_kabkota', 'nama_kabkota', 'kab_kot', 
+                'nama', 'name', 'KABKOT'
+            ];
+
+            for (let k of priorityKeys) {
+                if (p[k]) {
+                    let v = String(p[k]).trim();
+                    if (v && !['null', 'none', 'nan', 'wilayah', 'kabupaten/kota'].includes(v.toLowerCase())) {
+                        return v.replace(/^(kabupaten|kota)\s+/i, (m) => m.toUpperCase());
+                    }
+                }
+            }
+
+            // Fallback mencari nilai string non-JSON
+            for (let k in p) {
+                if (k !== 'daftar_kegiatan' && typeof p[k] === 'string') {
+                    let v = p[k].trim();
+                    if (v && v.length > 3 && !['null', 'none', 'nan', 'wilayah', 'kabupaten/kota'].includes(v.toLowerCase())) {
+                        return v;
+                    }
+                }
+            }
+
+            return 'Wilayah Administratif';
+        }
+
+        // FUNGSI RENDER DATA
         function renderData() {
             geojsonLayerGroup.clearLayers();
             layerMapById = {};
@@ -439,31 +487,27 @@
             let activeCitiesCount = 0;
             const sidebarItems = [];
 
-            // 1. GAMBAR SELURUH DAERAH KE PETA (YANG 0 JADI PUTIH TRANSPARAN)
+            // 1. GAMBAR SELURUH DAERAH KE PETA
             const mainPolygonLayer = L.geoJSON(rawGeoJSONData, {
                 style: function(feature) {
                     const count = feature.properties.jumlah_latihan || 0;
                     const hasEvent = count > 0;
                     return {
                         fillColor: getColorByCount(count),
-                        fillOpacity: hasEvent ? 0.8 : 0.3,       // Putih transparansi ~70%
-                        weight: hasEvent ? 2 : 0.8,               // Garis batas tipis untuk yang 0
+                        fillOpacity: hasEvent ? 0.8 : 0.25,      // Putih transparansi ~75%
+                        weight: hasEvent ? 2 : 0.7,               // Garis tipis halus untuk wilayah netral
                         opacity: 0.9,
-                        color: hasEvent ? '#0f172a' : '#cbd5e1',  // Garis abu-abu terang
+                        color: hasEvent ? '#0f172a' : '#cbd5e1',  // Garis abu-abu lembut
                         dashArray: hasEvent ? '2' : ''
                     };
-                },onEachFeature: function(feature, layer) {
+                },
+                onEachFeature: function(feature, layer) {
                     const p = feature.properties;
                     const count = p.jumlah_latihan || 0;
                     const kegiatanAsli = parseKegiatanList(p);
+                    const namaWilayah = resolveRegionName(p);
 
-                    // Normalisasi nama wilayah anti-NULL
-                    let namaWilayah = p.nama_wilayah;
-                    if (!namaWilayah || namaWilayah === 'null' || namaWilayah === 'None' || namaWilayah === 'Wilayah') {
-                        namaWilayah = NAMA_RESMI_MAP[p.kunci_wilayah] || p.kunci_wilayah || 'Kabupaten/Kota';
-                    }
-
-                    // Efek Hover kursor
+                    // Efek Hover warna garis
                     layer.on({
                         mouseover: function(e) {
                             const l = e.target;
@@ -479,7 +523,7 @@
                         }
                     });
 
-                    // 1. DAERAH DENGAN LATIHAN (Bisa diklik & memunculkan popup rincian)
+                    // 1. DAERAH DENGAN LATIHAN (BISA DIKLIK POP-UP & MUNCUL DI SIDEBAR)
                     if (count > 0) {
                         const matchingKegiatan = kegiatanAsli.filter(k => {
                             const strWaktu = String(k.waktu || '');
@@ -532,23 +576,21 @@
                             layer.bindPopup(popupHtml);
                         }
                     } 
-                    // 2. DAERAH TANPA LATIHAN (HANYA TOOLTIP SAAT HOVER, TIDAK BISA DIKLIK SAMA SEKALI)
+                    // 2. DAERAH TANPA LATIHAN (TIDAK ADA POP-UP, TIDAK TERKUNCI SAAT DIKLIK)
                     else {
-                        // Pastikan popup tidak aktif
                         layer.unbindPopup();
-
-                        // Tooltip nama kabupaten/kota saat kursor melintas
+                        
+                        // Tooltip ramping yang hanya melayang mengikuti kursor mouse (sticky)
                         layer.bindTooltip(namaWilayah, {
                             sticky: true,
                             direction: 'top',
-                            opacity: 0.9,
-                            className: 'px-2 py-1 bg-slate-900 text-white text-xs font-semibold rounded shadow-md border border-slate-700'
+                            offset: [0, -10],
+                            opacity: 0.95,
+                            className: 'custom-tooltip-clean'
                         });
 
-                        // Blokir event klik agar tidak muncul kotak/popup putih
-                        layer.on('click', function(e) {
-                            L.DomEvent.stopPropagation(e);
-                        });
+                        // Matikan interaksi klik
+                        layer.off('click');
                     }
                 }
             });
@@ -603,7 +645,7 @@
                 });
             }
 
-            // Atur batas peta membingkai seluruh pulau Jawa
+            // Pasang kamera membingkai pulau Jawa
             if (rawGeoJSONData.features.length > 0) {
                 map.fitBounds(mainPolygonLayer.getBounds(), { padding: [20, 20] });
             }
@@ -668,10 +710,7 @@
             rawGeoJSONData.features.forEach(f => {
                 const kegiatan = parseKegiatanList(f.properties);
                 const p = f.properties;
-                let namaWil = p.nama_wilayah;
-                if (!namaWil || namaWil === 'null' || namaWil === 'None' || namaWil === 'Wilayah') {
-                    namaWil = NAMA_RESMI_MAP[p.kunci_wilayah] || p.kunci_wilayah || 'Wilayah Latihan';
-                }
+                const namaWil = resolveRegionName(p);
 
                 kegiatan.forEach(k => {
                     const lingkupLower = (k.lingkup || '').toLowerCase();
