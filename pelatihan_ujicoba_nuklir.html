@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peta Pelaksanaan Pelatihan Uji Coba Penanggulangan Kesiapsiagaan Nuklir Nasional</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Leaflet CSS & FontAwesome Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * { box-sizing: border-box; }
+        html, body {
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        #map { 
+            width: 100%; 
+            height: 100%; 
+            z-index: 1; 
+        }
+
+        .leaflet-popup-content-wrapper {
+            padding: 0; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
+        }
+        .leaflet-popup-content { margin: 0; line-height: 1.5; width: 330px !important; }
+        .leaflet-container a.leaflet-popup-close-button {
+            top: 8px; right: 8px; color: #ffffff;
+            background: rgba(0,0,0,0.4); border-radius: 50%;
+            width: 22px; height: 22px; display: flex;
+            align-items: center; justify-content: center; font-size: 12px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        .north-compass-box {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 6px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+        }
+
+        .sidebar-smooth {
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex flex-col h-full w-full overflow-hidden">
+
+    <!-- Main Container -->
+    <div class="flex-1 flex relative overflow-hidden h-full w-full">
+
+        <!-- Left Panel / Sidebar -->
+        <aside id="sidebar" class="absolute top-0 left-0 h-full w-96 sm:w-[420px] bg-white z-[1000] shadow-2xl flex flex-col border-r border-slate-200 sidebar-smooth transform -translate-x-full">
+            <div class="w-full flex flex-col h-full">
+                <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
+                    <h2 class="font-bold text-slate-800 text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-filter text-amber-500"></i> Filter & Pencarian
+                    </h2>
+                    <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-lg hover:bg-slate-200" title="Sembunyikan Panel">
+                        <i class="fa-solid fa-chevron-left text-lg"></i>
+                    </button>
+                </div>
+
+                <div class="p-3 space-y-2 bg-white border-b border-slate-100 flex-shrink-0">
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-500 uppercase mb-1 block">Cari Skenario / Instansi / Wilayah</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                            <input type="text" id="search-input" placeholder="Cari Dirty Bomb, BATAN, Serpong..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-500 uppercase mb-1 block">Tahun Pelaksanaan</label>
+                        <select id="year-filter" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
+                            <option value="ALL">Semua Tahun (2005 - 2024)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- STATISTIK RINGKASAN & TOMBOL DETAIL -->
+                <div class="p-2.5 bg-slate-50 border-b border-slate-100 flex-shrink-0 space-y-2">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm text-center">
+                            <div id="stat-total-events" class="text-lg font-bold text-slate-800">0</div>
+                            <div class="text-[11px] text-slate-500 font-medium">Total Skenario Latihan</div>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm text-center">
+                            <div id="stat-total-cities" class="text-lg font-bold text-amber-600">0</div>
+                            <div class="text-[11px] text-slate-500 font-medium">Wilayah Terdampak</div>
+                        </div>
+                    </div>
+
+                    <button onclick="openKpiModal()" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center space-x-2 transition-all border border-slate-700">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Lihat Detail Dashboard</span>
+                    </button>
+                </div>
+
+                <div class="px-4 py-2 bg-slate-100 border-b border-slate-200 flex justify-between items-center flex-shrink-0">
+                    <span class="text-xs font-semibold text-slate-600 uppercase">Daftar Wilayah Latihan</span>
+                    <span id="stat-showing-count" class="text-xs font-medium text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full">0 Wilayah</span>
+                </div>
+
+                <div id="event-list" class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-slate-100"></div>
+            </div>
+        </aside>
+
+        <!-- Map Canvas Area -->
+        <main class="w-full h-full relative bg-slate-900 overflow-hidden flex-1">
+            <button id="show-sidebar-btn" onclick="toggleSidebar()" class="absolute top-4 left-4 z-[1000] bg-slate-900/90 text-white px-3.5 py-2.5 rounded-lg shadow-2xl hover:bg-slate-800 transition-all duration-300 flex items-center space-x-2 border border-slate-700 backdrop-blur-sm transform translate-x-0 opacity-100">
+                <i class="fa-solid fa-bars text-amber-500"></i>
+                <span class="text-xs font-semibold">Tampilkan Panel</span>
+            </button>
+
+            <div id="map" class="w-full h-full"></div>
+        </main>
+    </div>
+
+    <!-- MODAL POPUP DETAIL DASHBOARD STATISTIK -->
+    <div id="kpi-modal" class="hidden fixed inset-0 z-[2000] bg-slate-950/70 backdrop-blur-sm flex flex-col items-center justify-start p-3">
+        
+        <div class="w-full h-[20px] flex-shrink-0"></div>
+
+        <div class="bg-white w-full max-w-5xl rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col flex-1 max-h-[calc(100vh-90px)] animate-in fade-in zoom-in duration-200">
+
+            <!-- Modal Header -->
+            <div class="bg-slate-900 text-white px-5 py-2.5 flex items-center justify-between border-b border-slate-800 flex-shrink-0">
+                <div class="flex items-center space-x-3">
+                    <div class="p-1.5 bg-amber-500 text-slate-950 rounded-lg font-bold text-xs">
+                        <i class="fa-solid fa-radiation"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xs sm:text-sm text-slate-100 leading-tight">Dashboard Pelatihan Uji Coba Kesiapsiagaan Nuklir</h3>
+                        <p class="text-[10px] text-amber-400">Statistik Rekapitulasi Latihan Kedaruratan Nuklir / Radiologi Nasional (2005 - 2024)</p>
+                    </div>
+                </div>
+                <button onclick="closeKpiModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content Area -->
+            <div class="p-5 overflow-y-auto custom-scrollbar space-y-4 bg-slate-50 flex-1">
+
+                <!-- Ringkasan Statistik -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="p-2.5 bg-red-50 text-red-600 rounded-xl text-lg">
+                            <i class="fa-solid fa-person-running"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-500 font-medium">Geladi Lapang (Field)</div>
+                            <div id="kpi-count-lapang" class="text-xl font-bold text-slate-800">0</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="p-2.5 bg-sky-50 text-sky-600 rounded-xl text-lg">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-500 font-medium">Table-Top Exercise</div>
+                            <div id="kpi-count-ttx" class="text-xl font-bold text-slate-800">0</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="p-2.5 bg-amber-50 text-amber-600 rounded-xl text-lg">
+                            <i class="fa-solid fa-handshake"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-500 font-medium">Executive Meeting</div>
+                            <div id="kpi-count-exec" class="text-xl font-bold text-amber-600">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Charts -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+
+                    <!-- Bar Chart & Detail Tahun -->
+                    <div class="md:col-span-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                            <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-chart-column text-amber-500"></i> Tren Latihan per Tahun (2005 - 2024)
+                            </h4>
+                            <span class="text-[11px] text-slate-400 italic"><i class="fa-solid fa-hand-pointer mr-1"></i>Klik batang untuk rincian</span>
+                        </div>
+                        
+                        <div class="relative w-full" style="height: 220px;">
+                            <canvas id="barChartYear"></canvas>
+                        </div>
+
+                        <!-- Panel Rincian Detail Tahun -->
+                        <div id="year-detail-panel" class="hidden p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2 animate-in fade-in duration-150">
+                            <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+                                <h5 class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-calendar-check text-amber-500"></i> Rincian Tahun <span id="selected-year-label" class="text-amber-600 font-extrabold">2024</span>
+                                </h5>
+                                <button onclick="hideYearDetail()" class="text-[11px] text-slate-400 hover:text-slate-600 underline">Tutup Rincian</button>
+                            </div>
+
+                            <div id="year-detail-content" class="text-xs space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Pie Chart -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col space-y-3">
+                        <div class="border-b border-slate-100 pb-2">
+                            <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-chart-pie text-amber-500"></i> Proporsi Jenis Latihan
+                            </h4>
+                        </div>
+                        <div class="relative w-full flex items-center justify-center" style="height: 220px;">
+                            <canvas id="pieChartCategory"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="bg-white px-5 py-2.5 border-t border-slate-200 flex justify-end flex-shrink-0">
+                <button onclick="closeKpiModal()" class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition-colors">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+    <script>
+        let rawGeoJSONData = null;
+        let map;
+        let geojsonLayerGroup = null;
+        let layerMapById = {}; // Menyimpan referensi layer poligon untuk interaksi klik sidebar
+        let yearBarChartInstance = null;
+        let categoryPieChartInstance = null;
+
+        window.onload = function() {
+            initMap();
+            fetchDataFromGeoJSON();
+            setupEventListeners();
+        };
+
+        function initMap() {
+            const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19, attribution: '© Esri'
+            });
+            const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+                maxZoom: 20, attribution: '© Google Maps'
+            });
+            const googleSatellite = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+                maxZoom: 20, attribution: '© Google Maps'
+            });
+            const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19, attribution: '© OpenStreetMap'
+            });
+
+            map = L.map('map', { 
+                zoomControl: false, 
+                layers: [esriSatellite] 
+            }).setView([-7.2, 109.8], 7);
+
+            L.control.zoom({ position: 'topright' }).addTo(map);
+
+            const baseMaps = {
+                "ESRI Satelit": esriSatellite,
+                "Google Hybrid": googleHybrid,
+                "Google Satelit": googleSatellite,
+                "OpenStreetMap": openStreetMap
+            };
+            L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+
+            geojsonLayerGroup = L.featureGroup().addTo(map);
+
+            // Kompas Arah Utara
+            const northArrowControl = L.control({ position: 'topright' });
+            northArrowControl.onAdd = function() {
+                const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control north-compass-box');
+                div.innerHTML = `
+                    <span style="font-size: 11px; font-weight: 800; color: #f59e0b; margin-bottom: 2px;">N</span>
+                    <svg width="20" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L17 12H12V2Z" fill="#ef4444"/>
+                        <path d="M12 2L7 12H12V2Z" fill="#f87171"/>
+                        <path d="M12 22L17 12H12V22Z" fill="#94a3b8"/>
+                        <path d="M12 22L7 12H12V22Z" fill="#cbd5e1"/>
+                    </svg>
+                `;
+                return div;
+            };
+            northArrowControl.addTo(map);
+
+            // Legenda Koroplet Frekuensi Latihan
+            const legendControl = L.control({ position: 'bottomright' });
+            legendControl.onAdd = function() {
+                const div = L.DomUtil.create('div', 'bg-slate-900/90 text-white p-2.5 rounded-lg border border-slate-700 shadow-xl text-[11px] backdrop-blur-sm space-y-1.5');
+                div.innerHTML = `
+                    <div class="font-bold text-slate-300 border-b border-slate-700 pb-1 mb-1">Frekuensi Latihan Kesiapsiagaan</div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded bg-[#7f1d1d] inline-block border border-white/30"></span>
+                        <span>Sangat Tinggi (≥ 6 Kali)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded bg-[#b91c1c] inline-block border border-white/30"></span>
+                        <span>Tinggi (4 - 5 Kali)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded bg-[#ea580c] inline-block border border-white/30"></span>
+                        <span>Sedang (2 - 3 Kali)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded bg-[#f59e0b] inline-block border border-white/30"></span>
+                        <span>Rendah (1 Kali)</span>
+                    </div>
+                `;
+                return div;
+            };
+            legendControl.addTo(map);
+
+            setTimeout(() => { if (map) map.invalidateSize(); }, 300);
+        }
+
+        // Skema Warna Koroplet
+        function getColorByCount(count) {
+            return count >= 6 ? '#7f1d1d' :
+                   count >= 4 ? '#b91c1c' :
+                   count >= 2 ? '#ea580c' :
+                   count >= 1 ? '#f59e0b' : '#94a3b8';
+        }
+
+        function fetchDataFromGeoJSON() {
+            // Memanggil file statis GeoJSON yang berada satu folder (Aktif 24/7 di GitHub Pages)
+            fetch('./koroplet_latihan_nuklir.geojson')
+                .then(response => {
+                    if (!response.ok) throw new Error("Gagal mengambil file GeoJSON, status: " + response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    rawGeoJSONData = data;
+                    populateYearFilter(data.features || []);
+                    renderData();
+                })
+                .catch(err => {
+                    console.error("Error memuat GeoJSON statis:", err);
+                });
+        }
+
+        function parseKegiatanList(featureProps) {
+            let list = featureProps.daftar_kegiatan;
+            if (typeof list === 'string') {
+                try {
+                    list = JSON.parse(list);
+                } catch(e) {
+                    list = [];
+                }
+            }
+            return Array.isArray(list) ? list : [];
+        }
+
+        function populateYearFilter(features) {
+            const yearSelect = document.getElementById('year-filter');
+            const yearsSet = new Set();
+
+            features.forEach(f => {
+                const kegiatan = parseKegiatanList(f.properties);
+                kegiatan.forEach(k => {
+                    const match = String(k.waktu).match(/(20\d\d)/);
+                    if (match) yearsSet.add(match[1]);
+                });
+            });
+
+            const sortedYears = Array.from(yearsSet).sort((a, b) => b - a);
+            yearSelect.innerHTML = '<option value="ALL">Semua Tahun (2005 - 2024)</option>';
+            sortedYears.forEach(year => {
+                const opt = document.createElement('option');
+                opt.value = year;
+                opt.innerText = `Tahun ${year}`;
+                yearSelect.appendChild(opt);
+            });
+        }
+
+        function renderData() {
+            geojsonLayerGroup.clearLayers();
+            layerMapById = {};
+            const listContainer = document.getElementById('event-list');
+            listContainer.innerHTML = '';
+
+            if (!rawGeoJSONData || !rawGeoJSONData.features) return;
+
+            const searchValue = document.getElementById('search-input').value.toLowerCase();
+            const yearFilter = document.getElementById('year-filter').value;
+
+            let totalFilteredEvents = 0;
+            const validFeatures = [];
+
+            rawGeoJSONData.features.forEach((feature, index) => {
+                const p = feature.properties;
+                const kegiatanAsli = parseKegiatanList(p);
+
+                // Filter kegiatan di dalam poligon kota ini
+                const matchingKegiatan = kegiatanAsli.filter(k => {
+                    const strWaktu = String(k.waktu || '');
+                    const yearMatch = (yearFilter === 'ALL') || strWaktu.includes(yearFilter);
+                    const textCombined = `${p.nama_wilayah || ''} ${k.lingkup || ''} ${k.instansi || ''}`.toLowerCase();
+                    const textMatch = textCombined.includes(searchValue);
+                    return yearMatch && textMatch;
+                });
+
+                if (matchingKegiatan.length > 0) {
+                    totalFilteredEvents += matchingKegiatan.length;
+                    validFeatures.push({
+                        feature: feature,
+                        matchingKegiatan: matchingKegiatan,
+                        id: `wilayah-${index}`
+                    });
+                }
+            });
+
+            document.getElementById('stat-total-events').innerText = totalFilteredEvents;
+            document.getElementById('stat-total-cities').innerText = validFeatures.length;
+            document.getElementById('stat-showing-count').innerText = `${validFeatures.length} Wilayah`;
+
+            if (validFeatures.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="p-6 text-center text-slate-400">
+                        <i class="fa-solid fa-location-slash text-2xl mb-2"></i>
+                        <p class="text-xs font-medium">Tidak ada data latihan yang cocok.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Urutkan wilayah dari jumlah kegiatan terbanyak
+            validFeatures.sort((a, b) => b.matchingKegiatan.length - a.matchingKegiatan.length);
+
+            validFeatures.forEach(item => {
+                const p = item.feature.properties;
+                const kegiatan = item.matchingKegiatan;
+                const count = kegiatan.length;
+                const namaWilayah = p.nama_wilayah || p.kunci_wilayah || 'Wilayah Latihan';
+
+                // Tambahkan layer poligon koroplet ke peta
+                const polygonLayer = L.geoJSON(item.feature, {
+                    style: {
+                        fillColor: getColorByCount(count),
+                        weight: 2,
+                        opacity: 1,
+                        color: '#0f172a',
+                        dashArray: '3',
+                        fillOpacity: 0.75
+                    },
+                    onEachFeature: function(feat, layer) {
+                        layer.on({
+                            mouseover: function(e) {
+                                const l = e.target;
+                                l.setStyle({ weight: 3, color: '#f59e0b', fillOpacity: 0.9 });
+                                l.bringToFront();
+                            },
+                            mouseout: function(e) {
+                                polygonLayer.resetStyle(e.target);
+                            }
+                        });
+
+                        // Susun daftar riwayat latihan di popup
+                        let itemsHtml = kegiatan.map(k => `
+                            <div class="p-2 bg-slate-50 rounded border border-slate-200 space-y-1">
+                                <div class="flex justify-between items-center text-[10px]">
+                                    <span class="font-bold text-amber-600"><i class="fa-solid fa-calendar-day mr-1"></i>${k.waktu}</span>
+                                    <span class="text-slate-400">#${k.no || '-'}</span>
+                                </div>
+                                <div class="font-semibold text-slate-800 text-[11px] leading-snug">${k.lingkup}</div>
+                                <div class="text-[10px] text-slate-500"><i class="fa-solid fa-building-shield mr-1"></i>${k.instansi}</div>
+                            </div>
+                        `).join('');
+
+                        const popupHtml = `
+                            <div class="bg-white">
+                                <div class="bg-slate-900 text-white p-3 border-b border-slate-800">
+                                    <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 mb-1 uppercase tracking-wider">
+                                        <i class="fa-solid fa-shield-halved mr-1"></i> Wilayah Pelaksanaan
+                                    </span>
+                                    <h4 class="font-bold text-xs text-amber-400 leading-snug uppercase">${namaWilayah}</h4>
+                                    <div class="text-[11px] text-slate-300 mt-1">Total: <b>${count} Kegiatan Latihan</b></div>
+                                </div>
+                                <div class="p-3 max-h-60 overflow-y-auto custom-scrollbar space-y-2">
+                                    ${itemsHtml}
+                                </div>
+                            </div>
+                        `;
+
+                        layer.bindPopup(popupHtml);
+                    }
+                });
+
+                polygonLayer.addTo(geojsonLayerGroup);
+                layerMapById[item.id] = polygonLayer;
+
+                // Tambahkan Card di Sidebar
+                const card = document.createElement('div');
+                card.className = 'p-3 hover:bg-slate-50 cursor-pointer transition-colors border-l-4 border-amber-500';
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200">
+                            ${count} Latihan
+                        </span>
+                        <span class="text-[10px] text-slate-400">
+                            <i class="fa-solid fa-shield"></i> Terverifikasi
+                        </span>
+                    </div>
+                    <h3 class="font-bold text-xs text-slate-800 line-clamp-1 hover:text-amber-600 transition-colors uppercase">${namaWilayah}</h3>
+                    <p class="text-[11px] text-slate-500 font-medium line-clamp-2 mt-0.5">${kegiatan[0].lingkup}</p>
+                    <div class="mt-2 flex justify-between items-center text-[10px] text-slate-400">
+                        <span><i class="fa-solid fa-clock-rotate-left text-amber-500"></i> ${kegiatan.length > 1 ? `${kegiatan.length} skenario latihan` : kegiatan[0].waktu}</span>
+                        <span class="text-amber-600 font-semibold hover:underline">Fokus Wilayah <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                `;
+
+                card.onclick = () => {
+                    const targetLayer = layerMapById[item.id];
+                    if (targetLayer) {
+                        const bounds = targetLayer.getBounds();
+                        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 11, duration: 1.2 });
+                        targetLayer.eachLayer(l => l.openPopup());
+                    }
+                };
+
+                listContainer.appendChild(card);
+            });
+
+            if (validFeatures.length > 0) {
+                map.fitBounds(geojsonLayerGroup.getBounds(), { padding: [30, 30] });
+            }
+        }
+
+        function setupEventListeners() {
+            document.getElementById('search-input').addEventListener('input', renderData);
+            document.getElementById('year-filter').addEventListener('change', renderData);
+            
+            window.addEventListener('resize', () => {
+                if (map) map.invalidateSize();
+            });
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const showBtn = document.getElementById('show-sidebar-btn');
+            const isHidden = sidebar.classList.contains('-translate-x-full');
+
+            if (isHidden) {
+                sidebar.classList.remove('-translate-x-full');
+                showBtn.classList.add('-translate-x-12', 'opacity-0', 'pointer-events-none');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                showBtn.classList.remove('-translate-x-12', 'opacity-0', 'pointer-events-none');
+            }
+
+            let start = null;
+            function animateMapResize(timestamp) {
+                if (!start) start = timestamp;
+                let progress = timestamp - start;
+                if (map) map.invalidateSize();
+                if (progress < 500) {
+                    window.requestAnimationFrame(animateMapResize);
+                }
+            }
+            window.requestAnimationFrame(animateMapResize);
+        }
+
+        function openKpiModal() {
+            const modal = document.getElementById('kpi-modal');
+            modal.classList.remove('hidden');
+            hideYearDetail();
+
+            if (!rawGeoJSONData || !rawGeoJSONData.features) return;
+
+            let lapangCount = 0;
+            let ttxCount = 0;
+            let execCount = 0;
+
+            const allYearsRange = [
+                '2005', '2007', '2008', '2009', '2010', '2011', '2012', 
+                '2013', '2015', '2016', '2018', '2019', '2021', '2022', '2023', '2024'
+            ];
+            const yearCounts = {};
+            const yearKegiatanMap = {};
+            allYearsRange.forEach(y => {
+                yearCounts[y] = 0;
+                yearKegiatanMap[y] = [];
+            });
+
+            rawGeoJSONData.features.forEach(f => {
+                const kegiatan = parseKegiatanList(f.properties);
+                kegiatan.forEach(k => {
+                    const lingkupLower = (k.lingkup || '').toLowerCase();
+                    if (lingkupLower.includes('table top') || lingkupLower.includes('table-top')) {
+                        ttxCount++;
+                    } else if (lingkupLower.includes('executive meeting')) {
+                        execCount++;
+                    } else {
+                        lapangCount++;
+                    }
+
+                    const matchYear = String(k.waktu).match(/(20\d\d)/);
+                    if (matchYear && yearCounts.hasOwnProperty(matchYear[1])) {
+                        const y = matchYear[1];
+                        yearCounts[y]++;
+                        yearKegiatanMap[y].push({
+                            wilayah: f.properties.nama_wilayah || f.properties.kunci_wilayah,
+                            lingkup: k.lingkup,
+                            instansi: k.instansi,
+                            waktu: k.waktu
+                        });
+                    }
+                });
+            });
+
+            document.getElementById('kpi-count-lapang').innerText = lapangCount;
+            document.getElementById('kpi-count-ttx').innerText = ttxCount;
+            document.getElementById('kpi-count-exec').innerText = execCount;
+
+            // Bar Chart Tren Tahun
+            const ctxBar = document.getElementById('barChartYear').getContext('2d');
+            if (yearBarChartInstance) yearBarChartInstance.destroy();
+
+            yearBarChartInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: allYearsRange,
+                    datasets: [{
+                        label: 'Jumlah Kegiatan Latihan',
+                        data: allYearsRange.map(y => yearCounts[y]),
+                        backgroundColor: '#ea580c',
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#c2410c'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: { stepSize: 1, precision: 0 } 
+                        } 
+                    },
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const clickedIndex = elements[0].index;
+                            const selectedYear = allYearsRange[clickedIndex];
+                            showYearDetail(selectedYear, yearKegiatanMap[selectedYear]);
+                        }
+                    }
+                }
+            });
+
+            // Pie Chart Kategori
+            const ctxPie = document.getElementById('pieChartCategory').getContext('2d');
+            if (categoryPieChartInstance) categoryPieChartInstance.destroy();
+
+            categoryPieChartInstance = new Chart(ctxPie, {
+                type: 'pie',
+                data: {
+                    labels: ['Geladi Lapang (Field)', 'Table-Top Exercise', 'Executive Meeting'],
+                    datasets: [{
+                        data: [lapangCount, ttxCount, execCount],
+                        backgroundColor: ['#dc2626', '#0284c7', '#f59e0b'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { font: { size: 10, family: 'Inter' }, boxWidth: 10 }
+                        }
+                    }
+                }
+            });
+        }
+
+        function showYearDetail(year, list) {
+            document.getElementById('selected-year-label').innerText = year;
+            const container = document.getElementById('year-detail-content');
+
+            if (!list || list.length === 0) {
+                container.innerHTML = `<div class="p-2 text-slate-400 italic">Tidak ada rincian latihan di tahun ${year}.</div>`;
+            } else {
+                container.innerHTML = list.map(item => `
+                    <div class="bg-white p-2.5 rounded border border-slate-200 shadow-sm space-y-1">
+                        <div class="flex justify-between items-center text-[10px]">
+                            <span class="font-bold text-amber-600 uppercase"><i class="fa-solid fa-map-pin mr-1"></i>${item.wilayah}</span>
+                            <span class="text-slate-400">${item.waktu}</span>
+                        </div>
+                        <div class="font-semibold text-slate-800 text-xs">${item.lingkup}</div>
+                        <div class="text-[11px] text-slate-500"><i class="fa-solid fa-users-gear mr-1"></i><b>Instansi:</b> ${item.instansi}</div>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('year-detail-panel').classList.remove('hidden');
+        }
+
+        function hideYearDetail() {
+            const panel = document.getElementById('year-detail-panel');
+            if (panel) panel.classList.add('hidden');
+        }
+
+        function closeKpiModal() {
+            document.getElementById('kpi-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
