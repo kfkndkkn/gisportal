@@ -265,6 +265,16 @@
         let yearBarChartInstance = null;
         let categoryPieChartInstance = null;
 
+        // Kamus pemetaan nama wilayah resmi agar tidak pernah muncul 'NULL'
+        const NAMA_RESMI_MAP = {
+            'serpong': 'Kota Tangerang Selatan (Serpong)',
+            'jakarta': 'Provinsi DKI Jakarta',
+            'bandung': 'Kota Bandung',
+            'yogyakarta': 'D.I. Yogyakarta & Sleman',
+            'semarang': 'Kota Semarang',
+            'surabaya': 'Kota Surabaya'
+        };
+
         window.onload = function() {
             initMap();
             fetchDataFromGeoJSON();
@@ -363,7 +373,7 @@
         }
 
         function fetchDataFromGeoJSON() {
-            // Memanggil file statis GeoJSON yang berada satu folder (Aktif 24/7 di GitHub Pages)
+            // Memanggil file statis GeoJSON dengan query timestamp agar anti-cache
             fetch('./koroplet_latihan_nuklir.geojson?v=' + Date.now())
                 .then(response => {
                     if (!response.ok) throw new Error("Gagal mengambil file GeoJSON, status: " + response.status);
@@ -413,7 +423,8 @@
             });
         }
 
-        function function renderData() {
+        // FUNGSI RENDER DATA (SUDAH DIPERBAIKI DARI SYNTAX ERROR)
+        function renderData() {
             geojsonLayerGroup.clearLayers();
             layerMapById = {};
             const listContainer = document.getElementById('event-list');
@@ -435,7 +446,7 @@
                     const hasEvent = count > 0;
                     return {
                         fillColor: getColorByCount(count),
-                        fillOpacity: hasEvent ? 0.75 : 0.3,       // Putih transparansi ~70%
+                        fillOpacity: hasEvent ? 0.8 : 0.3,       // Putih transparansi ~70%
                         weight: hasEvent ? 2 : 0.8,               // Garis batas tipis untuk yang 0
                         opacity: 0.9,
                         color: hasEvent ? '#0f172a' : '#cbd5e1',  // Garis abu-abu terang
@@ -446,7 +457,12 @@
                     const p = feature.properties;
                     const count = p.jumlah_latihan || 0;
                     const kegiatanAsli = parseKegiatanList(p);
-                    const namaWilayah = p.nama_wilayah || p.kunci_wilayah || 'Wilayah';
+
+                    // Normalisasi nama wilayah anti-NULL
+                    let namaWilayah = p.nama_wilayah;
+                    if (!namaWilayah || namaWilayah === 'null' || namaWilayah === 'None' || namaWilayah === 'Wilayah') {
+                        namaWilayah = NAMA_RESMI_MAP[p.kunci_wilayah] || p.kunci_wilayah || 'Wilayah Latihan';
+                    }
 
                     // Filter pencarian dan tahun untuk data latihan
                     const matchingKegiatan = kegiatanAsli.filter(k => {
@@ -641,6 +657,12 @@
 
             rawGeoJSONData.features.forEach(f => {
                 const kegiatan = parseKegiatanList(f.properties);
+                const p = f.properties;
+                let namaWil = p.nama_wilayah;
+                if (!namaWil || namaWil === 'null' || namaWil === 'None' || namaWil === 'Wilayah') {
+                    namaWil = NAMA_RESMI_MAP[p.kunci_wilayah] || p.kunci_wilayah || 'Wilayah Latihan';
+                }
+
                 kegiatan.forEach(k => {
                     const lingkupLower = (k.lingkup || '').toLowerCase();
                     if (lingkupLower.includes('table top') || lingkupLower.includes('table-top')) {
@@ -656,7 +678,7 @@
                         const y = matchYear[1];
                         yearCounts[y]++;
                         yearKegiatanMap[y].push({
-                            wilayah: f.properties.nama_wilayah || f.properties.kunci_wilayah,
+                            wilayah: namaWil,
                             lingkup: k.lingkup,
                             instansi: k.instansi,
                             waktu: k.waktu
