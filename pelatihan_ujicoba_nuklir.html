@@ -364,7 +364,7 @@
 
         function fetchDataFromGeoJSON() {
             // Memanggil file statis GeoJSON yang berada satu folder (Aktif 24/7 di GitHub Pages)
-            fetch('./koroplet_latihan_nuklir.geojson')
+            fetch('./koroplet_latihan_nuklir.geojson?v=' + Date.now())
                 .then(response => {
                     if (!response.ok) throw new Error("Gagal mengambil file GeoJSON, status: " + response.status);
                     return response.json();
@@ -413,7 +413,7 @@
             });
         }
 
-        function renderData() {
+        function function renderData() {
             geojsonLayerGroup.clearLayers();
             layerMapById = {};
             const listContainer = document.getElementById('event-list');
@@ -425,166 +425,161 @@
             const yearFilter = document.getElementById('year-filter').value;
 
             let totalFilteredEvents = 0;
-            const validFeatures = [];
+            let activeCitiesCount = 0;
+            const sidebarItems = [];
 
-            rawGeoJSONData.features.forEach((feature, index) => {
-                const p = feature.properties;
-                const kegiatanAsli = parseKegiatanList(p);
+            // 1. GAMBAR SELURUH DAERAH KE PETA (YANG 0 JADI PUTIH TRANSPARAN)
+            const mainPolygonLayer = L.geoJSON(rawGeoJSONData, {
+                style: function(feature) {
+                    const count = feature.properties.jumlah_latihan || 0;
+                    const hasEvent = count > 0;
+                    return {
+                        fillColor: getColorByCount(count),
+                        fillOpacity: hasEvent ? 0.75 : 0.3,       // Putih transparansi ~70%
+                        weight: hasEvent ? 2 : 0.8,               // Garis batas tipis untuk yang 0
+                        opacity: 0.9,
+                        color: hasEvent ? '#0f172a' : '#cbd5e1',  // Garis abu-abu terang
+                        dashArray: hasEvent ? '2' : ''
+                    };
+                },
+                onEachFeature: function(feature, layer) {
+                    const p = feature.properties;
+                    const count = p.jumlah_latihan || 0;
+                    const kegiatanAsli = parseKegiatanList(p);
+                    const namaWilayah = p.nama_wilayah || p.kunci_wilayah || 'Wilayah';
 
-                // Filter kegiatan di dalam poligon kota ini
-                const matchingKegiatan = kegiatanAsli.filter(k => {
-                    const strWaktu = String(k.waktu || '');
-                    const yearMatch = (yearFilter === 'ALL') || strWaktu.includes(yearFilter);
-                    const textCombined = `${p.nama_wilayah || ''} ${k.lingkup || ''} ${k.instansi || ''}`.toLowerCase();
-                    const textMatch = textCombined.includes(searchValue);
-                    return yearMatch && textMatch;
-                });
-
-                if (matchingKegiatan.length > 0) {
-                    totalFilteredEvents += matchingKegiatan.length;
-                    validFeatures.push({
-                        feature: feature,
-                        matchingKegiatan: matchingKegiatan,
-                        id: `wilayah-${index}`
+                    // Filter pencarian dan tahun untuk data latihan
+                    const matchingKegiatan = kegiatanAsli.filter(k => {
+                        const strWaktu = String(k.waktu || '');
+                        const yearMatch = (yearFilter === 'ALL') || strWaktu.includes(yearFilter);
+                        const textCombined = `${namaWilayah} ${k.lingkup || ''} ${k.instansi || ''}`.toLowerCase();
+                        const textMatch = textCombined.includes(searchValue);
+                        return yearMatch && textMatch;
                     });
+
+                    // Efek Hover kursor
+                    layer.on({
+                        mouseover: function(e) {
+                            const l = e.target;
+                            l.setStyle({ 
+                                weight: 3, 
+                                color: '#f59e0b', 
+                                fillOpacity: count > 0 ? 0.95 : 0.5 
+                            });
+                            l.bringToFront();
+                        },
+                        mouseout: function(e) {
+                            mainPolygonLayer.resetStyle(e.target);
+                        }
+                    });
+
+                    // JIKA DAERAH MEMILIKI LATIHAN & LOLOS FILTER PENCARIAN
+                    if (count > 0 && matchingKegiatan.length > 0) {
+                        totalFilteredEvents += matchingKegiatan.length;
+                        activeCitiesCount++;
+
+                        const uniqueId = `loc-${activeCitiesCount}`;
+                        layerMapById[uniqueId] = layer;
+
+                        sidebarItems.push({
+                            id: uniqueId,
+                            namaWilayah: namaWilayah,
+                            count: count,
+                            kegiatan: matchingKegiatan,
+                            layer: layer
+                        });
+
+                        // Popup detail latihan
+                        let itemsHtml = matchingKegiatan.map(k => `
+                            <div class="p-2 bg-slate-50 rounded border border-slate-200 space-y-1">
+                                <div class="flex justify-between items-center text-[10px]">
+                                    <span class="font-bold text-amber-600"><i class="fa-solid fa-calendar-day mr-1"></i>${k.waktu}</span>
+                                    <span class="text-slate-400">#${k.no || '-'}</span>
+                                </div>
+                                <div class="font-semibold text-slate-800 text-[11px] leading-snug">${k.lingkup}</div>
+                                <div class="text-[10px] text-slate-500"><i class="fa-solid fa-building-shield mr-1"></i>${k.instansi}</div>
+                            </div>
+                        `).join('');
+
+                        const popupHtml = `
+                            <div class="bg-white">
+                                <div class="bg-slate-900 text-white p-3 border-b border-slate-800">
+                                    <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 mb-1 uppercase tracking-wider">
+                                        <i class="fa-solid fa-shield-halved mr-1"></i> Wilayah Pelaksanaan
+                                    </span>
+                                    <h4 class="font-bold text-xs text-amber-400 leading-snug uppercase">${namaWilayah}</h4>
+                                    <div class="text-[11px] text-slate-300 mt-1">Total: <b>${count} Kegiatan Latihan</b></div>
+                                </div>
+                                <div class="p-3 max-h-60 overflow-y-auto custom-scrollbar space-y-2">
+                                    ${itemsHtml}
+                                </div>
+                            </div>
+                        `;
+                        layer.bindPopup(popupHtml);
+                    } else {
+                        // Tooltip nama daerah untuk wilayah tanpa latihan
+                        layer.bindTooltip(namaWilayah, {
+                            sticky: true,
+                            direction: "top",
+                            className: "text-[11px] font-medium"
+                        });
+                    }
                 }
             });
 
-            document.getElementById('stat-total-events').innerText = totalFilteredEvents;
-            document.getElementById('stat-total-cities').innerText = validFeatures.length;
-            document.getElementById('stat-showing-count').innerText = `${validFeatures.length} Wilayah`;
+            geojsonLayerGroup.addLayer(mainPolygonLayer);
 
-            if (validFeatures.length === 0) {
+            // 2. PERBARUI STATISTIK PADA SIDEBAR
+            document.getElementById('stat-total-events').innerText = totalFilteredEvents;
+            document.getElementById('stat-total-cities').innerText = activeCitiesCount;
+            document.getElementById('stat-showing-count').innerText = `${activeCitiesCount} Wilayah`;
+
+            // 3. RENDER CARD DI SIDEBAR (HANYA YANG PUNYA KEGIATAN LATIHAN)
+            if (sidebarItems.length === 0) {
                 listContainer.innerHTML = `
                     <div class="p-6 text-center text-slate-400">
                         <i class="fa-solid fa-location-slash text-2xl mb-2"></i>
                         <p class="text-xs font-medium">Tidak ada data latihan yang cocok.</p>
                     </div>
                 `;
-                return;
+            } else {
+                sidebarItems.sort((a, b) => b.kegiatan.length - a.kegiatan.length);
+
+                sidebarItems.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'p-3 hover:bg-slate-50 cursor-pointer transition-colors border-l-4 border-amber-500';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200">
+                                ${item.kegiatan.length} Skenario
+                            </span>
+                            <span class="text-[10px] text-slate-400">
+                                <i class="fa-solid fa-shield"></i> Terverifikasi
+                            </span>
+                        </div>
+                        <h3 class="font-bold text-xs text-slate-800 line-clamp-1 hover:text-amber-600 transition-colors uppercase">${item.namaWilayah}</h3>
+                        <p class="text-[11px] text-slate-500 font-medium line-clamp-2 mt-0.5">${item.kegiatan[0].lingkup}</p>
+                        <div class="mt-2 flex justify-between items-center text-[10px] text-slate-400">
+                            <span><i class="fa-solid fa-clock-rotate-left text-amber-500"></i> ${item.kegiatan.length > 1 ? `${item.kegiatan.length} skenario latihan` : item.kegiatan[0].waktu}</span>
+                            <span class="text-amber-600 font-semibold hover:underline">Fokus Wilayah <i class="fa-solid fa-arrow-right"></i></span>
+                        </div>
+                    `;
+
+                    card.onclick = () => {
+                        if (item.layer) {
+                            const bounds = item.layer.getBounds();
+                            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 11, duration: 1.2 });
+                            item.layer.openPopup();
+                        }
+                    };
+
+                    listContainer.appendChild(card);
+                });
             }
 
-            // Urutkan wilayah dari jumlah kegiatan terbanyak
-            validFeatures.sort((a, b) => b.matchingKegiatan.length - a.matchingKegiatan.length);
-
-            validFeatures.forEach(item => {
-                const p = item.feature.properties;
-                const kegiatan = item.matchingKegiatan;
-                const count = kegiatan.length;
-                const namaWilayah = p.nama_wilayah || p.kunci_wilayah || 'Wilayah Latihan';
-
-                // Tambahkan layer poligon koroplet ke peta
-                // Render poligon seluruh Jawa
-                const polygonLayer = L.geoJSON(rawGeoJSONData, {
-                    style: function(feature) {
-                        const count = feature.properties.jumlah_latihan || 0;
-                        const isHasEvent = count > 0;
-                        return {
-                            fillColor: getColorByCount(count),
-                            fillOpacity: isHasEvent ? 0.8 : 0.3,    // Transparansi 70% untuk daerah putih
-                            weight: isHasEvent ? 2 : 0.8,           // Garis batas lebih tipis untuk yang 0
-                            opacity: 0.9,
-                            color: isHasEvent ? '#0f172a' : '#cbd5e1', // Garis abu-abu lembut
-                            dashArray: isHasEvent ? '2' : ''
-                        };
-                    },
-                    onEachFeature: function(feature, layer) {
-                        const p = feature.properties;
-                        const count = p.jumlah_latihan || 0;
-                        const kegiatan = parseKegiatanList(p);
-                
-                        // Hover Effect
-                        layer.on({
-                            mouseover: function(e) {
-                                const l = e.target;
-                                l.setStyle({ 
-                                    weight: count > 0 ? 3 : 1.5, 
-                                    color: '#f59e0b', 
-                                    fillOpacity: count > 0 ? 0.95 : 0.5 
-                                });
-                                l.bringToFront();
-                            },
-                            mouseout: function(e) {
-                                polygonLayer.resetStyle(e.target);
-                            }
-                        });
-                
-                        // Popup hanya jika ada kegiatan latihan
-                        if (count > 0) {
-                            let itemsHtml = kegiatan.map(k => `
-                                <div class="p-2 bg-slate-50 rounded border border-slate-200 space-y-1">
-                                    <div class="flex justify-between items-center text-[10px]">
-                                        <span class="font-bold text-amber-600"><i class="fa-solid fa-calendar-day mr-1"></i>${k.waktu}</span>
-                                        <span class="text-slate-400">#${k.no || '-'}</span>
-                                    </div>
-                                    <div class="font-semibold text-slate-800 text-[11px] leading-snug">${k.lingkup}</div>
-                                    <div class="text-[10px] text-slate-500"><i class="fa-solid fa-building-shield mr-1"></i>${k.instansi}</div>
-                                </div>
-                            `).join('');
-                
-                            const popupHtml = `
-                                <div class="bg-white">
-                                    <div class="bg-slate-900 text-white p-3 border-b border-slate-800">
-                                        <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 mb-1 uppercase tracking-wider">
-                                            <i class="fa-solid fa-shield-halved mr-1"></i> Wilayah Pelaksanaan
-                                        </span>
-                                        <h4 class="font-bold text-xs text-amber-400 leading-snug uppercase">${p.nama_wilayah}</h4>
-                                        <div class="text-[11px] text-slate-300 mt-1">Total: <b>${count} Kegiatan Latihan</b></div>
-                                    </div>
-                                    <div class="p-3 max-h-60 overflow-y-auto custom-scrollbar space-y-2">
-                                        ${itemsHtml}
-                                    </div>
-                                </div>
-                            `;
-                            layer.bindPopup(popupHtml);
-                        } else {
-                            // Tooltip ringkas saat kursor menunjuk daerah tanpa latihan
-                            layer.bindTooltip(p.nama_wilayah + " (Belum ada latihan)", {
-                                sticky: true,
-                                direction: "top",
-                                className: "text-xs font-medium"
-                            });
-                        }
-                    }
-                });
-                
-                polygonLayer.addTo(geojsonLayerGroup);
-                layerMapById[item.id] = polygonLayer;
-
-                // Tambahkan Card di Sidebar
-                const card = document.createElement('div');
-                card.className = 'p-3 hover:bg-slate-50 cursor-pointer transition-colors border-l-4 border-amber-500';
-                card.innerHTML = `
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200">
-                            ${count} Latihan
-                        </span>
-                        <span class="text-[10px] text-slate-400">
-                            <i class="fa-solid fa-shield"></i> Terverifikasi
-                        </span>
-                    </div>
-                    <h3 class="font-bold text-xs text-slate-800 line-clamp-1 hover:text-amber-600 transition-colors uppercase">${namaWilayah}</h3>
-                    <p class="text-[11px] text-slate-500 font-medium line-clamp-2 mt-0.5">${kegiatan[0].lingkup}</p>
-                    <div class="mt-2 flex justify-between items-center text-[10px] text-slate-400">
-                        <span><i class="fa-solid fa-clock-rotate-left text-amber-500"></i> ${kegiatan.length > 1 ? `${kegiatan.length} skenario latihan` : kegiatan[0].waktu}</span>
-                        <span class="text-amber-600 font-semibold hover:underline">Fokus Wilayah <i class="fa-solid fa-arrow-right"></i></span>
-                    </div>
-                `;
-
-                card.onclick = () => {
-                    const targetLayer = layerMapById[item.id];
-                    if (targetLayer) {
-                        const bounds = targetLayer.getBounds();
-                        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 11, duration: 1.2 });
-                        targetLayer.eachLayer(l => l.openPopup());
-                    }
-                };
-
-                listContainer.appendChild(card);
-            });
-
-            if (validFeatures.length > 0) {
-                map.fitBounds(geojsonLayerGroup.getBounds(), { padding: [30, 30] });
+            // Atur batas peta membingkai seluruh pulau Jawa
+            if (rawGeoJSONData.features.length > 0) {
+                map.fitBounds(mainPolygonLayer.getBounds(), { padding: [20, 20] });
             }
         }
 
