@@ -275,6 +275,16 @@
             'surabaya': 'Kota Surabaya'
         };
 
+        // Titik koordinat pusat presisi kota latihan [lat, lng] agar fokus kamera akurat
+        const KOORDINAT_KOTA_MAP = {
+            'serpong': [-6.295, 106.705],
+            'jakarta': [-6.208, 106.845],
+            'bandung': [-6.917, 107.619],
+            'yogyakarta': [-7.797, 110.370],
+            'semarang': [-7.005, 110.438],
+            'surabaya': [-7.257, 112.752]
+        };
+
         window.onload = function() {
             initMap();
             fetchDataFromGeoJSON();
@@ -312,7 +322,7 @@
 
             geojsonLayerGroup = L.featureGroup().addTo(map);
 
-            // Kompas
+            // Kompas Arah Utara
             const northArrowControl = L.control({ position: 'topright' });
             northArrowControl.onAdd = function() {
                 const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control north-compass-box');
@@ -329,7 +339,7 @@
             };
             northArrowControl.addTo(map);
 
-            // Legenda
+            // Legenda Frekuensi Latihan
             const legendControl = L.control({ position: 'bottomright' });
             legendControl.onAdd = function() {
                 const div = L.DomUtil.create('div', 'bg-slate-900/90 text-white p-2.5 rounded-lg border border-slate-700 shadow-xl text-[11px] backdrop-blur-sm space-y-1.5');
@@ -452,10 +462,10 @@
                     const hasEvent = count > 0;
                     return {
                         fillColor: getColorByCount(count),
-                        fillOpacity: hasEvent ? 0.8 : 0.25,      // Putih transparansi ~75%
-                        weight: hasEvent ? 2 : 0.7,               // Garis tipis halus untuk wilayah netral
+                        fillOpacity: hasEvent ? 0.8 : 0.25,
+                        weight: hasEvent ? 2 : 0.7,
                         opacity: 0.9,
-                        color: hasEvent ? '#0f172a' : '#cbd5e1',  // Garis abu-abu lembut
+                        color: hasEvent ? '#0f172a' : '#cbd5e1',
                         dashArray: hasEvent ? '2' : ''
                     };
                 },
@@ -467,7 +477,6 @@
 
                     // 1. DAERAH DENGAN LATIHAN (INTERAKTIF & BISA DIKLIK)
                     if (count > 0) {
-                        // Efek Hover khusus daerah latihan
                         layer.on({
                             mouseover: function(e) {
                                 const l = e.target;
@@ -531,14 +540,15 @@
                                     </div>
                                 </div>
                             `;
-                            layer.bindPopup(popupHtml);
+                            // autoPan dimatikan agar kamera tidak terlempar ke Laut Jawa
+                            layer.bindPopup(popupHtml, { autoPan: false, offset: [0, -10] });
                         }
                     } 
                     // 2. DAERAH TANPA LATIHAN (POLOS TOTAL: TANPA TOOLTIP, TANPA POPUP, TIDAK BISA DIKLIK)
                     else {
                         layer.unbindPopup();
                         layer.unbindTooltip();
-                        layer.off(); // Matikan seluruh event mouse (hover & click)
+                        layer.off();
                     }
                 }
             });
@@ -550,7 +560,7 @@
             document.getElementById('stat-total-cities').innerText = activeCitiesCount;
             document.getElementById('stat-showing-count').innerText = `${activeCitiesCount} Wilayah`;
 
-            // 3. RENDER CARD DI SIDEBAR (HANYA YANG PUNYA KEGIATAN LATIHAN)
+            // 3. RENDER CARD DI SIDEBAR
             if (sidebarItems.length === 0) {
                 listContainer.innerHTML = `
                     <div class="p-6 text-center text-slate-400">
@@ -581,26 +591,27 @@
                         </div>
                     `;
 
+                    // Klik card sidebar: fokus tepat ke koordinat kota tanpa kabur ke laut
                     card.onclick = () => {
                         if (item.layer) {
-                            // 1. Dapatkan batas wilayah (bounds) poligon kota
-                            const bounds = item.layer.getBounds();
-                            
-                            // 2. Jika valid, cari titik tengah poligon (center)
-                            if (bounds && bounds.isValid()) {
-                                const center = bounds.getCenter();
-                                
-                                // Terbang langsung ke titik tengah poligon dengan zoom level 11
-                                map.flyTo(center, 11, {
-                                    duration: 1.2,
+                            const p = item.layer.feature ? item.layer.feature.properties : {};
+                            const kunci = p.kunci_wilayah;
+                            let targetLatLng = KOORDINAT_KOTA_MAP[kunci];
+
+                            if (!targetLatLng && item.layer.getBounds && item.layer.getBounds().isValid()) {
+                                targetLatLng = item.layer.getBounds().getCenter();
+                            }
+
+                            if (targetLatLng) {
+                                map.flyTo(targetLatLng, 12, {
+                                    duration: 1.0,
                                     easeLinearity: 0.25
                                 });
                             }
-                            
-                            // 3. Buka popup rincian kegiatan latihannya
+
                             setTimeout(() => {
                                 item.layer.openPopup();
-                            }, 400);
+                            }, 500);
                         }
                     };
 
@@ -608,7 +619,7 @@
                 });
             }
 
-            // Pasang kamera membingkai pulau Jawa
+            // Pasang kamera awal membingkai pulau Jawa
             if (rawGeoJSONData.features.length > 0) {
                 map.fitBounds(mainPolygonLayer.getBounds(), { padding: [20, 20] });
             }
