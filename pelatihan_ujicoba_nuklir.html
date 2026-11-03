@@ -583,9 +583,24 @@
 
                     card.onclick = () => {
                         if (item.layer) {
+                            // 1. Dapatkan batas wilayah (bounds) poligon kota
                             const bounds = item.layer.getBounds();
-                            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 11, duration: 1.2 });
-                            item.layer.openPopup();
+                            
+                            // 2. Jika valid, cari titik tengah poligon (center)
+                            if (bounds && bounds.isValid()) {
+                                const center = bounds.getCenter();
+                                
+                                // Terbang langsung ke titik tengah poligon dengan zoom level 11
+                                map.flyTo(center, 11, {
+                                    duration: 1.2,
+                                    easeLinearity: 0.25
+                                });
+                            }
+                            
+                            // 3. Buka popup rincian kegiatan latihannya
+                            setTimeout(() => {
+                                item.layer.openPopup();
+                            }, 400);
                         }
                     };
 
