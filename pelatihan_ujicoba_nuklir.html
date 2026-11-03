@@ -341,6 +341,10 @@
                         <span class="w-3 h-3 rounded bg-[#f59e0b] inline-block border border-white/30"></span>
                         <span>Rendah (1 Kali)</span>
                     </div>
+                    <div class="flex items-center gap-2 pt-1 border-t border-slate-800">
+                        <span class="w-3 h-3 rounded bg-white/40 inline-block border border-white/60"></span>
+                        <span>Belum Ada Latihan</span>
+                    </div>
                 `;
                 return div;
             };
@@ -351,10 +355,11 @@
 
         // Skema Warna Koroplet
         function getColorByCount(count) {
-            return count >= 6 ? '#7f1d1d' :
-                   count >= 4 ? '#b91c1c' :
-                   count >= 2 ? '#ea580c' :
-                   count >= 1 ? '#f59e0b' : '#94a3b8';
+            if (count >= 6) return '#7f1d1d'; // Sangat Tinggi
+            if (count >= 4) return '#b91c1c'; // Tinggi
+            if (count >= 2) return '#ea580c'; // Sedang
+            if (count >= 1) return '#f59e0b'; // Rendah
+            return '#ffffff';                 // Tidak ada latihan: Putih
         }
 
         function fetchDataFromGeoJSON() {
@@ -469,58 +474,80 @@
                 const namaWilayah = p.nama_wilayah || p.kunci_wilayah || 'Wilayah Latihan';
 
                 // Tambahkan layer poligon koroplet ke peta
-                const polygonLayer = L.geoJSON(item.feature, {
-                    style: {
-                        fillColor: getColorByCount(count),
-                        weight: 2,
-                        opacity: 1,
-                        color: '#0f172a',
-                        dashArray: '3',
-                        fillOpacity: 0.75
+                // Render poligon seluruh Jawa
+                const polygonLayer = L.geoJSON(rawGeoJSONData, {
+                    style: function(feature) {
+                        const count = feature.properties.jumlah_latihan || 0;
+                        const isHasEvent = count > 0;
+                        return {
+                            fillColor: getColorByCount(count),
+                            fillOpacity: isHasEvent ? 0.8 : 0.3,    // Transparansi 70% untuk daerah putih
+                            weight: isHasEvent ? 2 : 0.8,           // Garis batas lebih tipis untuk yang 0
+                            opacity: 0.9,
+                            color: isHasEvent ? '#0f172a' : '#cbd5e1', // Garis abu-abu lembut
+                            dashArray: isHasEvent ? '2' : ''
+                        };
                     },
-                    onEachFeature: function(feat, layer) {
+                    onEachFeature: function(feature, layer) {
+                        const p = feature.properties;
+                        const count = p.jumlah_latihan || 0;
+                        const kegiatan = parseKegiatanList(p);
+                
+                        // Hover Effect
                         layer.on({
                             mouseover: function(e) {
                                 const l = e.target;
-                                l.setStyle({ weight: 3, color: '#f59e0b', fillOpacity: 0.9 });
+                                l.setStyle({ 
+                                    weight: count > 0 ? 3 : 1.5, 
+                                    color: '#f59e0b', 
+                                    fillOpacity: count > 0 ? 0.95 : 0.5 
+                                });
                                 l.bringToFront();
                             },
                             mouseout: function(e) {
                                 polygonLayer.resetStyle(e.target);
                             }
                         });
-
-                        // Susun daftar riwayat latihan di popup
-                        let itemsHtml = kegiatan.map(k => `
-                            <div class="p-2 bg-slate-50 rounded border border-slate-200 space-y-1">
-                                <div class="flex justify-between items-center text-[10px]">
-                                    <span class="font-bold text-amber-600"><i class="fa-solid fa-calendar-day mr-1"></i>${k.waktu}</span>
-                                    <span class="text-slate-400">#${k.no || '-'}</span>
+                
+                        // Popup hanya jika ada kegiatan latihan
+                        if (count > 0) {
+                            let itemsHtml = kegiatan.map(k => `
+                                <div class="p-2 bg-slate-50 rounded border border-slate-200 space-y-1">
+                                    <div class="flex justify-between items-center text-[10px]">
+                                        <span class="font-bold text-amber-600"><i class="fa-solid fa-calendar-day mr-1"></i>${k.waktu}</span>
+                                        <span class="text-slate-400">#${k.no || '-'}</span>
+                                    </div>
+                                    <div class="font-semibold text-slate-800 text-[11px] leading-snug">${k.lingkup}</div>
+                                    <div class="text-[10px] text-slate-500"><i class="fa-solid fa-building-shield mr-1"></i>${k.instansi}</div>
                                 </div>
-                                <div class="font-semibold text-slate-800 text-[11px] leading-snug">${k.lingkup}</div>
-                                <div class="text-[10px] text-slate-500"><i class="fa-solid fa-building-shield mr-1"></i>${k.instansi}</div>
-                            </div>
-                        `).join('');
-
-                        const popupHtml = `
-                            <div class="bg-white">
-                                <div class="bg-slate-900 text-white p-3 border-b border-slate-800">
-                                    <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 mb-1 uppercase tracking-wider">
-                                        <i class="fa-solid fa-shield-halved mr-1"></i> Wilayah Pelaksanaan
-                                    </span>
-                                    <h4 class="font-bold text-xs text-amber-400 leading-snug uppercase">${namaWilayah}</h4>
-                                    <div class="text-[11px] text-slate-300 mt-1">Total: <b>${count} Kegiatan Latihan</b></div>
+                            `).join('');
+                
+                            const popupHtml = `
+                                <div class="bg-white">
+                                    <div class="bg-slate-900 text-white p-3 border-b border-slate-800">
+                                        <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 mb-1 uppercase tracking-wider">
+                                            <i class="fa-solid fa-shield-halved mr-1"></i> Wilayah Pelaksanaan
+                                        </span>
+                                        <h4 class="font-bold text-xs text-amber-400 leading-snug uppercase">${p.nama_wilayah}</h4>
+                                        <div class="text-[11px] text-slate-300 mt-1">Total: <b>${count} Kegiatan Latihan</b></div>
+                                    </div>
+                                    <div class="p-3 max-h-60 overflow-y-auto custom-scrollbar space-y-2">
+                                        ${itemsHtml}
+                                    </div>
                                 </div>
-                                <div class="p-3 max-h-60 overflow-y-auto custom-scrollbar space-y-2">
-                                    ${itemsHtml}
-                                </div>
-                            </div>
-                        `;
-
-                        layer.bindPopup(popupHtml);
+                            `;
+                            layer.bindPopup(popupHtml);
+                        } else {
+                            // Tooltip ringkas saat kursor menunjuk daerah tanpa latihan
+                            layer.bindTooltip(p.nama_wilayah + " (Belum ada latihan)", {
+                                sticky: true,
+                                direction: "top",
+                                className: "text-xs font-medium"
+                            });
+                        }
                     }
                 });
-
+                
                 polygonLayer.addTo(geojsonLayerGroup);
                 layerMapById[item.id] = polygonLayer;
 
