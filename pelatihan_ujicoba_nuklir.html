@@ -77,21 +77,6 @@
             outline: none !important;
             box-shadow: none !important;
         }
-        
-        /* Tooltip custom ramping */
-        .custom-tooltip-clean {
-            background-color: rgba(15, 23, 42, 0.95) !important;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
-            color: #ffffff !important;
-            border-radius: 6px !important;
-            padding: 4px 8px !important;
-            font-size: 11px !important;
-            font-weight: 500 !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
-        }
-        .custom-tooltip-clean::before {
-            display: none !important;
-        }
     </style>
 </head>
 <body class="bg-slate-100 flex flex-col h-full w-full overflow-hidden">
@@ -169,11 +154,9 @@
 
     <!-- MODAL POPUP DETAIL DASHBOARD STATISTIK -->
     <div id="kpi-modal" class="hidden fixed inset-0 z-[2000] bg-slate-950/70 backdrop-blur-sm flex flex-col items-center justify-start p-3">
-        
         <div class="w-full h-[20px] flex-shrink-0"></div>
 
         <div class="bg-white w-full max-w-5xl rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col flex-1 max-h-[calc(100vh-90px)] animate-in fade-in zoom-in duration-200">
-
             <!-- Modal Header -->
             <div class="bg-slate-900 text-white px-5 py-2.5 flex items-center justify-between border-b border-slate-800 flex-shrink-0">
                 <div class="flex items-center space-x-3">
@@ -192,7 +175,6 @@
 
             <!-- Modal Content Area -->
             <div class="p-5 overflow-y-auto custom-scrollbar space-y-4 bg-slate-50 flex-1">
-
                 <!-- Ringkasan Statistik -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
@@ -226,8 +208,6 @@
 
                 <!-- Section Charts -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-
-                    <!-- Bar Chart & Detail Tahun -->
                     <div class="md:col-span-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col space-y-3">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                             <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -240,7 +220,6 @@
                             <canvas id="barChartYear"></canvas>
                         </div>
 
-                        <!-- Panel Rincian Detail Tahun -->
                         <div id="year-detail-panel" class="hidden p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2 animate-in fade-in duration-150">
                             <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
                                 <h5 class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
@@ -253,7 +232,6 @@
                         </div>
                     </div>
 
-                    <!-- Pie Chart -->
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col space-y-3">
                         <div class="border-b border-slate-100 pb-2">
                             <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -264,9 +242,7 @@
                             <canvas id="pieChartCategory"></canvas>
                         </div>
                     </div>
-
                 </div>
-
             </div>
 
             <!-- Modal Footer -->
@@ -446,115 +422,11 @@
             });
         }
 
-        // Kamus nama wilayah berdasarkan koordinat pulau Jawa
-        function getNamaByCoords(lat, lng) {
-            // Jawa Timur
-            if (lng > 111.0 && lat < -6.5 && lat > -8.8) {
-                if (lng > 111.8 && lng < 112.4 && lat > -7.2) return 'Kabupaten Tuban';
-                if (lng > 112.1 && lng < 112.6 && lat > -7.3 && lat < -6.8) return 'Kabupaten Lamongan';
-                if (lng > 111.5 && lng < 112.1 && lat < -7.1 && lat > -7.5) return 'Kabupaten Bojonegoro';
-                if (lng > 112.4 && lng < 112.8 && lat > -7.3 && lat < -7.0) return 'Kabupaten Gresik';
-                if (lng > 112.5 && lng < 113.0 && lat < -7.3 && lat > -7.6) return 'Kabupaten Sidoarjo';
-                if (lng > 112.1 && lng < 112.7 && lat < -7.4 && lat > -7.8) return 'Kabupaten Mojokerto';
-                if (lng > 112.5 && lng < 113.2 && lat < -7.5 && lat > -8.0) return 'Kabupaten Pasuruan';
-                if (lng > 112.9 && lng < 113.5 && lat < -7.6 && lat > -8.1) return 'Kabupaten Probolinggo';
-                if (lng > 113.4 && lng < 114.7 && lat < -7.5 && lat > -8.2) return 'Kabupaten Situbondo & Bondowoso';
-                if (lng > 113.8 && lat < -8.0) return 'Kabupaten Banyuwangi';
-                if (lng > 113.2 && lng < 113.9 && lat < -8.0) return 'Kabupaten Jember';
-                if (lng > 112.8 && lng < 113.4 && lat < -7.9 && lat > -8.4) return 'Kabupaten Lumajang';
-                if (lng > 112.3 && lng < 113.0 && lat < -7.8 && lat > -8.5) return 'Kabupaten Malang';
-                if (lng > 111.7 && lng < 112.3 && lat < -7.8 && lat > -8.4) return 'Kabupaten Blitar';
-                if (lng > 111.6 && lng < 112.2 && lat < -7.6 && lat > -8.1) return 'Kabupaten Kediri';
-                if (lng > 111.6 && lng < 112.2 && lat < -7.3 && lat > -7.8) return 'Kabupaten Nganjuk';
-                if (lng > 111.3 && lng < 111.8 && lat < -7.2 && lat > -7.7) return 'Kabupaten Ngawi';
-                if (lng > 111.3 && lng < 111.7 && lat < -7.5 && lat > -7.9) return 'Kabupaten Madiun';
-                if (lng > 111.1 && lng < 111.6 && lat < -7.7 && lat > -8.1) return 'Kabupaten Ponorogo';
-                if (lng > 111.0 && lng < 111.5 && lat < -8.0 && lat > -8.4) return 'Kabupaten Pacitan';
-                if (lng > 111.4 && lng < 111.9 && lat < -8.0 && lat > -8.4) return 'Kabupaten Trenggalek';
-                if (lng > 111.7 && lng < 112.1 && lat < -8.0 && lat > -8.4) return 'Kabupaten Tulungagung';
-                if (lng > 112.6 && lat > -7.2) return 'Kabupaten Bangkalan (Madura)';
-                if (lng > 113.1 && lat > -7.2) return 'Kabupaten Sampang (Madura)';
-                if (lng > 113.4 && lat > -7.2) return 'Kabupaten Pamekasan (Madura)';
-                if (lng > 113.7 && lat > -7.2) return 'Kabupaten Sumenep (Madura)';
-                return 'Wilayah Jawa Timur';
-            }
-            // Jawa Tengah
-            if (lng > 108.5 && lng <= 111.6 && lat < -6.5 && lat > -8.3) {
-                if (lng > 110.8 && lat > -7.0) return 'Kabupaten Jepara';
-                if (lng > 110.6 && lat > -7.0) return 'Kabupaten Kudus & Demak';
-                if (lng > 111.0 && lat > -7.1) return 'Kabupaten Pati & Rembang';
-                if (lng > 111.1 && lat < -7.0 && lat > -7.4) return 'Kabupaten Blora';
-                if (lng > 110.5 && lat < -7.0 && lat > -7.3) return 'Kabupaten Grobogan';
-                if (lng > 109.9 && lng < 110.3 && lat > -7.1) return 'Kabupaten Batang & Kendal';
-                if (lng > 109.5 && lng < 110.0 && lat > -7.1) return 'Kabupaten Pekalongan';
-                if (lng > 109.2 && lng < 109.7 && lat > -7.1) return 'Kabupaten Pemalang';
-                if (lng > 108.9 && lng < 109.3 && lat > -7.0) return 'Kabupaten Tegal';
-                if (lng < 109.1 && lat > -7.1) return 'Kabupaten Brebes';
-                if (lng > 108.7 && lng < 109.3 && lat < -7.2 && lat > -7.6) return 'Kabupaten Banyumas & Purbalingga';
-                if (lng > 108.6 && lng < 109.3 && lat < -7.4) return 'Kabupaten Cilacap';
-                if (lng > 109.3 && lng < 109.8 && lat < -7.3 && lat > -7.8) return 'Kabupaten Banjarnegara';
-                if (lng > 109.7 && lng < 110.2 && lat < -7.2 && lat > -7.6) return 'Kabupaten Wonosobo & Temanggung';
-                if (lng > 109.8 && lng < 110.1 && lat < -7.5) return 'Kabupaten Kebumen & Purworejo';
-                if (lng > 110.1 && lng < 110.5 && lat < -7.3 && lat > -7.7) return 'Kabupaten Magelang';
-                if (lng > 110.4 && lng < 110.8 && lat < -7.3 && lat > -7.7) return 'Kabupaten Boyolali';
-                if (lng > 110.7 && lng < 111.1 && lat < -7.4 && lat > -7.7) return 'Kota Surakarta & Karanganyar';
-                if (lng > 110.5 && lng < 110.8 && lat < -7.6 && lat > -7.9) return 'Kabupaten Klaten & Sukoharjo';
-                if (lng > 110.8 && lat < -7.7) return 'Kabupaten Wonogiri';
-                return 'Wilayah Jawa Tengah';
-            }
-            // Jawa Barat & Banten
-            if (lng <= 108.8) {
-                if (lng > 108.2 && lat > -6.8) return 'Kabupaten Indramayu';
-                if (lng > 108.4 && lat < -6.7 && lat > -7.0) return 'Kabupaten Cirebon';
-                if (lng > 108.0 && lng < 108.5 && lat < -6.7 && lat > -7.1) return 'Kabupaten Majalengka';
-                if (lng > 108.3 && lat < -6.9 && lat > -7.2) return 'Kabupaten Kuningan';
-                if (lng > 107.6 && lng < 108.1 && lat > -6.6) return 'Kabupaten Subang';
-                if (lng > 107.2 && lng < 107.6 && lat > -6.5) return 'Kabupaten Karawang';
-                if (lng > 107.3 && lng < 107.6 && lat < -6.5 && lat > -6.8) return 'Kabupaten Purwakarta';
-                if (lng > 107.0 && lng < 107.4 && lat < -6.7 && lat > -7.3) return 'Kabupaten Cianjur';
-                if (lng > 106.6 && lng < 107.2 && lat < -6.8) return 'Kabupaten Sukabumi';
-                if (lng > 106.6 && lng < 107.1 && lat < -6.4 && lat > -6.8) return 'Kabupaten Bogor';
-                if (lng > 106.9 && lng < 107.2 && lat > -6.4 && lat < -6.1) return 'Kabupaten Bekasi';
-                if (lng > 107.7 && lng < 108.1 && lat < -6.7 && lat > -7.0) return 'Kabupaten Sumedang';
-                if (lng > 107.6 && lng < 108.2 && lat < -7.0 && lat > -7.6) return 'Kabupaten Garut & Tasikmalaya';
-                if (lng > 108.2 && lat < -7.3) return 'Kabupaten Ciamis & Pangandaran';
-                if (lng < 106.3 && lat > -6.5) return 'Kabupaten Serang & Cilegon';
-                if (lng < 106.1 && lat < -6.3) return 'Kabupaten Pandeglang';
-                if (lng > 106.0 && lng < 106.5 && lat < -6.3) return 'Kabupaten Lebak';
-                if (lng > 106.3 && lng < 106.7 && lat > -6.4 && lat < -6.1) return 'Kabupaten Tangerang';
-                return 'Wilayah Jawa Barat';
-            }
-            return 'Wilayah Jawa';
-        }
-
-        // Resolusi Nama Wilayah: Cek Properti GeoJSON -> Fallback ke Koordinat
-        function resolveRegionName(p, layer) {
+        function resolveRegionName(p) {
             if (p.kunci_wilayah && NAMA_RESMI_MAP[p.kunci_wilayah]) {
                 return NAMA_RESMI_MAP[p.kunci_wilayah];
             }
-
-            const priorityKeys = [
-                'nama_wilayah', 'WADMKK', 'NAMOBJ', 'kabupaten_kota', 'kabupaten', 
-                'KAB_KOTA', 'NAME_2', 'nm_kabkota', 'nama_kabkota', 'kab_kot', 
-                'nama', 'name', 'KABKOT'
-            ];
-
-            for (let k of priorityKeys) {
-                if (p[k]) {
-                    let v = String(p[k]).trim();
-                    if (v && !['null', 'none', 'nan', 'wilayah', 'kabupaten/kota', 'wilayah administratif'].includes(v.toLowerCase())) {
-                        return v.replace(/^(kabupaten|kota)\s+/i, (m) => m.toUpperCase());
-                    }
-                }
-            }
-
-            // Jika properti kosong, tebak nama lewat koordinat tengah poligon
-            if (layer && layer.getBounds) {
-                const center = layer.getBounds().getCenter();
-                return getNamaByCoords(center.lat, center.lng);
-            }
-
-            return 'Wilayah Jawa';
+            return p.nama_wilayah || 'Wilayah Latihan';
         }
 
         // FUNGSI RENDER DATA
@@ -591,26 +463,26 @@
                     const p = feature.properties;
                     const count = p.jumlah_latihan || 0;
                     const kegiatanAsli = parseKegiatanList(p);
-                    const namaWilayah = resolveRegionName(p, layer);
+                    const namaWilayah = resolveRegionName(p);
 
-                    // Efek Hover warna garis
-                    layer.on({
-                        mouseover: function(e) {
-                            const l = e.target;
-                            l.setStyle({ 
-                                weight: count > 0 ? 3 : 1.5, 
-                                color: '#f59e0b', 
-                                fillOpacity: count > 0 ? 0.95 : 0.5 
-                            });
-                            l.bringToFront();
-                        },
-                        mouseout: function(e) {
-                            mainPolygonLayer.resetStyle(e.target);
-                        }
-                    });
-
-                    // 1. DAERAH DENGAN LATIHAN (BISA DIKLIK POP-UP & MUNCUL DI SIDEBAR)
+                    // 1. DAERAH DENGAN LATIHAN (INTERAKTIF & BISA DIKLIK)
                     if (count > 0) {
+                        // Efek Hover khusus daerah latihan
+                        layer.on({
+                            mouseover: function(e) {
+                                const l = e.target;
+                                l.setStyle({ 
+                                    weight: 3, 
+                                    color: '#f59e0b', 
+                                    fillOpacity: 0.95 
+                                });
+                                l.bringToFront();
+                            },
+                            mouseout: function(e) {
+                                mainPolygonLayer.resetStyle(e.target);
+                            }
+                        });
+
                         const matchingKegiatan = kegiatanAsli.filter(k => {
                             const strWaktu = String(k.waktu || '');
                             const yearMatch = (yearFilter === 'ALL') || strWaktu.includes(yearFilter);
@@ -662,27 +534,11 @@
                             layer.bindPopup(popupHtml);
                         }
                     } 
-                    // 2. DAERAH TANPA LATIHAN (TIDAK ADA POP-UP, TIDAK TERKUNCI SAAT DIKLIK)
+                    // 2. DAERAH TANPA LATIHAN (POLOS TOTAL: TANPA TOOLTIP, TANPA POPUP, TIDAK BISA DIKLIK)
                     else {
                         layer.unbindPopup();
-                        
-                        // Tooltip ramping yang melayang mengikuti kursor
-                        layer.bindTooltip(namaWilayah, {
-                            sticky: true,
-                            direction: 'top',
-                            offset: [0, -10],
-                            opacity: 0.95,
-                            className: 'custom-tooltip-clean'
-                        });
-
-                        // Matikan klik dan hentikan event agar tidak memicu focus outline
-                        layer.off('click');
-                        layer.on('click', function(e) {
-                            if (e.originalEvent) {
-                                e.originalEvent.preventDefault();
-                            }
-                            L.DomEvent.stop(e);
-                        });
+                        layer.unbindTooltip();
+                        layer.off(); // Matikan seluruh event mouse (hover & click)
                     }
                 }
             });
