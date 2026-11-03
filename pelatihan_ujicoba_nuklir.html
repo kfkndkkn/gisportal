@@ -68,7 +68,16 @@
         .sidebar-smooth {
             transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
+        
+        /* Hilangkan garis kotak seleksi hitam-putih bawaan browser saat poligon diklik */
+        path.leaflet-interactive:focus,
+        path.leaflet-interactive:focus-visible,
+        .leaflet-container:focus,
+        svg:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        
         /* Tooltip custom ramping */
         .custom-tooltip-clean {
             background-color: rgba(15, 23, 42, 0.95) !important;
@@ -438,7 +447,89 @@
         }
 
         // Ekstraktor Cerdas Nama Wilayah (Mendeteksi nama asli properti apa pun yang ada di GeoJSON)
-        function resolveRegionName(p) {
+        // Kamus nama wilayah berdasarkan koordinat pulau Jawa
+        function getNamaByCoords(lat, lng) {
+            // Jawa Timur
+            if (lng > 111.0 && lat < -6.5 && lat > -8.8) {
+                if (lng > 111.8 && lng < 112.4 && lat > -7.2) return 'Kabupaten Tuban';
+                if (lng > 112.1 && lng < 112.6 && lat > -7.3 && lat < -6.8) return 'Kabupaten Lamongan';
+                if (lng > 111.5 && lng < 112.1 && lat < -7.1 && lat > -7.5) return 'Kabupaten Bojonegoro';
+                if (lng > 112.4 && lng < 112.8 && lat > -7.3 && lat < -7.0) return 'Kabupaten Gresik';
+                if (lng > 112.5 && lng < 113.0 && lat < -7.3 && lat > -7.6) return 'Kabupaten Sidoarjo';
+                if (lng > 112.1 && lng < 112.7 && lat < -7.4 && lat > -7.8) return 'Kabupaten Mojokerto';
+                if (lng > 112.5 && lng < 113.2 && lat < -7.5 && lat > -8.0) return 'Kabupaten Pasuruan';
+                if (lng > 112.9 && lng < 113.5 && lat < -7.6 && lat > -8.1) return 'Kabupaten Probolinggo';
+                if (lng > 113.4 && lng < 114.7 && lat < -7.5 && lat > -8.2) return 'Kabupaten Situbondo & Bondowoso';
+                if (lng > 113.8 && lat < -8.0) return 'Kabupaten Banyuwangi';
+                if (lng > 113.2 && lng < 113.9 && lat < -8.0) return 'Kabupaten Jember';
+                if (lng > 112.8 && lng < 113.4 && lat < -7.9 && lat > -8.4) return 'Kabupaten Lumajang';
+                if (lng > 112.3 && lng < 113.0 && lat < -7.8 && lat > -8.5) return 'Kabupaten Malang';
+                if (lng > 111.7 && lng < 112.3 && lat < -7.8 && lat > -8.4) return 'Kabupaten Blitar';
+                if (lng > 111.6 && lng < 112.2 && lat < -7.6 && lat > -8.1) return 'Kabupaten Kediri';
+                if (lng > 111.6 && lng < 112.2 && lat < -7.3 && lat > -7.8) return 'Kabupaten Nganjuk';
+                if (lng > 111.3 && lng < 111.8 && lat < -7.2 && lat > -7.7) return 'Kabupaten Ngawi';
+                if (lng > 111.3 && lng < 111.7 && lat < -7.5 && lat > -7.9) return 'Kabupaten Madiun';
+                if (lng > 111.1 && lng < 111.6 && lat < -7.7 && lat > -8.1) return 'Kabupaten Ponorogo';
+                if (lng > 111.0 && lng < 111.5 && lat < -8.0 && lat > -8.4) return 'Kabupaten Pacitan';
+                if (lng > 111.4 && lng < 111.9 && lat < -8.0 && lat > -8.4) return 'Kabupaten Trenggalek';
+                if (lng > 111.7 && lng < 112.1 && lat < -8.0 && lat > -8.4) return 'Kabupaten Tulungagung';
+                if (lng > 112.6 && lat > -7.2) return 'Kabupaten Bangkalan (Madura)';
+                if (lng > 113.1 && lat > -7.2) return 'Kabupaten Sampang (Madura)';
+                if (lng > 113.4 && lat > -7.2) return 'Kabupaten Pamekasan (Madura)';
+                if (lng > 113.7 && lat > -7.2) return 'Kabupaten Sumenep (Madura)';
+                return 'Wilayah Jawa Timur';
+            }
+            // Jawa Tengah
+            if (lng > 108.5 && lng <= 111.6 && lat < -6.5 && lat > -8.3) {
+                if (lng > 110.8 && lat > -7.0) return 'Kabupaten Jepara';
+                if (lng > 110.6 && lat > -7.0) return 'Kabupaten Kudus & Demak';
+                if (lng > 111.0 && lat > -7.1) return 'Kabupaten Pati & Rembang';
+                if (lng > 111.1 && lat < -7.0 && lat > -7.4) return 'Kabupaten Blora';
+                if (lng > 110.5 && lat < -7.0 && lat > -7.3) return 'Kabupaten Grobogan';
+                if (lng > 109.9 && lng < 110.3 && lat > -7.1) return 'Kabupaten Batang & Kendal';
+                if (lng > 109.5 && lng < 110.0 && lat > -7.1) return 'Kabupaten Pekalongan';
+                if (lng > 109.2 && lng < 109.7 && lat > -7.1) return 'Kabupaten Pemalang';
+                if (lng > 108.9 && lng < 109.3 && lat > -7.0) return 'Kabupaten Tegal';
+                if (lng < 109.1 && lat > -7.1) return 'Kabupaten Brebes';
+                if (lng > 108.7 && lng < 109.3 && lat < -7.2 && lat > -7.6) return 'Kabupaten Banyumas & Purbalingga';
+                if (lng > 108.6 && lng < 109.3 && lat < -7.4) return 'Kabupaten Cilacap';
+                if (lng > 109.3 && lng < 109.8 && lat < -7.3 && lat > -7.8) return 'Kabupaten Banjarnegara';
+                if (lng > 109.7 && lng < 110.2 && lat < -7.2 && lat > -7.6) return 'Kabupaten Wonosobo & Temanggung';
+                if (lng > 109.8 && lng < 110.1 && lat < -7.5) return 'Kabupaten Kebumen & Purworejo';
+                if (lng > 110.1 && lng < 110.5 && lat < -7.3 && lat > -7.7) return 'Kabupaten Magelang';
+                if (lng > 110.4 && lng < 110.8 && lat < -7.3 && lat > -7.7) return 'Kabupaten Boyolali';
+                if (lng > 110.7 && lng < 111.1 && lat < -7.4 && lat > -7.7) return 'Kota Surakarta & Karanganyar';
+                if (lng > 110.5 && lng < 110.8 && lat < -7.6 && lat > -7.9) return 'Kabupaten Klaten & Sukoharjo';
+                if (lng > 110.8 && lat < -7.7) return 'Kabupaten Wonogiri';
+                return 'Wilayah Jawa Tengah';
+            }
+            // Jawa Barat & Banten
+            if (lng <= 108.8) {
+                if (lng > 108.2 && lat > -6.8) return 'Kabupaten Indramayu';
+                if (lng > 108.4 && lat < -6.7 && lat > -7.0) return 'Kabupaten Cirebon';
+                if (lng > 108.0 && lng < 108.5 && lat < -6.7 && lat > -7.1) return 'Kabupaten Majalengka';
+                if (lng > 108.3 && lat < -6.9 && lat > -7.2) return 'Kabupaten Kuningan';
+                if (lng > 107.6 && lng < 108.1 && lat > -6.6) return 'Kabupaten Subang';
+                if (lng > 107.2 && lng < 107.6 && lat > -6.5) return 'Kabupaten Karawang';
+                if (lng > 107.3 && lng < 107.6 && lat < -6.5 && lat > -6.8) return 'Kabupaten Purwakarta';
+                if (lng > 107.0 && lng < 107.4 && lat < -6.7 && lat > -7.3) return 'Kabupaten Cianjur';
+                if (lng > 106.6 && lng < 107.2 && lat < -6.8) return 'Kabupaten Sukabumi';
+                if (lng > 106.6 && lng < 107.1 && lat < -6.4 && lat > -6.8) return 'Kabupaten Bogor';
+                if (lng > 106.9 && lng < 107.2 && lat > -6.4 && lat < -6.1) return 'Kabupaten Bekasi';
+                if (lng > 107.7 && lng < 108.1 && lat < -6.7 && lat > -7.0) return 'Kabupaten Sumedang';
+                if (lng > 107.6 && lng < 108.2 && lat < -7.0 && lat > -7.6) return 'Kabupaten Garut & Tasikmalaya';
+                if (lng > 108.2 && lat < -7.3) return 'Kabupaten Ciamis & Pangandaran';
+                if (lng < 106.3 && lat > -6.5) return 'Kabupaten Serang & Cilegon';
+                if (lng < 106.1 && lat < -6.3) return 'Kabupaten Pandeglang';
+                if (lng > 106.0 && lng < 106.5 && lat < -6.3) return 'Kabupaten Lebak';
+                if (lng > 106.3 && lng < 106.7 && lat > -6.4 && lat < -6.1) return 'Kabupaten Tangerang';
+                return 'Wilayah Jawa Barat';
+            }
+            return 'Wilayah Jawa';
+        }
+
+        // Resolusi Nama Wilayah: Cek Properti GeoJSON -> Fallback ke Koordinat
+        function resolveRegionName(p, layer) {
             if (p.kunci_wilayah && NAMA_RESMI_MAP[p.kunci_wilayah]) {
                 return NAMA_RESMI_MAP[p.kunci_wilayah];
             }
@@ -452,23 +543,19 @@
             for (let k of priorityKeys) {
                 if (p[k]) {
                     let v = String(p[k]).trim();
-                    if (v && !['null', 'none', 'nan', 'wilayah', 'kabupaten/kota'].includes(v.toLowerCase())) {
+                    if (v && !['null', 'none', 'nan', 'wilayah', 'kabupaten/kota', 'wilayah administratif'].includes(v.toLowerCase())) {
                         return v.replace(/^(kabupaten|kota)\s+/i, (m) => m.toUpperCase());
                     }
                 }
             }
 
-            // Fallback mencari nilai string non-JSON
-            for (let k in p) {
-                if (k !== 'daftar_kegiatan' && typeof p[k] === 'string') {
-                    let v = p[k].trim();
-                    if (v && v.length > 3 && !['null', 'none', 'nan', 'wilayah', 'kabupaten/kota'].includes(v.toLowerCase())) {
-                        return v;
-                    }
-                }
+            // Jika properti kosong, tebak nama lewat koordinat tengah poligon
+            if (layer && layer.getBounds) {
+                const center = layer.getBounds().getCenter();
+                return getNamaByCoords(center.lat, center.lng);
             }
 
-            return 'Wilayah Administratif';
+            return 'Wilayah Jawa';
         }
 
         // FUNGSI RENDER DATA
@@ -505,7 +592,7 @@
                     const p = feature.properties;
                     const count = p.jumlah_latihan || 0;
                     const kegiatanAsli = parseKegiatanList(p);
-                    const namaWilayah = resolveRegionName(p);
+                    const namaWilayah = resolveRegionName(p, layer);
 
                     // Efek Hover warna garis
                     layer.on({
@@ -580,7 +667,7 @@
                     else {
                         layer.unbindPopup();
                         
-                        // Tooltip ramping yang hanya melayang mengikuti kursor mouse (sticky)
+                        // Tooltip ramping yang melayang mengikuti kursor
                         layer.bindTooltip(namaWilayah, {
                             sticky: true,
                             direction: 'top',
@@ -589,11 +676,18 @@
                             className: 'custom-tooltip-clean'
                         });
 
-                        // Matikan interaksi klik
+                        // Matikan klik dan hentikan event agar tidak memicu focus outline
                         layer.off('click');
+                        layer.on('click', function(e) {
+                            if (e.originalEvent) {
+                                e.originalEvent.preventDefault();
+                            }
+                            L.DomEvent.stop(e);
+                        });
                     }
-                }
-            });
+                 }
+            }
+        });
 
             geojsonLayerGroup.addLayer(mainPolygonLayer);
 
