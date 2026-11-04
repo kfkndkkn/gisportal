@@ -21,7 +21,7 @@
     <style>
         * { box-sizing: border-box; }
         
-        /* KUNCI UTAMA SPLIT SCREEN: Mengunci viewport 100dvh dan menonaktifkan window scroll */
+        /* KUNCI VIEWPORT SPLIT SCREEN */
         html, body {
             height: 100dvh !important;
             max-height: 100dvh !important;
@@ -48,7 +48,7 @@
             outline: none !important;
         }
 
-        /* PERBAIKAN: Menonaktifkan fokus keyboard browser pada elemen SVG/Poligon */
+        /* MEMATIKAN FOCUS RING/BOX DAN BROWSER AUTO-SCROLL PADA SVG */
         svg, path, .leaflet-container, .leaflet-interactive {
             outline: none !important;
             box-shadow: none !important;
@@ -287,8 +287,8 @@
             'surabaya': [-7.257, 112.752]
         };
 
-        // PENGUNCIAN WINDOW SCROLL (Sangat Penting untuk Mode Split Screen)
-        window.addEventListener('scroll', function() {
+        // PENGUNCIAN WINDOW SCROLL MUTLAK
+        window.addEventListener('scroll', function(e) {
             if (window.scrollY !== 0 || window.scrollX !== 0) {
                 window.scrollTo(0, 0);
             }
@@ -492,12 +492,12 @@
                         layer.on({
                             mouseover: function(e) {
                                 const l = e.target;
+                                // DIBERSIHKAN: l.bringToFront() dihapus total agar struktur SVG DOM tidak hancur/bergeser saat mouseover
                                 l.setStyle({ 
                                     weight: 3, 
                                     color: '#f59e0b', 
                                     fillOpacity: 0.95 
                                 });
-                                l.bringToFront();
                             },
                             mouseout: function(e) {
                                 mainPolygonLayer.resetStyle(e.target);
