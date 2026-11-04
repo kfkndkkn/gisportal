@@ -15,7 +15,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Leaflet MarkerCluster CSS (Untuk Agregasi Titik) -->
+    <!-- Leaflet MarkerCluster CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 
@@ -39,7 +39,7 @@
             z-index: 1; 
         }
         
-        /* Pin Marker Ramping Baru tanpa logo nuklir */
+        /* Pin Marker Ramping tanpa logo nuklir */
         .custom-div-icon { background: none; border: none; }
         .slim-pin {
             width: 22px;
@@ -198,15 +198,11 @@
         </main>
     </div>
 
-       <!-- MODAL POPUP DETAIL DASHBOARD STATISTIK -->
+    <!-- MODAL POPUP DETAIL DASHBOARD STATISTIK -->
     <div id="kpi-modal" class="hidden fixed inset-0 z-[2000] bg-slate-950/70 backdrop-blur-sm flex flex-col items-center justify-start p-3">
-        
-        <!-- Spacer Kosong untuk Melewati Baris Header + Sub-header Hitam di Atas -->
         <div class="w-full h-[20px] flex-shrink-0"></div>
-    
-        <!-- Window Pop-up Modal -->
         <div class="bg-white w-full max-w-5xl rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col flex-1 max-h-[calc(100vh-90px)] animate-in fade-in zoom-in duration-200">
-    
+
             <!-- Modal Header Ramping -->
             <div class="bg-slate-900 text-white px-5 py-2.5 flex items-center justify-between border-b border-slate-800 flex-shrink-0">
                 <div class="flex items-center space-x-3">
@@ -222,11 +218,9 @@
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-    
-            <!-- Modal Content Area (Isi Dashboard) -->
+
+            <!-- Modal Content Area -->
             <div class="p-5 overflow-y-auto custom-scrollbar space-y-4 bg-slate-50 flex-1">
-    
-                <!-- Ringkasan Statistik -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
                         <div class="p-2.5 bg-blue-50 text-blue-600 rounded-xl text-lg">
@@ -256,11 +250,8 @@
                         </div>
                     </div>
                 </div>
-    
-                <!-- Section Charts -->
+
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-    
-                    <!-- Bar Chart & Detail Tahun -->
                     <div class="md:col-span-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col space-y-3">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                             <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -272,8 +263,7 @@
                         <div class="relative w-full" style="height: 220px;">
                             <canvas id="barChartYear"></canvas>
                         </div>
-    
-                        <!-- Panel Rincian Detail Tahun -->
+
                         <div id="year-detail-panel" class="hidden p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2 animate-in fade-in duration-150">
                             <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
                                 <h5 class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
@@ -281,7 +271,7 @@
                                 </h5>
                                 <button onclick="hideYearDetail()" class="text-[11px] text-slate-400 hover:text-slate-600 underline">Tutup Rincian</button>
                             </div>
-    
+
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                                 <div class="bg-white p-2.5 rounded border border-slate-200 shadow-sm space-y-1">
                                     <div class="flex justify-between items-center border-b border-slate-100 pb-1">
@@ -296,7 +286,7 @@
                                         <ul id="detail-bimtek-list" class="space-y-1 pl-3 list-disc text-[11px] text-slate-600 max-h-24 overflow-y-auto custom-scrollbar"></ul>
                                     </div>
                                 </div>
-    
+
                                 <div class="bg-white p-2.5 rounded border border-slate-200 shadow-sm space-y-1">
                                     <div class="flex justify-between items-center border-b border-slate-100 pb-1">
                                         <span class="font-semibold text-emerald-700 text-xs"><i class="fa-solid fa-graduation-cap mr-1"></i>Diklat</span>
@@ -313,8 +303,7 @@
                             </div>
                         </div>
                     </div>
-    
-                    <!-- Pie Chart -->
+
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col space-y-3">
                         <div class="border-b border-slate-100 pb-2">
                             <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -325,11 +314,9 @@
                             <canvas id="pieChartCategory"></canvas>
                         </div>
                     </div>
-    
                 </div>
-    
             </div>
-    
+
             <!-- Modal Footer -->
             <div class="bg-white px-5 py-2.5 border-t border-slate-200 flex justify-end flex-shrink-0">
                 <button onclick="closeKpiModal()" class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition-colors">
@@ -385,10 +372,9 @@
             };
             L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
 
-            // Inisialisasi Group MarkerCluster dengan Agregasi & Popup Scrollable
             clusterGroup = L.markerClusterGroup({
                 showCoverageOnHover: false,
-                zoomToBoundsOnClick: false, // Dimatikan agar klik cluster bisa membuka Popup Scrollable
+                zoomToBoundsOnClick: false,
                 iconCreateFunction: function(cluster) {
                     const count = cluster.getChildCount();
                     return L.divIcon({
@@ -399,7 +385,6 @@
                 }
             });
 
-            // KLIK AGREGAT / CLUSTER -> Buka Popup Scrollable Daftar Titik Didalamnya
             clusterGroup.on('clusterclick', function (a) {
                 const childMarkers = a.layer.getAllChildMarkers();
                 let popupContent = `
@@ -472,6 +457,88 @@
             setTimeout(() => { if (map) map.invalidateSize(); }, 300);
         }
 
+        // FUNGSI HYBRID FETCH DATA (FastAPI Live OR Fallback XML Statis GitHub)
+        async function fetchDataFromDatabase() {
+            const userRole = localStorage.getItem('user_role') || 'PUBLIC';
+            const token = localStorage.getItem('bapeten_token');
+
+            try {
+                // Skenario A: Coba panggil Backend FastAPI terlebih dahulu
+                const response = await fetch(`http://127.0.0.1:8000/api/peta/xml-kegiatan?role=${userRole}`, {
+                    headers: token ? { "Authorization": `Bearer ${token}` } : {}
+                });
+
+                if (!response.ok) throw new Error("FastAPI Backend tidak merespon");
+                
+                const data = await response.json();
+                rawGeoJSONData = data;
+                populateYearFilter(data.features || []);
+                renderData();
+
+            } catch (err) {
+                console.warn("Backend FastAPI offline / GitHub Pages mode. Mengalihkan ke file bimtek_data.xml statis...");
+                
+                // Skenario B: FALLBACK Baca File bimtek_data.xml Langsung dari Repo GitHub
+                try {
+                    const xmlResponse = await fetch('./bimtek_data.xml');
+                    if (!xmlResponse.ok) throw new Error("Gagal mengambil file bimtek_data.xml di repo");
+                    
+                    const xmlText = await xmlResponse.text();
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+                    
+                    rawGeoJSONData = convertXmlToGeoJSON(xmlDoc);
+                    populateYearFilter(rawGeoJSONData.features || []);
+                    renderData();
+                } catch (xmlErr) {
+                    console.error("Gagal total memuat data XML statis:", xmlErr);
+                }
+            }
+        }
+
+        // KONVERSI PARSER XML DOM BRWOSER KE FORMAT GEOJSON SAMA SEPERTI DARI FASTAPI
+        function convertXmlToGeoJSON(xmlDoc) {
+            const rows = xmlDoc.getElementsByTagName("row");
+            const features = [];
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+
+                const getVal = (tagName) => {
+                    const el = row.getElementsByTagName(tagName)[0];
+                    return el ? (el.textContent || '').trim() : '';
+                };
+
+                const lat = parseFloat(getVal('latitude'));
+                const lng = parseFloat(getVal('longitude'));
+
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    features.push({
+                        type: "Feature",
+                        geometry: {
+                            type: "Point",
+                            coordinates: [lng, lat]
+                        },
+                        properties: {
+                            id: getVal('id'),
+                            instansi: getVal('instansi'),
+                            alamat: getVal('alamat'),
+                            kategori_pelatihan: getVal('kategori_pelatihan'),
+                            jumlah_peserta: parseInt(getVal('jumlah_peserta')) || 0,
+                            tanggal_mulai: getVal('tanggal_mulai'),
+                            tanggal_selesai: getVal('tanggal_selesai'),
+                            foto_url: getVal('foto_url')
+                        }
+                    });
+                }
+            }
+
+            return {
+                type: "FeatureCollection",
+                features: features
+            };
+        }
+
         function zoomToPoint(lat, lng) {
             map.closePopup();
             map.flyTo([lat, lng], 15, { duration: 1.2 });
@@ -481,22 +548,6 @@
             if (!tglMulai) return '-';
             if (!tglSelesai || tglMulai === tglSelesai) return tglMulai;
             return `${tglMulai} s.d. ${tglSelesai}`;
-        }
-
-        function fetchDataFromDatabase() {
-            const userRole = localStorage.getItem('user_role') || 'PUBLIC';
-
-            fetch(`http://127.0.0.1:8000/api/peta/xml-kegiatan?role=${userRole}`)
-                .then(response => {
-                    if (!response.ok) throw new Error("Gagal mengambil data, status: " + response.status);
-                    return response.json();
-                })
-                .then(data => {
-                    rawGeoJSONData = data;
-                    populateYearFilter(data.features || []);
-                    renderData();
-                })
-                .catch(err => console.error("Error memuat GeoJSON:", err));
         }
 
         function populateYearFilter(features) {
@@ -515,7 +566,6 @@
             });
         }
 
-        // MEMBUAT PIN RAMPING ELEGAN (TANPA SIMBOL NUKLIR)
         function createSlimMarkerIcon(instansi) {
             const isBimtek = (instansi || '').toLowerCase().includes('sat brimob');
             const colorClass = isBimtek ? 'pin-bimtek' : 'pin-diklat';
@@ -591,7 +641,6 @@
                     icon: createSlimMarkerIcon(p.instansi)
                 });
 
-                // Simpan atribut di objek marker agar bisa dibaca saat klik agregat
                 marker.featureProperties = p;
 
                 const fotoHtml = p.foto_url 
@@ -751,7 +800,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false, // Menjaga grafik tidak loncat ukurannya
+                    maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
                     onClick: (event, elements) => {
