@@ -385,6 +385,7 @@
                 }
             });
 
+            // FIX UTAMA: Pembukaan popup cluster menggunakan autoPan: false dan flyTo halus
             clusterGroup.on('clusterclick', function (a) {
                 const childMarkers = a.layer.getAllChildMarkers();
                 let popupContent = `
@@ -408,7 +409,12 @@
 
                 popupContent += `</div></div>`;
 
-                L.popup()
+                map.flyTo(a.latlng, map.getZoom(), {
+                    duration: 0.8,
+                    easeLinearity: 0.25
+                });
+
+                L.popup({ autoPan: false, offset: [0, -10] })
                     .setLatLng(a.latlng)
                     .setContent(popupContent)
                     .openOn(map);
@@ -457,13 +463,11 @@
             setTimeout(() => { if (map) map.invalidateSize(); }, 300);
         }
 
-        // FUNGSI HYBRID FETCH DATA (FastAPI Live OR Fallback XML Statis GitHub)
         async function fetchDataFromDatabase() {
             const userRole = localStorage.getItem('user_role') || 'PUBLIC';
             const token = localStorage.getItem('bapeten_token');
 
             try {
-                // Skenario A: Coba panggil Backend FastAPI terlebih dahulu
                 const response = await fetch(`http://127.0.0.1:8000/api/peta/xml-kegiatan?role=${userRole}`, {
                     headers: token ? { "Authorization": `Bearer ${token}` } : {}
                 });
@@ -478,7 +482,6 @@
             } catch (err) {
                 console.warn("Backend FastAPI offline / GitHub Pages mode. Mengalihkan ke file bimtek_data.xml statis...");
                 
-                // Skenario B: FALLBACK Baca File bimtek_data.xml Langsung dari Repo GitHub
                 try {
                     const xmlResponse = await fetch('./bimtek_data.xml');
                     if (!xmlResponse.ok) throw new Error("Gagal mengambil file bimtek_data.xml di repo");
@@ -496,7 +499,6 @@
             }
         }
 
-        // KONVERSI PARSER XML DOM BRWOSER KE FORMAT GEOJSON SAMA SEPERTI DARI FASTAPI
         function convertXmlToGeoJSON(xmlDoc) {
             const rows = xmlDoc.getElementsByTagName("row");
             const features = [];
@@ -541,7 +543,7 @@
 
         function zoomToPoint(lat, lng) {
             map.closePopup();
-            map.flyTo([lat, lng], 15, { duration: 1.2 });
+            map.flyTo([lat, lng], 14, { duration: 0.8, easeLinearity: 0.25 });
         }
 
         function formatRentangTanggal(tglMulai, tglSelesai) {
@@ -673,7 +675,7 @@
                     </div>
                 `;
 
-                marker.bindPopup(popupContent);
+                marker.bindPopup(popupContent, { autoPan: false, offset: [0, -10] });
                 clusterGroup.addLayer(marker);
 
                 const card = document.createElement('div');
@@ -697,8 +699,10 @@
                 `;
 
                 card.onclick = () => {
-                    map.flyTo([lat, lng], 14, { duration: 1.2 });
-                    marker.openPopup();
+                    map.flyTo([lat, lng], 14, { duration: 0.8, easeLinearity: 0.25 });
+                    setTimeout(() => {
+                        marker.openPopup();
+                    }, 400);
                 };
 
                 listContainer.appendChild(card);
