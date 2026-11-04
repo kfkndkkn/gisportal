@@ -69,7 +69,6 @@
             transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        /* Hilangkan garis kotak seleksi hitam-putih bawaan browser saat poligon diklik */
         path.leaflet-interactive:focus,
         path.leaflet-interactive:focus-visible,
         .leaflet-container:focus,
@@ -265,7 +264,6 @@
         let yearBarChartInstance = null;
         let categoryPieChartInstance = null;
 
-        // Kamus nama resmi untuk daerah yang memiliki kegiatan latihan
         const NAMA_RESMI_MAP = {
             'serpong': 'Kota Tangerang Selatan (Serpong)',
             'jakarta': 'Provinsi DKI Jakarta',
@@ -275,7 +273,6 @@
             'surabaya': 'Kota Surabaya'
         };
 
-        // Titik koordinat pusat presisi kota latihan [lat, lng] agar fokus kamera akurat
         const KOORDINAT_KOTA_MAP = {
             'serpong': [-6.295, 106.705],
             'jakarta': [-6.208, 106.845],
@@ -322,7 +319,6 @@
 
             geojsonLayerGroup = L.featureGroup().addTo(map);
 
-            // Kompas Arah Utara
             const northArrowControl = L.control({ position: 'topright' });
             northArrowControl.onAdd = function() {
                 const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control north-compass-box');
@@ -339,7 +335,6 @@
             };
             northArrowControl.addTo(map);
 
-            // Legenda Frekuensi Latihan
             const legendControl = L.control({ position: 'bottomright' });
             legendControl.onAdd = function() {
                 const div = L.DomUtil.create('div', 'bg-slate-900/90 text-white p-2.5 rounded-lg border border-slate-700 shadow-xl text-[11px] backdrop-blur-sm space-y-1.5');
@@ -373,7 +368,6 @@
             setTimeout(() => { if (map) map.invalidateSize(); }, 300);
         }
 
-        // Skema Warna Koroplet
         function getColorByCount(count) {
             if (count >= 6) return '#7f1d1d';
             if (count >= 4) return '#b91c1c';
@@ -439,7 +433,6 @@
             return p.nama_wilayah || 'Wilayah Latihan';
         }
 
-        // FUNGSI RENDER DATA
         function renderData() {
             geojsonLayerGroup.clearLayers();
             layerMapById = {};
@@ -455,7 +448,6 @@
             let activeCitiesCount = 0;
             const sidebarItems = [];
 
-            // 1. GAMBAR SELURUH DAERAH KE PETA
             const mainPolygonLayer = L.geoJSON(rawGeoJSONData, {
                 style: function(feature) {
                     const count = feature.properties.jumlah_latihan || 0;
@@ -475,7 +467,6 @@
                     const kegiatanAsli = parseKegiatanList(p);
                     const namaWilayah = resolveRegionName(p);
 
-                    // 1. DAERAH DENGAN LATIHAN (INTERAKTIF & BISA DIKLIK)
                     if (count > 0) {
                         layer.on({
                             mouseover: function(e) {
@@ -489,6 +480,22 @@
                             },
                             mouseout: function(e) {
                                 mainPolygonLayer.resetStyle(e.target);
+                            },
+                            // FIX UTAMA PROJECT 2: Klik poligon meluncur halus ke koordinat/titik tengah tanpa merusak posisi header
+                            click: function(e) {
+                                const kunci = p.kunci_wilayah;
+                                let targetLatLng = KOORDINAT_KOTA_MAP[kunci];
+
+                                if (!targetLatLng && e.target.getBounds && e.target.getBounds().isValid()) {
+                                    targetLatLng = e.target.getBounds().getCenter();
+                                }
+
+                                if (targetLatLng) {
+                                    map.flyTo(targetLatLng, 10, {
+                                        duration: 0.8,
+                                        easeLinearity: 0.25
+                                    });
+                                }
                             }
                         });
 
@@ -540,12 +547,10 @@
                                     </div>
                                 </div>
                             `;
-                            // autoPan dimatikan agar kamera tidak terlempar ke Laut Jawa
+
                             layer.bindPopup(popupHtml, { autoPan: false, offset: [0, -10] });
                         }
-                    } 
-                    // 2. DAERAH TANPA LATIHAN (POLOS TOTAL: TANPA TOOLTIP, TANPA POPUP, TIDAK BISA DIKLIK)
-                    else {
+                    } else {
                         layer.unbindPopup();
                         layer.unbindTooltip();
                         layer.off();
@@ -555,12 +560,10 @@
 
             geojsonLayerGroup.addLayer(mainPolygonLayer);
 
-            // 2. PERBARUI STATISTIK PADA SIDEBAR
             document.getElementById('stat-total-events').innerText = totalFilteredEvents;
             document.getElementById('stat-total-cities').innerText = activeCitiesCount;
             document.getElementById('stat-showing-count').innerText = `${activeCitiesCount} Wilayah`;
 
-            // 3. RENDER CARD DI SIDEBAR
             if (sidebarItems.length === 0) {
                 listContainer.innerHTML = `
                     <div class="p-6 text-center text-slate-400">
@@ -591,7 +594,6 @@
                         </div>
                     `;
 
-                    // Klik card sidebar: fokus tepat ke koordinat kota tanpa kabur ke laut
                     card.onclick = () => {
                         if (item.layer) {
                             const p = item.layer.feature ? item.layer.feature.properties : {};
@@ -603,15 +605,15 @@
                             }
 
                             if (targetLatLng) {
-                                map.flyTo(targetLatLng, 12, {
-                                    duration: 1.0,
+                                map.flyTo(targetLatLng, 10, {
+                                    duration: 0.8,
                                     easeLinearity: 0.25
                                 });
                             }
 
                             setTimeout(() => {
-                                item.layer.openPopup();
-                            }, 500);
+                                item.layer.openPopup(targetLatLng);
+                            }, 400);
                         }
                     };
 
@@ -619,7 +621,6 @@
                 });
             }
 
-            // Pasang kamera awal membingkai pulau Jawa
             if (rawGeoJSONData.features.length > 0) {
                 map.fitBounds(mainPolygonLayer.getBounds(), { padding: [20, 20] });
             }
@@ -714,7 +715,6 @@
             document.getElementById('kpi-count-ttx').innerText = ttxCount;
             document.getElementById('kpi-count-exec').innerText = execCount;
 
-            // Bar Chart Tren Tahun
             const ctxBar = document.getElementById('barChartYear').getContext('2d');
             if (yearBarChartInstance) yearBarChartInstance.destroy();
 
@@ -750,7 +750,6 @@
                 }
             });
 
-            // Pie Chart Kategori
             const ctxPie = document.getElementById('pieChartCategory').getContext('2d');
             if (categoryPieChartInstance) categoryPieChartInstance.destroy();
 
