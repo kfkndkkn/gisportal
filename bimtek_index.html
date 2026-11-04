@@ -25,7 +25,7 @@
     <style>
         * { box-sizing: border-box; }
         
-        /* KUNCI UTAMA SPLIT SCREEN: Mengunci viewport 100dvh dan menonaktifkan window scroll */
+        /* KUNCI UTAMA SPLIT SCREEN: Viewport 100dvh dan pembatas scroll */
         html, body {
             height: 100dvh !important;
             max-height: 100dvh !important;
@@ -34,16 +34,11 @@
             padding: 0;
             overflow: hidden !important;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             font-family: 'Inter', sans-serif;
         }
 
-        html {
-            scroll-behavior: auto !important;
-        }
+        html { scroll-behavior: auto !important; }
 
         #map { 
             width: 100%; 
@@ -52,7 +47,7 @@
             outline: none !important;
         }
 
-        /* PERBAIKAN: Menonaktifkan fokus keyboard browser pada elemen SVG/Marker */
+        /* Nonaktifkan focus ring browser pada marker/SVG */
         svg, path, .leaflet-container, .leaflet-marker-icon, .leaflet-interactive {
             outline: none !important;
             box-shadow: none !important;
@@ -73,9 +68,7 @@
             filter: drop-shadow(0 3px 4px rgba(0,0,0,0.4));
             transition: transform 0.2s ease;
         }
-        .slim-pin:hover {
-            transform: scale(1.15);
-        }
+        .slim-pin:hover { transform: scale(1.15); }
         .slim-pin-inner {
             width: 22px;
             height: 22px;
@@ -147,10 +140,12 @@
 
     <div class="flex-1 flex relative overflow-hidden h-full w-full">
 
-        <!-- Sidebar Left -->
+        <!-- Sidebar Left (Layout Diperketat Kompak) -->
         <aside id="sidebar" class="absolute top-0 left-0 h-full w-96 sm:w-[420px] bg-white z-[1000] shadow-2xl flex flex-col border-r border-slate-200 sidebar-smooth transform -translate-x-full">
             <div class="w-full flex flex-col h-full">
-                <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
+                
+                <!-- Header Sidebar Compact -->
+                <div class="p-3 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
                     <h2 class="font-bold text-slate-800 text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
                         <i class="fa-solid fa-filter text-amber-500"></i> Filter & Pencarian
                     </h2>
@@ -159,46 +154,51 @@
                     </button>
                 </div>
 
-                <div class="p-3 space-y-2 bg-white border-b border-slate-100 flex-shrink-0">
-                    <div>
-                        <label class="text-[11px] font-semibold text-slate-500 uppercase mb-1 block">Cari Instansi / Alamat / Pelatihan</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                            <input type="text" id="search-input" placeholder="Ketik kata kunci..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
+                <!-- Input Pencarian + Filter Tahun Sejajar dalam 1 Baris Grid -->
+                <div class="p-2.5 bg-white border-b border-slate-100 flex-shrink-0 space-y-2">
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="col-span-2">
+                            <label class="text-[10px] font-semibold text-slate-500 uppercase mb-0.5 block">Kata Kunci</label>
+                            <div class="relative">
+                                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+                                <input type="text" id="search-input" placeholder="Cari instansi/alamat..." class="w-full pl-7 pr-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-semibold text-slate-500 uppercase mb-0.5 block">Tahun</label>
+                            <select id="year-filter" class="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
+                                <option value="ALL">Semua</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="text-[11px] font-semibold text-slate-500 uppercase mb-1 block">Tahun Pelaksanaan</label>
-                        <select id="year-filter" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
-                            <option value="ALL">Semua Tahun</option>
-                        </select>
+                    <!-- Statistik Kompak Sejajar Tombol Dashboard -->
+                    <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-100">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-slate-50 px-2 py-1 rounded border border-slate-200 text-center">
+                                <span class="text-[10px] text-slate-400 font-medium">Kegiatan: </span>
+                                <span id="stat-total-events" class="text-xs font-bold text-slate-800">0</span>
+                            </div>
+                            <div class="bg-slate-50 px-2 py-1 rounded border border-slate-200 text-center">
+                                <span class="text-[10px] text-slate-400 font-medium">Peserta: </span>
+                                <span id="stat-total-participants" class="text-xs font-bold text-amber-600">0</span>
+                            </div>
+                        </div>
+
+                        <button onclick="openKpiModal()" class="py-1.5 px-3 bg-slate-900 hover:bg-slate-800 text-amber-400 text-[11px] font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition-all border border-slate-700">
+                            <i class="fa-solid fa-chart-pie text-xs"></i>
+                            <span>Dashboard</span>
+                        </button>
                     </div>
                 </div>
 
-                <div class="p-2.5 bg-slate-50 border-b border-slate-100 flex-shrink-0 space-y-2">
-                    <div class="grid grid-cols-2 gap-2">
-                        <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm text-center">
-                            <div id="stat-total-events" class="text-lg font-bold text-slate-800">0</div>
-                            <div class="text-[11px] text-slate-500 font-medium">Total Keg. Bimtek</div>
-                        </div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm text-center">
-                            <div id="stat-total-participants" class="text-lg font-bold text-amber-600">0</div>
-                            <div class="text-[11px] text-slate-500 font-medium">Peserta Terlatih</div>
-                        </div>
-                    </div>
-
-                    <button onclick="openKpiModal()" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center space-x-2 transition-all border border-slate-700">
-                        <i class="fa-solid fa-chart-pie"></i>
-                        <span>Lihat Detail Dashboard</span>
-                    </button>
-                </div>
-
-                <div class="px-4 py-2 bg-slate-100 border-b border-slate-200 flex justify-between items-center flex-shrink-0">
+                <!-- Label List Header Compact -->
+                <div class="px-3 py-1.5 bg-slate-100 border-b border-slate-200 flex justify-between items-center flex-shrink-0">
                     <span class="text-xs font-semibold text-slate-600 uppercase">Daftar Titik Bimtek (A-Z)</span>
-                    <span id="stat-showing-count" class="text-xs font-medium text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full">0 Titik</span>
+                    <span id="stat-showing-count" class="text-[11px] font-medium text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full">0 Titik</span>
                 </div>
 
+                <!-- Area List Item (Sekarang jauh lebih luas ke bawah) -->
                 <div id="event-list" class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-slate-100"></div>
             </div>
         </aside>
@@ -214,7 +214,7 @@
         </main>
     </div>
 
-    <!-- Modal Dashboard -->
+    <!-- Modal Dashboard Lengkap -->
     <div id="kpi-modal" class="hidden fixed inset-0 z-[2000] bg-slate-950/70 backdrop-blur-sm flex flex-col items-center justify-start p-3">
         <div class="w-full h-[20px] flex-shrink-0"></div>
         <div class="bg-white w-full max-w-5xl rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col flex-1 max-h-[calc(100vh-90px)] animate-in fade-in zoom-in duration-200">
@@ -350,7 +350,7 @@
         let yearBarChartInstance = null;
         let categoryPieChartInstance = null;
 
-        // PENGUNCIAN WINDOW SCROLL (Sangat Penting untuk Mode Split Screen)
+        // KUNCI VIEWPORT SCROLL WINDOW
         window.addEventListener('scroll', function() {
             if (window.scrollY !== 0 || window.scrollX !== 0) {
                 window.scrollTo(0, 0);
@@ -579,6 +579,7 @@
                 event.stopPropagation();
                 if (event.preventDefault) event.preventDefault();
             }
+            document.activeElement?.blur();
             map.closePopup();
             map.flyTo([lat, lng], 14, { duration: 0.8, easeLinearity: 0.25 });
         }
@@ -596,7 +597,7 @@
                 return dateStr ? String(dateStr).substring(0, 4) : null;
             }).filter(Boolean))].sort((a, b) => b - a);
 
-            yearSelect.innerHTML = '<option value="ALL">Semua Tahun</option>';
+            yearSelect.innerHTML = '<option value="ALL">Semua</option>';
             years.forEach(year => {
                 const opt = document.createElement('option');
                 opt.value = year;
@@ -719,6 +720,8 @@
                         e.originalEvent.stopPropagation();
                         if (e.originalEvent.preventDefault) e.originalEvent.preventDefault();
                     }
+                    document.activeElement?.blur();
+                    window.scrollTo(0, 0);
                 });
 
                 clusterGroup.addLayer(marker);
@@ -748,9 +751,11 @@
                         e.stopPropagation();
                         if (e.preventDefault) e.preventDefault();
                     }
+                    document.activeElement?.blur();
                     map.flyTo([lat, lng], 14, { duration: 0.8, easeLinearity: 0.25 });
                     setTimeout(() => {
                         marker.openPopup();
+                        window.scrollTo(0, 0);
                     }, 400);
                 };
 
