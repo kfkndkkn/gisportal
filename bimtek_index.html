@@ -29,7 +29,7 @@
             width: 100vw;
             margin: 0;
             padding: 0;
-            overflow: hidden;
+            overflow: hidden !important;
             font-family: 'Inter', sans-serif;
         }
 
@@ -37,9 +37,16 @@
             width: 100%; 
             height: 100%; 
             z-index: 1; 
+            outline: none !important;
+        }
+
+        /* PERBAIKAN UTAMA: Mencegah browser melakukan auto-scroll saat SVG/Marker difokuskan */
+        svg, path, .leaflet-container, .leaflet-marker-icon, .leaflet-interactive {
+            outline: none !important;
+            box-shadow: none !important;
+            -webkit-tap-highlight-color: transparent;
         }
         
-        /* Pin Marker Ramping tanpa logo nuklir */
         .custom-div-icon { background: none; border: none; }
         .slim-pin {
             width: 22px;
@@ -73,10 +80,9 @@
             border-radius: 50%;
             transform: rotate(45deg);
         }
-        .pin-bimtek .slim-pin-inner { background-color: #0284c7; } /* Biru */
-        .pin-diklat .slim-pin-inner { background-color: #10b981; } /* Hijau */
+        .pin-bimtek .slim-pin-inner { background-color: #0284c7; }
+        .pin-diklat .slim-pin-inner { background-color: #10b981; }
 
-        /* Custom MarkerCluster Styling */
         .marker-cluster-custom {
             background: rgba(15, 23, 42, 0.85) !important;
             border: 2px solid #f59e0b !important;
@@ -125,12 +131,10 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 flex flex-col h-full w-full overflow-hidden">
+<body class="bg-slate-100 flex flex-col h-screen w-screen overflow-hidden">
 
-    <!-- Main Container -->
     <div class="flex-1 flex relative overflow-hidden h-full w-full">
 
-        <!-- Left Panel / Sidebar -->
         <aside id="sidebar" class="absolute top-0 left-0 h-full w-96 sm:w-[420px] bg-white z-[1000] shadow-2xl flex flex-col border-r border-slate-200 sidebar-smooth transform -translate-x-full">
             <div class="w-full flex flex-col h-full">
                 <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
@@ -159,7 +163,6 @@
                     </div>
                 </div>
 
-                <!-- STATISTIK RINGKASAN & TOMBOL DETAIL -->
                 <div class="p-2.5 bg-slate-50 border-b border-slate-100 flex-shrink-0 space-y-2">
                     <div class="grid grid-cols-2 gap-2">
                         <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm text-center">
@@ -187,7 +190,6 @@
             </div>
         </aside>
 
-        <!-- Map Canvas Area -->
         <main class="w-full h-full relative bg-slate-900 overflow-hidden flex-1">
             <button id="show-sidebar-btn" onclick="toggleSidebar()" class="absolute top-4 left-4 z-[1000] bg-slate-900/90 text-white px-3.5 py-2.5 rounded-lg shadow-2xl hover:bg-slate-800 transition-all duration-300 flex items-center space-x-2 border border-slate-700 backdrop-blur-sm transform translate-x-0 opacity-100">
                 <i class="fa-solid fa-bars text-amber-500"></i>
@@ -198,12 +200,10 @@
         </main>
     </div>
 
-    <!-- MODAL POPUP DETAIL DASHBOARD STATISTIK -->
     <div id="kpi-modal" class="hidden fixed inset-0 z-[2000] bg-slate-950/70 backdrop-blur-sm flex flex-col items-center justify-start p-3">
         <div class="w-full h-[20px] flex-shrink-0"></div>
         <div class="bg-white w-full max-w-5xl rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col flex-1 max-h-[calc(100vh-90px)] animate-in fade-in zoom-in duration-200">
 
-            <!-- Modal Header Ramping -->
             <div class="bg-slate-900 text-white px-5 py-2.5 flex items-center justify-between border-b border-slate-800 flex-shrink-0">
                 <div class="flex items-center space-x-3">
                     <div class="p-1.5 bg-amber-500 text-slate-950 rounded-lg font-bold text-xs">
@@ -219,7 +219,6 @@
                 </button>
             </div>
 
-            <!-- Modal Content Area -->
             <div class="p-5 overflow-y-auto custom-scrollbar space-y-4 bg-slate-50 flex-1">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
@@ -317,7 +316,6 @@
                 </div>
             </div>
 
-            <!-- Modal Footer -->
             <div class="bg-white px-5 py-2.5 border-t border-slate-200 flex justify-end flex-shrink-0">
                 <button onclick="closeKpiModal()" class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition-colors">
                     Tutup
@@ -385,8 +383,13 @@
                 }
             });
 
-            // FIX UTAMA: Pembukaan popup cluster menggunakan autoPan: false dan flyTo halus
+            // Mencegah pergeseran viewport browser saat cluster diklik
             clusterGroup.on('clusterclick', function (a) {
+                if (a.originalEvent) {
+                    a.originalEvent.stopPropagation();
+                    if (a.originalEvent.preventDefault) a.originalEvent.preventDefault();
+                }
+
                 const childMarkers = a.layer.getAllChildMarkers();
                 let popupContent = `
                     <div class="bg-white">
@@ -399,7 +402,7 @@
                 childMarkers.forEach(m => {
                     const p = m.featureProperties;
                     popupContent += `
-                        <div class="p-2 hover:bg-slate-50 cursor-pointer text-xs" onclick="zoomToPoint(${m.getLatLng().lat}, ${m.getLatLng().lng})">
+                        <div class="p-2 hover:bg-slate-50 cursor-pointer text-xs" onclick="zoomToPoint(${m.getLatLng().lat}, ${m.getLatLng().lng}, event)">
                             <div class="font-bold text-slate-800">${p.instansi}</div>
                             <div class="text-[11px] text-slate-500 line-clamp-1">${p.alamat}</div>
                             <div class="text-[10px] text-amber-600 font-medium mt-0.5"><i class="fa-solid fa-users mr-1"></i>${p.jumlah_peserta || 0} Peserta</div>
@@ -480,11 +483,11 @@
                 renderData();
 
             } catch (err) {
-                console.warn("Backend FastAPI offline / GitHub Pages mode. Mengalihkan ke file bimtek_data.xml statis...");
+                console.warn("Backend FastAPI offline. Mengalihkan ke file bimtek_data.xml statis...");
                 
                 try {
                     const xmlResponse = await fetch('./bimtek_data.xml');
-                    if (!xmlResponse.ok) throw new Error("Gagal mengambil file bimtek_data.xml di repo");
+                    if (!xmlResponse.ok) throw new Error("Gagal mengambil file bimtek_data.xml");
                     
                     const xmlText = await xmlResponse.text();
                     const parser = new DOMParser();
@@ -541,7 +544,11 @@
             };
         }
 
-        function zoomToPoint(lat, lng) {
+        function zoomToPoint(lat, lng, event) {
+            if (event) {
+                event.stopPropagation();
+                if (event.preventDefault) event.preventDefault();
+            }
             map.closePopup();
             map.flyTo([lat, lng], 14, { duration: 0.8, easeLinearity: 0.25 });
         }
@@ -676,6 +683,14 @@
                 `;
 
                 marker.bindPopup(popupContent, { autoPan: false, offset: [0, -10] });
+                
+                marker.on('click', function(e) {
+                    if (e.originalEvent) {
+                        e.originalEvent.stopPropagation();
+                        if (e.originalEvent.preventDefault) e.originalEvent.preventDefault();
+                    }
+                });
+
                 clusterGroup.addLayer(marker);
 
                 const card = document.createElement('div');
@@ -698,7 +713,11 @@
                     </div>
                 `;
 
-                card.onclick = () => {
+                card.onclick = (e) => {
+                    if (e) {
+                        e.stopPropagation();
+                        if (e.preventDefault) e.preventDefault();
+                    }
                     map.flyTo([lat, lng], 14, { duration: 0.8, easeLinearity: 0.25 });
                     setTimeout(() => {
                         marker.openPopup();
