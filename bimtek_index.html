@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Peta Persebaran Bimtek Kesiapsiagaan Kenukliran</title>
     
     <!-- Tailwind CSS -->
@@ -24,13 +24,25 @@
 
     <style>
         * { box-sizing: border-box; }
+        
+        /* KUNCI UTAMA SPLIT SCREEN: Mengunci viewport 100dvh dan menonaktifkan window scroll */
         html, body {
-            height: 100vh;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
             width: 100vw;
             margin: 0;
             padding: 0;
             overflow: hidden !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             font-family: 'Inter', sans-serif;
+        }
+
+        html {
+            scroll-behavior: auto !important;
         }
 
         #map { 
@@ -40,13 +52,13 @@
             outline: none !important;
         }
 
-        /* PERBAIKAN UTAMA: Mencegah browser melakukan auto-scroll saat SVG/Marker difokuskan */
+        /* PERBAIKAN: Menonaktifkan fokus keyboard browser pada elemen SVG/Marker */
         svg, path, .leaflet-container, .leaflet-marker-icon, .leaflet-interactive {
             outline: none !important;
             box-shadow: none !important;
             -webkit-tap-highlight-color: transparent;
         }
-        
+
         .custom-div-icon { background: none; border: none; }
         .slim-pin {
             width: 22px;
@@ -131,10 +143,11 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 flex flex-col h-screen w-screen overflow-hidden">
+<body class="bg-slate-100 flex flex-col h-full w-full overflow-hidden">
 
     <div class="flex-1 flex relative overflow-hidden h-full w-full">
 
+        <!-- Sidebar Left -->
         <aside id="sidebar" class="absolute top-0 left-0 h-full w-96 sm:w-[420px] bg-white z-[1000] shadow-2xl flex flex-col border-r border-slate-200 sidebar-smooth transform -translate-x-full">
             <div class="w-full flex flex-col h-full">
                 <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
@@ -190,6 +203,7 @@
             </div>
         </aside>
 
+        <!-- Canvas Map -->
         <main class="w-full h-full relative bg-slate-900 overflow-hidden flex-1">
             <button id="show-sidebar-btn" onclick="toggleSidebar()" class="absolute top-4 left-4 z-[1000] bg-slate-900/90 text-white px-3.5 py-2.5 rounded-lg shadow-2xl hover:bg-slate-800 transition-all duration-300 flex items-center space-x-2 border border-slate-700 backdrop-blur-sm transform translate-x-0 opacity-100">
                 <i class="fa-solid fa-bars text-amber-500"></i>
@@ -200,6 +214,7 @@
         </main>
     </div>
 
+    <!-- Modal Dashboard -->
     <div id="kpi-modal" class="hidden fixed inset-0 z-[2000] bg-slate-950/70 backdrop-blur-sm flex flex-col items-center justify-start p-3">
         <div class="w-full h-[20px] flex-shrink-0"></div>
         <div class="bg-white w-full max-w-5xl rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col flex-1 max-h-[calc(100vh-90px)] animate-in fade-in zoom-in duration-200">
@@ -335,7 +350,20 @@
         let yearBarChartInstance = null;
         let categoryPieChartInstance = null;
 
+        // PENGUNCIAN WINDOW SCROLL (Sangat Penting untuk Mode Split Screen)
+        window.addEventListener('scroll', function() {
+            if (window.scrollY !== 0 || window.scrollX !== 0) {
+                window.scrollTo(0, 0);
+            }
+        });
+
+        window.addEventListener('resize', function() {
+            window.scrollTo(0, 0);
+            if (map) map.invalidateSize();
+        });
+
         window.onload = function() {
+            window.scrollTo(0, 0);
             initMap();
             fetchDataFromDatabase();
             setupEventListeners();
@@ -360,6 +388,9 @@
                 layers: [esriSatellite] 
             }).setView([-2.5489, 118.0149], 5);
 
+            const mapDiv = document.getElementById('map');
+            if (mapDiv) mapDiv.setAttribute('tabindex', '-1');
+
             L.control.zoom({ position: 'topright' }).addTo(map);
 
             const baseMaps = {
@@ -383,7 +414,6 @@
                 }
             });
 
-            // Mencegah pergeseran viewport browser saat cluster diklik
             clusterGroup.on('clusterclick', function (a) {
                 if (a.originalEvent) {
                     a.originalEvent.stopPropagation();
@@ -731,10 +761,6 @@
         function setupEventListeners() {
             document.getElementById('search-input').addEventListener('input', renderData);
             document.getElementById('year-filter').addEventListener('change', renderData);
-            
-            window.addEventListener('resize', () => {
-                if (map) map.invalidateSize();
-            });
         }
 
         function toggleSidebar() {
