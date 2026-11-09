@@ -21,7 +21,7 @@
     <style>
         * { box-sizing: border-box; }
         
-        /* KUNCI VIEWPORT SPLIT SCREEN */
+        /* Kunci Viewport Layar Penuh */
         html, body {
             height: 100dvh !important;
             max-height: 100dvh !important;
@@ -43,7 +43,7 @@
             outline: none !important;
         }
 
-        /* PERBAIKAN MEMATIKAN FOCUS BROWSER PADA SVG/POLIGON */
+        /* Mematikan Kotak Seleksi Focus Bawaan Browser */
         svg, path, .leaflet-container, .leaflet-interactive {
             outline: none !important;
             box-shadow: none !important;
@@ -89,7 +89,7 @@
 
     <div class="flex-1 flex relative overflow-hidden h-full w-full">
 
-        <!-- Sidebar Left (Layout Diperketat Kompak) -->
+        <!-- Sidebar Left -->
         <aside id="sidebar" class="absolute top-0 left-0 h-full w-96 sm:w-[420px] bg-white z-[1000] shadow-2xl flex flex-col border-r border-slate-200 sidebar-smooth transform -translate-x-full">
             <div class="w-full flex flex-col h-full">
                 
@@ -102,7 +102,7 @@
                     </button>
                 </div>
 
-                <!-- Input + Select Tahun Kompak dalam 1 Baris Grid -->
+                <!-- Input + Select Tahun -->
                 <div class="p-2.5 bg-white border-b border-slate-100 flex-shrink-0 space-y-2">
                     <div class="grid grid-cols-3 gap-2">
                         <div class="col-span-2">
@@ -120,7 +120,7 @@
                         </div>
                     </div>
 
-                    <!-- Statistik Kompak Sejajar Tombol Dashboard -->
+                    <!-- Statistik Kompak -->
                     <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-100">
                         <div class="flex items-center gap-3">
                             <div class="bg-slate-50 px-2 py-1 rounded border border-slate-200 text-center">
@@ -140,13 +140,11 @@
                     </div>
                 </div>
 
-                <!-- Label List Header Compact -->
                 <div class="px-3 py-1.5 bg-slate-100 border-b border-slate-200 flex justify-between items-center flex-shrink-0">
                     <span class="text-xs font-semibold text-slate-600 uppercase">Daftar Wilayah Latihan</span>
                     <span id="stat-showing-count" class="text-[11px] font-medium text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full">0 Wilayah</span>
                 </div>
 
-                <!-- Area List Item (Sekarang jauh lebih luas ke bawah) -->
                 <div id="event-list" class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-slate-100"></div>
             </div>
         </aside>
@@ -279,6 +277,7 @@
             'surabaya': 'Kota Surabaya'
         };
 
+        // Titik koordinat pusat presisi untuk masing-masing kota latihan [lat, lng]
         const KOORDINAT_KOTA_MAP = {
             'serpong': [-6.295, 106.705],
             'jakarta': [-6.208, 106.845],
@@ -288,7 +287,7 @@
             'surabaya': [-7.257, 112.752]
         };
 
-        // KUNCI VIEWPORT SCROLL WINDOW MUTLAK (SPLIT SCREEN FIX)
+        // Kunci viewport window mutlak
         window.addEventListener('scroll', function() {
             if (window.scrollY !== 0 || window.scrollX !== 0) {
                 window.scrollTo(0, 0);
@@ -489,6 +488,7 @@
                     const kegiatanAsli = parseKegiatanList(p);
                     const namaWilayah = resolveRegionName(p);
 
+                    // 1. DAERAH DENGAN LATIHAN
                     if (count > 0) {
                         layer.on({
                             mouseover: function(e) {
@@ -498,6 +498,7 @@
                                     color: '#f59e0b', 
                                     fillOpacity: 0.95 
                                 });
+                                l.bringToFront();
                             },
                             mouseout: function(e) {
                                 mainPolygonLayer.resetStyle(e.target);
@@ -508,7 +509,6 @@
                                     if (e.originalEvent.preventDefault) e.originalEvent.preventDefault();
                                 }
                                 
-                                // Lepas fokus keyboard agar browser tidak auto-scroll ke elemen SVG
                                 document.activeElement?.blur();
                                 window.scrollTo(0, 0);
 
@@ -520,7 +520,7 @@
                                 }
 
                                 if (targetLatLng) {
-                                    map.flyTo(targetLatLng, 10, {
+                                    map.flyTo(targetLatLng, 11, {
                                         duration: 0.8,
                                         easeLinearity: 0.25
                                     });
@@ -560,9 +560,8 @@
 
                             let itemsHtml = matchingKegiatan.map(k => `
                                 <div class="p-2 bg-slate-50 rounded border border-slate-200 space-y-1">
-                                    <div class="flex justify-between items-center text-[10px]">
+                                    <div class="text-[10px]">
                                         <span class="font-bold text-amber-600"><i class="fa-solid fa-calendar-day mr-1"></i>${k.waktu}</span>
-                                        <span class="text-slate-400">#${k.no || '-'}</span>
                                     </div>
                                     <div class="font-semibold text-slate-800 text-[11px] leading-snug">${k.lingkup}</div>
                                     <div class="text-[10px] text-slate-500"><i class="fa-solid fa-building-shield mr-1"></i>${k.instansi}</div>
@@ -584,9 +583,15 @@
                                 </div>
                             `;
 
-                            layer.bindPopup(popupHtml, { autoPan: false, offset: [0, -10] });
+                            layer.bindPopup(popupHtml, { 
+                                autoPan: false, 
+                                offset: [0, -10],
+                                closeButton: true 
+                            });
                         }
-                    } else {
+                    } 
+                    // 2. DAERAH TANPA LATIHAN (POLOS TOTAL: TANPA TOOLTIP, TANPA POPUP, TANPA KLIK)
+                    else {
                         layer.unbindPopup();
                         layer.unbindTooltip();
                         layer.off();
@@ -630,14 +635,15 @@
                         </div>
                     `;
 
+                    // KLIK CARD SIDEBAR: TERBANG TEPAT KE KOTA & KUNCI KOORDINAT
                     card.onclick = (e) => {
                         if (e) {
                             e.stopPropagation();
                             if (e.preventDefault) e.preventDefault();
                         }
 
-                        // Lepas fokus keyboard aktif
                         document.activeElement?.blur();
+                        window.scrollTo(0, 0);
 
                         if (item.layer) {
                             const p = item.layer.feature ? item.layer.feature.properties : {};
@@ -649,16 +655,21 @@
                             }
 
                             if (targetLatLng) {
-                                map.flyTo(targetLatLng, 10, {
+                                map.flyTo(targetLatLng, 11, {
                                     duration: 0.8,
                                     easeLinearity: 0.25
                                 });
                             }
 
+                            // Buka popup di posisi koordinat target tanpa autoPan
                             setTimeout(() => {
-                                item.layer.openPopup(targetLatLng);
-                                window.scrollTo(0, 0); // Kunci posisi scroll window ke top 0
-                            }, 400);
+                                if (targetLatLng) {
+                                    item.layer.openPopup(targetLatLng);
+                                } else {
+                                    item.layer.openPopup();
+                                }
+                                window.scrollTo(0, 0);
+                            }, 450);
                         }
                     };
 
