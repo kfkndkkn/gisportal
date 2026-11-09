@@ -619,12 +619,9 @@
                     const card = document.createElement('div');
                     card.className = 'p-3 hover:bg-slate-50 cursor-pointer transition-colors border-l-4 border-amber-500';
                     card.innerHTML = `
-                        <div class="flex justify-between items-center mb-1">
+                        <div class="flex items-center mb-1">
                             <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200">
                                 ${item.kegiatan.length} Skenario
-                            </span>
-                            <span class="text-[10px] text-slate-400">
-                                <i class="fa-solid fa-shield"></i> Terverifikasi
                             </span>
                         </div>
                         <h3 class="font-bold text-xs text-slate-800 line-clamp-1 hover:text-amber-600 transition-colors uppercase">${item.namaWilayah}</h3>
