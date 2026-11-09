@@ -356,6 +356,7 @@
             };
             northArrowControl.addTo(map);
 
+            // Legenda Frekuensi Latihan
             const legendControl = L.control({ position: 'bottomright' });
             legendControl.onAdd = function() {
                 const div = L.DomUtil.create('div', 'bg-slate-900/90 text-white p-2.5 rounded-lg border border-slate-700 shadow-xl text-[11px] backdrop-blur-sm space-y-1.5');
@@ -363,19 +364,19 @@
                     <div class="font-bold text-slate-300 border-b border-slate-700 pb-1 mb-1">Frekuensi Latihan Kesiapsiagaan</div>
                     <div class="flex items-center gap-2">
                         <span class="w-3 h-3 rounded bg-[#7f1d1d] inline-block border border-white/30"></span>
-                        <span>Sangat Tinggi (≥ 6 Kali)</span>
+                        <span>Sangat Tinggi (> 6 Kali)</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="w-3 h-3 rounded bg-[#b91c1c] inline-block border border-white/30"></span>
-                        <span>Tinggi (4 - 5 Kali)</span>
+                        <span>Tinggi (5 - 6 Kali)</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="w-3 h-3 rounded bg-[#ea580c] inline-block border border-white/30"></span>
-                        <span>Sedang (2 - 3 Kali)</span>
+                        <span>Sedang (3 - 4 Kali)</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="w-3 h-3 rounded bg-[#f59e0b] inline-block border border-white/30"></span>
-                        <span>Rendah (1 Kali)</span>
+                        <span>Rendah (1 - 2 Kali)</span>
                     </div>
                     <div class="flex items-center gap-2 pt-1 border-t border-slate-800">
                         <span class="w-3 h-3 rounded bg-white/40 inline-block border border-white/60"></span>
@@ -391,8 +392,8 @@
 
         function getColorByCount(count) {
             if (count >= 6) return '#7f1d1d';
-            if (count >= 4) return '#b91c1c';
-            if (count >= 2) return '#ea580c';
+            if (count >= 5) return '#b91c1c';
+            if (count >= 3) return '#ea580c';
             if (count >= 1) return '#f59e0b';
             return '#ffffff';
         }
