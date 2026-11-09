@@ -277,7 +277,6 @@
             'surabaya': 'Kota Surabaya'
         };
 
-        // Titik koordinat pusat presisi untuk masing-masing kota latihan [lat, lng]
         const KOORDINAT_KOTA_MAP = {
             'serpong': [-6.295, 106.705],
             'jakarta': [-6.208, 106.845],
@@ -287,7 +286,6 @@
             'surabaya': [-7.257, 112.752]
         };
 
-        // Kunci viewport window mutlak
         window.addEventListener('scroll', function() {
             if (window.scrollY !== 0 || window.scrollX !== 0) {
                 window.scrollTo(0, 0);
@@ -356,7 +354,7 @@
             };
             northArrowControl.addTo(map);
 
-            // Legenda Frekuensi Latihan
+            // Legenda Frekuensi Latihan (Rentang Baru 1-2, 3-4, 5-6, >6)
             const legendControl = L.control({ position: 'bottomright' });
             legendControl.onAdd = function() {
                 const div = L.DomUtil.create('div', 'bg-slate-900/90 text-white p-2.5 rounded-lg border border-slate-700 shadow-xl text-[11px] backdrop-blur-sm space-y-1.5');
@@ -390,6 +388,7 @@
             setTimeout(() => { if (map) map.invalidateSize(); }, 300);
         }
 
+        // Skema Warna Koroplet Baru: 1-2 (Rendah), 3-4 (Sedang), 5-6 (Tinggi), >6 (Sangat Tinggi)
         function getColorByCount(count) {
             if (count > 6) return '#7f1d1d';
             if (count >= 5) return '#b91c1c';
@@ -591,7 +590,7 @@
                             });
                         }
                     } 
-                    // 2. DAERAH TANPA LATIHAN (POLOS TOTAL: TANPA TOOLTIP, TANPA POPUP, TANPA KLIK)
+                    // 2. DAERAH TANPA LATIHAN
                     else {
                         layer.unbindPopup();
                         layer.unbindTooltip();
@@ -636,7 +635,6 @@
                         </div>
                     `;
 
-                    // KLIK CARD SIDEBAR: TERBANG TEPAT KE KOTA & KUNCI KOORDINAT
                     card.onclick = (e) => {
                         if (e) {
                             e.stopPropagation();
@@ -662,7 +660,6 @@
                                 });
                             }
 
-                            // Buka popup di posisi koordinat target tanpa autoPan
                             setTimeout(() => {
                                 if (targetLatLng) {
                                     item.layer.openPopup(targetLatLng);
