@@ -97,13 +97,11 @@
                 
                     <a href="#" class="px-3 py-2 rounded-lg text-slate-700 hover:text-brand-800 hover:bg-slate-100 transition">Panduan</a>
                     
-                    <!-- 1. TOMBOL PETA INTERAKTIF (Sekarang Posisi Kiri) -->
                     <button onclick="openMapRoom('bimtek')" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs flex items-center space-x-2 shadow-md transition ml-1">
                         <i class="fa-solid fa-map-location-dot text-amber-400"></i>
                         <span>Peta Interaktif</span>
                     </button>
                 
-                    <!-- 2. TOMBOL LOGIN (Sekarang Posisi Paling Kanan & Teks 'Login') -->
                     <button id="btn-login-admin" onclick="openLoginModal()" class="px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-800 text-white font-semibold text-xs flex items-center space-x-2 shadow-sm transition ml-1">
                         <i class="fa-solid fa-user-lock text-amber-300"></i>
                         <span id="label-login-btn">Login</span>
@@ -162,11 +160,11 @@
                     </div>
                     <div>
                         <p class="text-xs text-slate-400">Kegiatan Bimtek</p>
-                        <p class="text-xl font-bold text-amber-400">18 Provinsi</p>
+                        <p id="hero-stat-bimtek" class="text-xl font-bold text-amber-400">18 Lokasi</p>
                     </div>
                     <div>
-                        <p class="text-xs text-slate-400">Gelombang Uji Coba</p>
-                        <p class="text-xl font-bold text-cyan-400">12 Sektor</p>
+                        <p class="text-xs text-slate-400">Latihan Uji Coba</p>
+                        <p id="hero-stat-pelatihan" class="text-xl font-bold text-cyan-400">6 Wilayah</p>
                     </div>
                     <div>
                         <p class="text-xs text-slate-400">Status Response</p>
@@ -227,7 +225,7 @@
                     <div class="absolute inset-0 gradient-overlay"></div>
                     <div class="absolute top-3 left-3 flex gap-2">
                         <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-blue-600 text-white shadow-sm">Kesiapsiagaan</span>
-                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/90 text-white backdrop-blur-sm">18 Lokasi</span>
+                        <span id="badge-bimtek" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/90 text-white backdrop-blur-sm">18 Lokasi</span>
                     </div>
                     <div class="absolute bottom-3 left-4 right-4">
                         <h4 class="text-white font-bold text-lg leading-tight drop-shadow-md group-hover:text-amber-300 transition-colors">
@@ -258,7 +256,7 @@
                     <div class="absolute inset-0 gradient-overlay"></div>
                     <div class="absolute top-3 left-3 flex gap-2">
                         <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-purple-600 text-white shadow-sm">Simulasi Penanggulangan</span>
-                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500/90 text-white backdrop-blur-sm">12 Sektor</span>
+                        <span id="badge-pelatihan" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500/90 text-white backdrop-blur-sm">6 Wilayah</span>
                     </div>
                     <div class="absolute bottom-3 left-4 right-4">
                         <h4 class="text-white font-bold text-lg leading-tight drop-shadow-md group-hover:text-amber-300 transition-colors">
@@ -416,7 +414,7 @@
         </div>
     </div>
 
-    <!-- MODAL LOGIN ADMIN (TIDAK PAKAI POPUP ALERT BROWSER) -->
+    <!-- MODAL LOGIN ADMIN -->
     <div id="login-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-md w-full overflow-hidden transition-all transform scale-100">
             <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
@@ -430,7 +428,6 @@
             </div>
             
             <div class="p-6">
-                <!-- Inline Message Alert Box -->
                 <div id="modal-alert" class="hidden mb-4 p-3 rounded-xl text-xs font-medium"></div>
 
                 <div class="space-y-4">
@@ -494,7 +491,7 @@
                 </div>
             </div>
             <div class="pt-4 border-t border-slate-800 text-center text-slate-500 text-[10px]">
-                &copy; 2026 WebGIS Ketenaganukliran Indonesia. Hak Cipta Dilindungi Undang-Undang.
+                © 2026 WebGIS Ketenaganukliran Indonesia. Hak Cipta Dilindungi Undang-Undang.
             </div>
         </div>
     </footer>
@@ -536,7 +533,80 @@
 
         var currentRoomKey = 'bimtek';
 
-        // 2. LOGIC SUPABASE AUTHENTICATION
+        // 2. LOGIC UPDATE OTOMATIS STATISTIK BADGE DARI FILE DATA PETA
+        function loadDynamicBadges() {
+            // A. Update Badge & Hero Stat Peta Pelatihan Uji Coba (dari koroplet_latihan_nuklir.geojson)
+            fetch('./koroplet_latihan_nuklir.geojson?v=' + Date.now())
+                .then(res => {
+                    if (!res.ok) throw new Error('GeoJSON pelatihan tidak ditemukan');
+                    return res.json();
+                })
+                .then(data => {
+                    const features = data.features || [];
+                    const wilayahAktif = features.filter(f => (f.properties.jumlah_latihan || 0) > 0);
+                    const totalSkenario = wilayahAktif.reduce((sum, f) => sum + (f.properties.jumlah_latihan || 0), 0);
+
+                    const badgePelatihan = document.getElementById('badge-pelatihan');
+                    const heroPelatihan = document.getElementById('hero-stat-pelatihan');
+
+                    if (badgePelatihan) {
+                        badgePelatihan.innerText = `${wilayahAktif.length} Wilayah • ${totalSkenario} Latihan`;
+                    }
+                    if (heroPelatihan) {
+                        heroPelatihan.innerText = `${wilayahAktif.length} Wilayah`;
+                    }
+                })
+                .catch(err => console.warn('Info badge pelatihan:', err.message));
+
+            // B. Update Badge & Hero Stat Peta Bimtek (mendeteksi sumber XML dari bimtek_index.html)
+            fetch('./bimtek_index.html?v=' + Date.now())
+                .then(res => {
+                    if (!res.ok) throw new Error('bimtek_index.html tidak ditemukan');
+                    return res.text();
+                })
+                .then(htmlText => {
+                    // Cari nama file .xml yang dipanggil di dalam bimtek_index.html
+                    const xmlMatch = htmlText.match(/['"]([^'"]+\.xml)['"]/i);
+                    if (!xmlMatch) return null;
+                    const xmlFile = xmlMatch[1];
+                    return fetch('./' + xmlFile.replace(/^\.\//, '') + '?v=' + Date.now());
+                })
+                .then(res => {
+                    if (!res || !res.ok) return null;
+                    return res.text();
+                })
+                .then(xmlText => {
+                    if (!xmlText) return;
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+
+                    // Deteksi otomatis tag pembungkus record di dalam XML (marker, item, row, lokasi, point, dll.)
+                    const candidateTags = ['marker', 'lokasi', 'item', 'row', 'point', 'data', 'placemark'];
+                    let totalLokasi = 0;
+                    for (const tag of candidateTags) {
+                        const nodes = xmlDoc.getElementsByTagName(tag);
+                        if (nodes && nodes.length > 0) {
+                            totalLokasi = nodes.length;
+                            break;
+                        }
+                    }
+
+                    // Fallback jika struktur XML memakai root element langsung
+                    if (totalLokasi === 0 && xmlDoc.documentElement && xmlDoc.documentElement.children) {
+                        totalLokasi = xmlDoc.documentElement.children.length;
+                    }
+
+                    if (totalLokasi > 0) {
+                        const badgeBimtek = document.getElementById('badge-bimtek');
+                        const heroBimtek = document.getElementById('hero-stat-bimtek');
+                        if (badgeBimtek) badgeBimtek.innerText = `${totalLokasi} Lokasi`;
+                        if (heroBimtek) heroBimtek.innerText = `${totalLokasi} Lokasi`;
+                    }
+                })
+                .catch(err => console.warn('Info badge bimtek:', err.message));
+        }
+
+        // 3. LOGIC SUPABASE AUTHENTICATION
         async function checkSession() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             updateAuthUI(session);
@@ -551,19 +621,14 @@
                 labelBtn.innerText = "Logout (" + session.user.email.split('@')[0] + ")";
                 if (mobileBtn) mobileBtn.innerText = "Logout (" + session.user.email.split('@')[0] + ")";
                 btnLogin.onclick = logoutAdmin;
-                
-                // Warna saat user sudah Login (Hijau Emerald)
                 btnLogin.className = "px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center space-x-2 shadow-sm transition ml-1";
             } else {
                 labelBtn.innerText = "Login";
                 if (mobileBtn) mobileBtn.innerText = "Login";
                 btnLogin.onclick = openLoginModal;
-                
-                // Warna saat user Belum Login (Biru WebGIS Brand)
                 btnLogin.className = "px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-800 text-white font-semibold text-xs flex items-center space-x-2 shadow-sm transition ml-1";
             }
         
-            // Kirim notifikasi status login terbaru ke iframe peta yang aktif
             notifyIframeAuthChange(!!session);
         }
 
@@ -629,7 +694,7 @@
             updateAuthUI(null);
         }
 
-        // 3. DASHBOARD NAVIGASI
+        // 4. DASHBOARD NAVIGASI
         function showDashboard() {
             const dashboard = document.getElementById('dashboard-view');
             const mapRoomView = document.getElementById('map-room-view');
@@ -724,6 +789,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             checkSession();
+            loadDynamicBadges();
             const hash = window.location.hash.replace('#', '');
             if (hash && mapDataRooms[hash]) {
                 openMapRoom(hash);
