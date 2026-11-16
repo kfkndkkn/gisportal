@@ -183,7 +183,7 @@
 
                         <div class="flex items-center gap-1.5">
                             <!-- Filter Titik Bimtek / Diklat di sebelah kiri tombol Dashboard -->
-                            <select id="type-filter" title="Filter Jenis Titik" class="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
+                            <select id="type-filter" title="Filter Jenis Kegiatan" class="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
                                 <option value="ALL">Semua Jenis</option>
                                 <option value="BIMTEK">Bimtek</option>
                                 <option value="DIKLAT">Diklat</option>
@@ -198,7 +198,7 @@
                 </div>
 
                 <div class="px-3 py-1.5 bg-slate-100 border-b border-slate-200 flex justify-between items-center flex-shrink-0">
-                    <span class="text-xs font-semibold text-slate-600 uppercase">Daftar Titik Bimtek (A-Z)</span>
+                    <span id="sidebar-list-title" class="text-xs font-semibold text-slate-600 uppercase">Daftar Kegiatan (A-Z)</span>
                     <span id="stat-showing-count" class="text-[11px] font-medium text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full">0 Titik</span>
                 </div>
 
@@ -451,7 +451,7 @@
                     .openOn(map);
             });
 
-            // Layer Default saat peta dibuka
+            // Layer Default saat peta dibuka: Koroplet Bimtek (Provinsi) & Titik Lokasi Kegiatan
             bimtekProvinsiLayer.addTo(map);
             clusterGroup.addTo(map);
 
@@ -463,18 +463,19 @@
             };
 
             const overlayMaps = {
-                "Koroplet Bimtek (Provinsi)": bimtekProvinsiLayer,
-                "Koroplet Diklat (Kab/Kota)": diklatKabKotaLayer,
-                "Titik Lokasi (.xml)": clusterGroup
+                "Kegiatan Bimtek (Provinsi)": bimtekProvinsiLayer,
+                "Kegiatan Diklat (Kab/Kota)": diklatKabKotaLayer,
+                "Titik Lokasi Kegiatan": clusterGroup
             };
 
             L.control.layers(baseMaps, overlayMaps, { position: 'topright' }).addTo(map);
 
-            // Update legenda otomatis setiap kali layer dinyalakan atau dimatikan
+            // Sinkronisasi Sidebar & Legenda saat layer dinyalakan/dimatikan
             map.on('overlayadd overlayremove', function() {
                 if (map.hasLayer(clusterGroup)) {
                     clusterGroup.bringToFront();
                 }
+                syncFilterWithActiveLayers();
                 updateDynamicLegend();
             });
 
@@ -502,7 +503,29 @@
             };
             legendControl.addTo(map);
 
+            // Set kondisi awal filter sidebar sesuai layer default yang menyala
+            syncFilterWithActiveLayers();
+
             setTimeout(() => { if (map) map.invalidateSize(); }, 300);
+        }
+
+        // Sinkronisasi otomatis daftar sidebar dengan layer yang aktif di peta
+        function syncFilterWithActiveLayers() {
+            if (!map) return;
+            const hasBimtek = map.hasLayer(bimtekProvinsiLayer);
+            const hasDiklat = map.hasLayer(diklatKabKotaLayer);
+            const typeSelect = document.getElementById('type-filter');
+            if (!typeSelect) return;
+
+            if (hasBimtek && !hasDiklat) {
+                typeSelect.value = 'BIMTEK';
+            } else if (hasDiklat && !hasBimtek) {
+                typeSelect.value = 'DIKLAT';
+            } else {
+                typeSelect.value = 'ALL';
+            }
+
+            renderData();
         }
 
         // Legenda Dinamis sesuai Layer Aktif
@@ -824,6 +847,18 @@
             const searchValue = document.getElementById('search-input').value.toLowerCase();
             const yearFilter = document.getElementById('year-filter').value;
             const typeFilter = document.getElementById('type-filter').value;
+
+            // Perbarui judul header daftar di sidebar sesuai jenis yang aktif
+            const listTitleEl = document.getElementById('sidebar-list-title');
+            if (listTitleEl) {
+                if (typeFilter === 'BIMTEK') {
+                    listTitleEl.innerText = 'Daftar Kegiatan Bimtek (A-Z)';
+                } else if (typeFilter === 'DIKLAT') {
+                    listTitleEl.innerText = 'Daftar Kegiatan Diklat (A-Z)';
+                } else {
+                    listTitleEl.innerText = 'Daftar Kegiatan Bimtek & Diklat (A-Z)';
+                }
+            }
 
             const filteredFeatures = rawGeoJSONData.features.filter(feature => {
                 const p = feature.properties;
