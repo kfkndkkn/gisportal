@@ -54,7 +54,7 @@
             padding: 0; border-radius: 12px; overflow: hidden;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
         }
-        .leaflet-popup-content { margin: 0; line-height: 1.5; width: 330px !important; }
+        .leaflet-popup-content { margin: 0; line-height: 1.5; width: 340px !important; }
         .leaflet-container a.leaflet-popup-close-button {
             top: 8px; right: 8px; color: #ffffff;
             background: rgba(0,0,0,0.4); border-radius: 50%;
@@ -454,6 +454,50 @@
             return p.nama_wilayah || 'Wilayah Latihan';
         }
 
+        // Cek apakah pelatihan terakhir di wilayah tersebut sudah melewati batas waktu (>1 thn Reaktor / >5 thn Nasional)
+        function cekStatusPelatihan(kunciWilayah, namaWilayah, daftarKegiatan) {
+            if (!daftarKegiatan || daftarKegiatan.length === 0) return null;
+
+            const sekarang = new Date();
+            let tanggalTerakhir = null;
+
+            // Wilayah fasilitas reaktor (Serpong, Bandung, Yogyakarta) atau deskripsi kegiatan dari GeoJSON menyebut reaktor
+            const wilayahReaktor = ['serpong', 'bandung', 'yogyakarta'];
+            let isReaktor = wilayahReaktor.includes(String(kunciWilayah || '').toLowerCase());
+
+            daftarKegiatan.forEach(k => {
+                const lingkupLower = String(k.lingkup || '').toLowerCase();
+                if (lingkupLower.includes('reaktor') || lingkupLower.includes('rsg') || lingkupLower.includes('triga') || lingkupLower.includes('kartini')) {
+                    isReaktor = true;
+                }
+
+                if (k.waktu && k.waktu !== '-') {
+                    const parsedDate = new Date(k.waktu);
+                    if (!isNaN(parsedDate.getTime())) {
+                        if (!tanggalTerakhir || parsedDate > tanggalTerakhir) {
+                            tanggalTerakhir = parsedDate;
+                        }
+                    }
+                }
+            });
+
+            if (!tanggalTerakhir) return null;
+
+            const selisihMs = sekarang - tanggalTerakhir;
+            const selisihTahun = selisihMs / (1000 * 60 * 60 * 24 * 365.25);
+            const batasTahun = isReaktor ? 1 : 5;
+            const kategoriLabel = isReaktor ? 'Pelatihan Reaktor' : 'Pelatihan Nasional';
+            const tglFormat = tanggalTerakhir.toISOString().split('T')[0];
+
+            return {
+                wajibUlang: selisihTahun > batasTahun,
+                kategori: kategoriLabel,
+                batas: batasTahun,
+                selisih: selisihTahun.toFixed(1),
+                terakhir: tglFormat
+            };
+        }
+
         function renderData() {
             geojsonLayerGroup.clearLayers();
             layerMapById = {};
@@ -547,6 +591,9 @@
                             totalFilteredEvents += matchingKegiatan.length;
                             activeCitiesCount++;
 
+                            // Hitung status keterlambatan berdasarkan seluruh riwayat kegiatan di GeoJSON wilayah ini
+                            const statusAlert = cekStatusPelatihan(p.kunci_wilayah, namaWilayah, kegiatanAsli);
+
                             const uniqueId = `loc-${activeCitiesCount}`;
                             layerMapById[uniqueId] = layer;
 
@@ -555,8 +602,22 @@
                                 namaWilayah: namaWilayah,
                                 count: count,
                                 kegiatan: matchingKegiatan,
-                                layer: layer
+                                layer: layer,
+                                statusAlert: statusAlert
                             });
+
+                            let alertBannerHtml = '';
+                            if (statusAlert && statusAlert.wajibUlang) {
+                                alertBannerHtml = `
+                                    <div class="bg-red-50 border-b border-red-200 p-2.5 flex items-start gap-2.5">
+                                        <i class="fa-solid fa-triangle-exclamation text-red-600 text-sm mt-0.5 animate-pulse"></i>
+                                        <div class="text-[11px] leading-snug text-red-900">
+                                            <div class="font-bold text-red-700 uppercase">Peringatan Jadwal Latihan</div>
+                                            <span>Pelatihan terakhir pada <b>${statusAlert.terakhir}</b> (${statusAlert.selisih} tahun lalu), melebihi batas <b>${statusAlert.batas} tahun</b> (${statusAlert.kategori}). Segera laksanakan pelatihan uji coba kembali di <b>${namaWilayah}</b>.</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }
 
                             let itemsHtml = matchingKegiatan.map(k => `
                                 <div class="p-2 bg-slate-50 rounded border border-slate-200 space-y-1">
@@ -577,6 +638,7 @@
                                         <h4 class="font-bold text-xs text-amber-400 leading-snug uppercase">${namaWilayah}</h4>
                                         <div class="text-[11px] text-slate-300 mt-1">Total: <b>${count} Kegiatan Latihan</b></div>
                                     </div>
+                                    ${alertBannerHtml}
                                     <div class="p-3 max-h-60 overflow-y-auto custom-scrollbar space-y-2">
                                         ${itemsHtml}
                                     </div>
@@ -616,13 +678,19 @@
                 sidebarItems.sort((a, b) => b.kegiatan.length - a.kegiatan.length);
 
                 sidebarItems.forEach(item => {
+                    const isOverdue = item.statusAlert && item.statusAlert.wajibUlang;
+                    const badgePeringatan = isOverdue 
+                        ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-700 border border-red-200 flex items-center gap-1"><i class="fa-solid fa-bell"></i> Perlu Latihan Ulang</span>` 
+                        : '';
+
                     const card = document.createElement('div');
-                    card.className = 'p-3 hover:bg-slate-50 cursor-pointer transition-colors border-l-4 border-amber-500';
+                    card.className = `p-3 hover:bg-slate-50 cursor-pointer transition-colors border-l-4 ${isOverdue ? 'border-red-500' : 'border-amber-500'}`;
                     card.innerHTML = `
-                        <div class="flex items-center mb-1">
+                        <div class="flex justify-between items-center mb-1">
                             <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200">
                                 ${item.kegiatan.length} Skenario
                             </span>
+                            ${badgePeringatan}
                         </div>
                         <h3 class="font-bold text-xs text-slate-800 line-clamp-1 hover:text-amber-600 transition-colors uppercase">${item.namaWilayah}</h3>
                         <p class="text-[11px] text-slate-500 font-medium line-clamp-2 mt-0.5">${item.kegiatan[0].lingkup}</p>
