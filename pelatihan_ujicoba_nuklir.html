@@ -388,13 +388,13 @@
             setTimeout(() => { if (map) map.invalidateSize(); }, 300);
         }
 
-        // Skema Warna Koroplet Baru: 1-2 (Rendah), 3-4 (Sedang), 5-6 (Tinggi), >6 (Sangat Tinggi)
+        // Skema Warna Koroplet Baru (GnBu): 1-2 (Rendah), 3-4 (Sedang), 5-6 (Tinggi), >6 (Sangat Tinggi)
         function getColorByCount(count) {
-            if (count > 6) return '#7f1d1d';
-            if (count >= 5) return '#b91c1c';
-            if (count >= 3) return '#ea580c';
-            if (count >= 1) return '#f59e0b';
-            return '#ffffff';
+            if (count > 6) return '#0868AC';  // Sangat Tinggi
+            if (count >= 5) return '#43A2CA'; // Tinggi
+            if (count >= 3) return '#7BCCC4'; // Sedang
+            if (count >= 1) return '#BAE4BC'; // Rendah
+            return '#F0F9E8';                 // Belum Ada Latihan
         }
 
         function fetchDataFromGeoJSON() {
