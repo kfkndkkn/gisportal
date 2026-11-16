@@ -454,6 +454,12 @@
             return p.nama_wilayah || 'Wilayah Latihan';
         }
 
+        // Helper untuk memastikan seluruh tampilan tanggal hanya mengambil 4 digit tahun
+        function formatTahunSaja(waktuStr) {
+            const match = String(waktuStr || '').match(/(20\d\d|19\d\d)/);
+            return match ? match[1] : (waktuStr || '-');
+        }
+
         // Cek apakah pelatihan terakhir di wilayah tersebut sudah melewati batas waktu (>1 thn Reaktor / >5 thn Nasional)
         function cekStatusPelatihan(kunciWilayah, namaWilayah, daftarKegiatan) {
             if (!daftarKegiatan || daftarKegiatan.length === 0) return null;
@@ -461,7 +467,6 @@
             const sekarang = new Date();
             let tanggalTerakhir = null;
 
-            // Wilayah fasilitas reaktor (Serpong, Bandung, Yogyakarta) atau deskripsi kegiatan dari GeoJSON menyebut reaktor
             const wilayahReaktor = ['serpong', 'bandung', 'yogyakarta'];
             let isReaktor = wilayahReaktor.includes(String(kunciWilayah || '').toLowerCase());
 
@@ -487,14 +492,14 @@
             const selisihTahun = selisihMs / (1000 * 60 * 60 * 24 * 365.25);
             const batasTahun = isReaktor ? 1 : 5;
             const kategoriLabel = isReaktor ? 'Pelatihan Reaktor' : 'Pelatihan Nasional';
-            const tglFormat = tanggalTerakhir.toISOString().split('T')[0];
+            const tahunTerakhir = String(tanggalTerakhir.getFullYear());
 
             return {
                 wajibUlang: selisihTahun > batasTahun,
                 kategori: kategoriLabel,
                 batas: batasTahun,
                 selisih: selisihTahun.toFixed(1),
-                terakhir: tglFormat
+                terakhir: tahunTerakhir
             };
         }
 
@@ -622,7 +627,7 @@
                             let itemsHtml = matchingKegiatan.map(k => `
                                 <div class="p-2 bg-slate-50 rounded border border-slate-200 space-y-1">
                                     <div class="text-[10px]">
-                                        <span class="font-bold text-amber-600"><i class="fa-solid fa-calendar-day mr-1"></i>${k.waktu}</span>
+                                        <span class="font-bold text-amber-600"><i class="fa-solid fa-calendar-day mr-1"></i>${formatTahunSaja(k.waktu)}</span>
                                     </div>
                                     <div class="font-semibold text-slate-800 text-[11px] leading-snug">${k.lingkup}</div>
                                     <div class="text-[10px] text-slate-500"><i class="fa-solid fa-building-shield mr-1"></i>${k.instansi}</div>
@@ -633,7 +638,7 @@
                                 <div class="bg-white">
                                     <div class="bg-slate-900 text-white p-3 border-b border-slate-800">
                                         <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 mb-1 uppercase tracking-wider">
-                                            <i class="fa-solid fa-shield-halved mr-1"></i> Wilayah Pelaksanaan
+                                            <i class="fa-solid fa-location-dot mr-1"></i> Wilayah Pelaksanaan
                                         </span>
                                         <h4 class="font-bold text-xs text-amber-400 leading-snug uppercase">${namaWilayah}</h4>
                                         <div class="text-[11px] text-slate-300 mt-1">Total: <b>${count} Kegiatan Latihan</b></div>
@@ -695,7 +700,7 @@
                         <h3 class="font-bold text-xs text-slate-800 line-clamp-1 hover:text-amber-600 transition-colors uppercase">${item.namaWilayah}</h3>
                         <p class="text-[11px] text-slate-500 font-medium line-clamp-2 mt-0.5">${item.kegiatan[0].lingkup}</p>
                         <div class="mt-2 flex justify-between items-center text-[10px] text-slate-400">
-                            <span><i class="fa-solid fa-clock-rotate-left text-amber-500"></i> ${item.kegiatan.length > 1 ? `${item.kegiatan.length} skenario latihan` : item.kegiatan[0].waktu}</span>
+                            <span><i class="fa-solid fa-clock-rotate-left text-amber-500"></i> ${item.kegiatan.length > 1 ? `${item.kegiatan.length} skenario latihan` : formatTahunSaja(item.kegiatan[0].waktu)}</span>
                             <span class="text-amber-600 font-semibold hover:underline">Fokus Wilayah <i class="fa-solid fa-arrow-right"></i></span>
                         </div>
                     `;
@@ -903,7 +908,7 @@
                     <div class="bg-white p-2.5 rounded border border-slate-200 shadow-sm space-y-1">
                         <div class="flex justify-between items-center text-[10px]">
                             <span class="font-bold text-amber-600 uppercase"><i class="fa-solid fa-map-pin mr-1"></i>${item.wilayah}</span>
-                            <span class="text-slate-400">${item.waktu}</span>
+                            <span class="text-slate-400">${formatTahunSaja(item.waktu)}</span>
                         </div>
                         <div class="font-semibold text-slate-800 text-xs">${item.lingkup}</div>
                         <div class="text-[11px] text-slate-500"><i class="fa-solid fa-users-gear mr-1"></i><b>Instansi:</b> ${item.instansi}</div>
@@ -913,7 +918,7 @@
 
             document.getElementById('year-detail-panel').classList.remove('hidden');
         }
-
+        
         function hideYearDetail() {
             const panel = document.getElementById('year-detail-panel');
             if (panel) panel.classList.add('hidden');
